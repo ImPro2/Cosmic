@@ -1,0 +1,16 @@
+# Visual Studio
+
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.user
+**.vcxproj.filters
+
+# Binaries
+
+bin/
+bin-int/
+
+# Cosmic files
+
+**.log
