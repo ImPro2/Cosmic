@@ -21,13 +21,13 @@ namespace Cosmic::WindowsUtils
 
         if (nMsgLen == 0)
         {
-            ::Cosmic::Log::Error("[Cosmic.{}]: Windows Error in [{}:{}:{}].");
-            ::Cosmic::Log::Error("[Cosmic.{}]: Reason: `Unidentified Error Code`");
+            ::Cosmic::Log::Error("[Cosmic.{}]: Windows Error in [{}:{}:{}].", "Default");
+            ::Cosmic::Log::Error("[Cosmic.{}]: Reason: `Unidentified Error Code`", "Default");
         }
         else
         {
-            ::Cosmic::Log::Error("[Cosmic.{}]: Windows Error in [{}:{}:{}].", logMod, file, func, line);
-            ::Cosmic::Log::Error("[Cosmic.{}]: Reason: `{}`", logMod, errorString.c_str());
+            ::Cosmic::Log::Error("[Cosmic.{}]: Windows Error in [{}:{}:{}].", "Default", logMod, file, func, line);
+            ::Cosmic::Log::Error("[Cosmic.{}]: Reason: `{}`", "Default", logMod, errorString.c_str());
         }
 
     }

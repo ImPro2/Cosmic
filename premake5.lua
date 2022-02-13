@@ -39,6 +39,8 @@ workspace "Cosmic"
 		compileas 'Module'
 
 
+include "Dependencies.lua"
+
 group "Engine"
 	group "Engine/Core"
 		include "Engine/Core/Engine"

@@ -2,12 +2,17 @@ module;
 #include "cspch.hpp"
 export module Cosmic.App.Application;
 
+import Cosmic.Base.Types;
+import Cosmic.Base.Tuples;
+import Cosmic.Window.IWindow;
+
 namespace Cosmic
 {
 
     export struct ApplicationInfo
     {
-        const char* Name;
+        const char*       Name;
+        DesktopWindowInfo WindowInfo;
     };
 
     export class Application
@@ -30,6 +35,7 @@ namespace Cosmic
     private:
         inline static Application* sInstance = nullptr;
         ApplicationInfo mInfo;
+        Scope<IDesktopWindow> mWindow;
     };
 
 }

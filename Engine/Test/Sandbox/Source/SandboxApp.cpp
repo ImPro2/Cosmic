@@ -8,6 +8,8 @@
 CS_MODULE_LOG_INFO(Sandbox, SandboxApp);
 
 import Cosmic.App;
+import Cosmic.Base;
+import Cosmic.Window.IWindow;
 
 class SandboxApp: public Cosmic::Application
 {
@@ -15,7 +17,8 @@ public:
     SandboxApp()
     {
         Init({
-            .Name = "TestSandbox"
+            .Name       = "TestSandbox",
+            .WindowInfo = Cosmic::DesktopWindowInfo()
         });
     }
 };

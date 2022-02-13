@@ -23,6 +23,8 @@ namespace Cosmic
     {
         mInfo = std::move(info);
 
+        mWindow = CreateDesktopWindow(mInfo.WindowInfo);
+
         Run();
     }
 
@@ -33,7 +35,10 @@ namespace Cosmic
 
     void Application::Run()
     {
-        while (true);
+        while (true)
+        {
+            mWindow->Update();
+        }
     }
 
 }

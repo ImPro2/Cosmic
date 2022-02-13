@@ -1,0 +1,12 @@
+[submodule "Dependencies/GLFW"]
+	path = Dependencies/GLFW
+	url = https://github.com/ImPro2/glfw
+[submodule "Dependencies/ImGui"]
+	path = Dependencies/ImGui
+	url = https://github.com/ImPro2/imgui
+[submodule "Dependencies/GLM"]
+	path = Dependencies/GLM
+	url = https://github.com/ImPro2/glm
+[submodule "Dependencies/Yaml-CPP"]
+	path = Dependencies/Yaml-CPP
+	url = https://github.com/ImPro2/yaml-cpp

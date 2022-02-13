@@ -26,51 +26,61 @@ namespace Cosmic
     {
     public:
         template<typename ... Args>
-        static void Trace(std::string_view format, const Args& ... args)
+        static void Trace(const char* format, const char* console = "Default", const Args& ... args)
         {
-            LogOut(format, ELogSeverity::Trace, std::make_format_args(args...));
+            LogOut(format, ELogSeverity::Trace, std::make_format_args(args...), console);
         }
 
         template<typename ... Args>
-        static void Debug(const char* format, const Args& ... args)
+        static void Debug(const char* format, const char* console = "Default", const Args& ... args)
         {
-            LogOut(format, ELogSeverity::Debug, std::make_format_args(args...));
+            LogOut(format, ELogSeverity::Debug, std::make_format_args(args...), console);
         }
         
         template<typename ... Args>
-        static void Info(const char* format, const Args& ... args)
+        static void Info(const char* format, const char* console = "Default", const Args& ... args)
         {
-            LogOut(format, ELogSeverity::Info, std::make_format_args(args...));
+            LogOut(format, ELogSeverity::Info, std::make_format_args(args...), console);
         }
         
         template<typename ... Args>
-        static void Warn(const char* format, const Args& ... args)
+        static void Warn(const char* format, const char* console = "Default", const Args& ... args)
         {
-            LogOut(format, ELogSeverity::Warn, std::make_format_args(args...));
+            LogOut(format, ELogSeverity::Warn, std::make_format_args(args...), console);
         }
         
         template<typename ... Args>
-        static void Error(const char* format, const Args& ... args)
+        static void Error(const char* format, const char* console = "Default", const Args& ... args)
         {
-            LogOut(format, ELogSeverity::Error, std::make_format_args(args...));
+            LogOut(format, ELogSeverity::Error, std::make_format_args(args...), console);
         }
         
         template<typename ... Args>
-        static void Critical(const char* format, const Args& ... args)
+        static void Critical(const char* format, const char* console = "Default", const Args& ... args)
         {
-            LogOut(format, ELogSeverity::Critical, std::make_format_args(args...));
+            LogOut(format, ELogSeverity::Critical, std::make_format_args(args...), console);
         }
 
     private:
         template<typename ... Args>
-        static void LogOut(std::string_view format, ELogSeverity severity, std::format_args args)
+        static void LogOut(const char* format, ELogSeverity severity, std::format_args args, const char* console)
         {
             std::string msg = std::vformat(format, args);
 
+            LogToConsole(msg, severity, console);
+            LogToFile(msg, severity);
+        }
+
+        static void LogToConsole(const String& msg, ELogSeverity severity, const char* console)
+        {
             OS::SetConsoleColor(ELogSeverityToConsoleColor(severity));
             OS::Print(msg.c_str());
-            // xOS::Print("\n");
             OS::FlushConsoleLine();
+        }
+
+        static void LogToFile(const String& msg, ELogSeverity severity)
+        {
+            // TODO: Implement
         }
 
         static ConsoleColorPair ELogSeverityToConsoleColor(ELogSeverity severity)

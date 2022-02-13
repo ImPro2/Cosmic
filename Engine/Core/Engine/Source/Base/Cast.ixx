@@ -1,4 +1,5 @@
 module;
+#define _CRT_SECURE_NO_WARNINGS
 #include "cspch.hpp"
 export module Cosmic.Base.Cast;
 
