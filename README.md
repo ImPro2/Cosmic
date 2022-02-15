@@ -1,6 +1,6 @@
 ![Cosmic](/Branding/Logos/Logo.png)
 
-_1680 Lines. 24 Files. 644 Semicolons._
+_2186 Lines. 30 Files. 805 Semicolons._
 
 ---
 
@@ -20,9 +20,9 @@ _Not implemented:_ ㅤ❌
 Feature            | Implemented
 :------------------|:-----------:
 Logging System     | ✅
-File System API    | 🔄
 String Utilities   | ✅
-Console Management | ❌
+Event System       | 🔄
+File System API    | 🔄
 2D Renderer        | ❌
 Windowing System   | ❌
 ECS                | ❌
@@ -34,6 +34,6 @@ Audio System       | ❌
 # Download
 
 Clone the repository by typing `git clone --recursive https://github.com/ImPro2/Cosmic` in the terminal.\
-Next, navigate into the `Scripts` directory and run `WinBuild.bat`, `WinGenProjectFiles.bat`, and `WinRun.bat` to run the engine!
+Next, navigate into the `Scripts` directory and run `WinGenProjects.bat` to generate the Visual Studio project files. Next, open the solution and click the Run button!
 
 ---
