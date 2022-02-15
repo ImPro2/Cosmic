@@ -4,7 +4,7 @@ module;
 #include "GLFW/glfw3.h"
 export module Cosmic.Impl.OS.Windows.IWindowsWindow;
 
-import Cosmic.Window.IWindow;
+import Cosmic.App.IWindow;
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
 

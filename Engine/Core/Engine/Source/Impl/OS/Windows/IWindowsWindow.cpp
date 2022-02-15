@@ -6,7 +6,7 @@ module;
 module Cosmic.Impl.OS.Windows.IWindowsWindow;
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.IWindowsWindow);
 
-import Cosmic.Window.IWindow;
+import Cosmic.App.IWindow;
 import Cosmic.App.Log;
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
@@ -19,7 +19,7 @@ namespace Cosmic
     IWindowsDesktopWindow::IWindowsDesktopWindow(const DesktopWindowInfo& info)
         : IDesktopWindow(info)
     {
-        CS_LOG_INFO("Creating window {}: [{}:{}]", mInfo.Title.c_str(), mInfo.Size.width, mInfo.Size.height);
+        CS_LOG_INFO("Creating window {0}: [{1}:{2}]", mInfo.Title.c_str(), mInfo.Size.width, mInfo.Size.height);
 
         Init();
         Show();

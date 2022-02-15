@@ -1,6 +1,6 @@
 module;
 #include "cspch.hpp"
-export module Cosmic.Window.IWindow;
+export module Cosmic.App.IWindow;
 
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;

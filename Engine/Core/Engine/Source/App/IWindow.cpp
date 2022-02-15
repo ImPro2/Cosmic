@@ -1,6 +1,6 @@
 module;
 #include "cspch.hpp"
-module Cosmic.Window.IWindow;
+module Cosmic.App.IWindow;
 
 import Cosmic.Impl.OS.Windows.IWindowsWindow;
 

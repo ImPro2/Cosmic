@@ -4,7 +4,7 @@ export module Cosmic.App.Application;
 
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
-import Cosmic.Window.IWindow;
+import Cosmic.App.IWindow;
 
 namespace Cosmic
 {
