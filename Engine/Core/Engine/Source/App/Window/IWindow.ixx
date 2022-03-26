@@ -7,6 +7,7 @@ import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
 import Cosmic.App.WindowInfo;
 import Cosmic.App.WindowEvents;
+import Cosmic.Renderer.GraphicsContext;
 
 namespace Cosmic
 {
@@ -85,7 +86,8 @@ namespace Cosmic
         virtual void Init() = 0;
 
     protected:
-        DesktopWindowData mData;
+        DesktopWindowData      mData;
+        Scope<GraphicsContext> mGraphicsContext;
     };
 
     export Scope<IDesktopWindow> CreateDesktopWindow(const DesktopWindowInfo& info, WindowEventCallback callback);

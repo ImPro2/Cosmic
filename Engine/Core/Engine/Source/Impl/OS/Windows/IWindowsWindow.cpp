@@ -42,12 +42,8 @@ namespace Cosmic
 
         mHandle = glfwCreateWindow((int)mData.Size.width, (int)mData.Size.height, mData.Title.c_str(), nullptr, nullptr);
 
-        // temporary
-        {
-            glfwMakeContextCurrent(mHandle);
-            int32 status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-            CS_ASSERT(status, "Failed to initialize Glad!");
-        }
+        mGraphicsContext = CreateGraphicsContext((void*)mHandle);
+        mGraphicsContext->Init();
 
         SetupCallbacks();
 
@@ -163,6 +159,7 @@ namespace Cosmic
     void IWindowsDesktopWindow::Update()
     {
         glfwPollEvents();
+        mGraphicsContext->SwapBuffers();
     }
 
     void IWindowsDesktopWindow::Close()

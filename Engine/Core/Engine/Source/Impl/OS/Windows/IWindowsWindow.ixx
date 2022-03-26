@@ -7,6 +7,7 @@ export module Cosmic.Impl.OS.Windows.IWindowsWindow;
 import Cosmic.App.IWindow;
 import Cosmic.App.WindowInfo;
 import Cosmic.App.WindowEvents;
+import Cosmic.Renderer.GraphicsContext;
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
 
