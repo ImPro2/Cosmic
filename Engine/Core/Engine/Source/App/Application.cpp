@@ -29,7 +29,15 @@ namespace Cosmic
             return this->OnEvent(e);
         });
 
+        ModuleSystem::Init();
+
         Run();
+    }
+
+    void Application::Shutdown()
+    {
+        mWindow->Close();
+        ModuleSystem::Shutdown();
     }
 
     void Application::Close()
@@ -43,6 +51,8 @@ namespace Cosmic
         {
             mWindow->Update();
         }
+
+        Shutdown();
     }
 
     void Application::OnEvent(const WindowEvent& e)

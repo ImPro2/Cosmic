@@ -7,6 +7,7 @@ import Cosmic.Base.Tuples;
 import Cosmic.App.Events;
 import Cosmic.App.WindowInfo;
 import Cosmic.App.IWindow;
+import Cosmic.App.Module;
 
 namespace Cosmic
 {
@@ -27,6 +28,7 @@ namespace Cosmic
 
     protected:
         void Init(ApplicationInfo&& info);
+        void Shutdown();
 
     private:
         void Run();

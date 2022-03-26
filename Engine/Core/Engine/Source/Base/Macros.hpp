@@ -48,18 +48,19 @@
 // Debug/Assertions
 
 #if defined(CS_COMPILER_MSVC)
-#    define CS_BREAK()       __debugbreak()
-#    define CS_FORCEINLINE   __forceinline
-#    define CS_UNREACHABLE() __assume(0)
+#    define CS_BREAK()            __debugbreak()
+#    define CS_FORCEINLINE        __forceinline
+#    define CS_UNREACHABLE()      __assume(0)
+#    define CS_TYPENAME_TO_STR(T) typeid(T).name()
 #elif defined(CS_COMPILER_CLANG)
-#    define CS_BREAK()       __builtin_debugtrap()
-#    define CS_FORCEINLINE   __attribute__((always_inline))
-#    define CS_UNREACHABLE() __builtin_unreachable()
+#    define CS_BREAK()            __builtin_debugtrap()
+#    define CS_FORCEINLINE        __attribute__((always_inline))
+#    define CS_UNREACHABLE()      __builtin_unreachable()
 #elif defined(CS_COMPILER_GCC)
 #    include <csignal>
-#    define CS_BREAK()       std::raise(SIGTRAP)
-#    define CS_FORCEINLINE   __attribute__((always_inline)) inline
-#    define CS_UNREACHABLE() __builtin_unreachable()
+#    define CS_BREAK()            std::raise(SIGTRAP)
+#    define CS_FORCEINLINE        __attribute__((always_inline)) inline
+#    define CS_UNREACHABLE()      __builtin_unreachable()
 #endif
 
 #ifdef CS_DEBUG
