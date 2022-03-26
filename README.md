@@ -1,6 +1,6 @@
 ![Cosmic](/Branding/Logos/Logo.png)
 
-_2186 Lines. 30 Files. 805 Semicolons._
+2730 Lines. 32 Files. 965 Semicolons._
 
 ---
 
@@ -21,7 +21,7 @@ Feature            | Implemented
 :------------------|:-----------:
 Logging System     | ✅
 String Utilities   | ✅
-Event System       | 🔄
+Event System       | ✅
 File System API    | 🔄
 2D Renderer        | ❌
 Windowing System   | ❌

@@ -91,3 +91,7 @@ namespace _CosmicModuleLogInfo                                      \
         return #mod;                                                \
     }                                                               \
 }
+
+// Events
+
+#define CS_DISPATCH_EVENT(type, listener) dispatcher.Dispatch<##type##>([this](const type##& e) { this->##listener##(e); })

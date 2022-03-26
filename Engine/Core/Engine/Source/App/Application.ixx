@@ -4,6 +4,8 @@ export module Cosmic.App.Application;
 
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
+import Cosmic.App.Events;
+import Cosmic.App.WindowInfo;
 import Cosmic.App.IWindow;
 
 namespace Cosmic
@@ -29,13 +31,23 @@ namespace Cosmic
     private:
         void Run();
 
+    protected:
+        // Make this method protected so that the class that derives from this class
+        // can call this method when it overrides it.
+        virtual void OnEvent(const WindowEvent& e);
+
+    private:
+        void OnWindowResize(const WindowResizeEvent& e);
+        void OnWindowClose(const WindowCloseEvent& e);
+
     public:
         static Application& Get() { return *sInstance; }
 
     private:
         inline static Application* sInstance = nullptr;
-        ApplicationInfo mInfo;
-        Scope<IDesktopWindow> mWindow;
+        bool                       mRunning  = true;
+        ApplicationInfo            mInfo;
+        Scope<IDesktopWindow>      mWindow;
     };
 
 }

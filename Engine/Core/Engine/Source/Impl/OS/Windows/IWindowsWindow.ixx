@@ -5,6 +5,8 @@ module;
 export module Cosmic.Impl.OS.Windows.IWindowsWindow;
 
 import Cosmic.App.IWindow;
+import Cosmic.App.WindowInfo;
+import Cosmic.App.WindowEvents;
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
 
@@ -14,7 +16,7 @@ namespace Cosmic
     export class IWindowsDesktopWindow : public IDesktopWindow
     {
     public:
-        IWindowsDesktopWindow(const DesktopWindowInfo& info);
+        IWindowsDesktopWindow(const DesktopWindowInfo& info, WindowEventCallback callback);
         virtual ~IWindowsDesktopWindow();
 
     protected:
