@@ -22,8 +22,8 @@ Feature            | Implemented
 Logging System     | ✅
 String Utilities   | ✅
 Event System       | ✅
+2D Renderer        | 🔄
 File System API    | 🔄
-2D Renderer        | ❌
 Windowing System   | ❌
 ECS                | ❌
 Scene System       | ❌
