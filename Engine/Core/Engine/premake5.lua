@@ -22,6 +22,7 @@ project "Engine"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.GLM}",
+		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.YamlCPP}",
 	}

@@ -10,21 +10,21 @@ namespace Cosmic
         sModules.reserve(100);
     }
 
-    void ModuleSystem::Shutdown();
+    void ModuleSystem::Shutdown()
     {
         sModules.clear();
     }
 
     void ModuleSystem::OnUpdate()
     {
-        for (Scope<Module> module : sModules)
+        for (Module* module : sModules)
             module->OnUpdate();
     }
 
     void ModuleSystem::OnEvent(const WindowEvent& e)
     {
-        for (Scope<Module> module : sModules)
-            module->OnEvent(windowEvent);
+        for (Module* module : sModules)
+            module->OnEvent(e);
     }
 
 }

@@ -428,25 +428,7 @@ namespace Cosmic
     void OS::SetConsoleColor(ConsoleColorPair color)
     {
         WORD wAttributes = Utils::EConsoleColorToWindowsConsoleColor(color);
-        //xCS_WINDOWS_CALL(SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wAttributes), "Unable to set the console color.");
-
-        auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
-
-        auto dwErrorCode = GetLastError();
-        if (dwErrorCode != 0 && dwErrorCode != 997)
-        {
-            ::Cosmic::WindowsUtils::OutputWindowsErrorCode(dwErrorCode, _CosmicModuleLogInfo::ModuleLogName(), __FILE__, __FUNCTION__, __LINE__);
-            CS_BREAK();
-        }
-
-        SetConsoleTextAttribute(handle, wAttributes);
-
-        dwErrorCode = GetLastError();
-        if (dwErrorCode != 0 && dwErrorCode != 997)
-        {
-            ::Cosmic::WindowsUtils::OutputWindowsErrorCode(dwErrorCode, _CosmicModuleLogInfo::ModuleLogName(), __FILE__, __FUNCTION__, __LINE__);
-            CS_BREAK();
-        }
+        CS_WINDOWS_CALL(SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wAttributes), "Unable to set the console color.");
     }
 
     void OS::Print(const char* text)

@@ -49,6 +49,7 @@ namespace Cosmic
     {
         while (mRunning)
         {
+            ModuleSystem::OnUpdate();
             mWindow->Update();
         }
 
@@ -61,6 +62,8 @@ namespace Cosmic
 
         CS_DISPATCH_EVENT(WindowCloseEvent, OnWindowClose);
         CS_DISPATCH_EVENT(WindowResizeEvent, OnWindowResize);
+
+        ModuleSystem::OnEvent(e);
     }
 
     void Application::OnWindowResize(const WindowResizeEvent& e)

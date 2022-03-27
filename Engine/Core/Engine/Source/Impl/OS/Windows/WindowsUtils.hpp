@@ -14,7 +14,7 @@ do\
 {\
     func;\
     auto dwErrorCode = GetLastError();\
-    if (dwErrorCode != 0 && dwErrorCode != 997)\
+    if (dwErrorCode != 0 && dwErrorCode != 997 && dwErrorCode != 2)\
     {\
         CS_LOG_ERROR(__VA_ARGS__);\
         ::Cosmic::WindowsUtils::OutputWindowsErrorCode(dwErrorCode, _CosmicModuleLogInfo::ModuleLogName(), __FILE__, __FUNCTION__, __LINE__);\

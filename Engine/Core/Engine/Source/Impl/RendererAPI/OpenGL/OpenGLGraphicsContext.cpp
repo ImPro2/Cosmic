@@ -7,6 +7,8 @@ CS_MODULE_LOG_INFO(Cosmic, Cosmic.Impl.RendererAPI.OpenGL.OpenGLGraphicsContext)
 
 import Cosmic.Base;
 import Cosmic.App.Log;
+import Cosmic.App.Module;
+import Cosmic.Impl.RendererAPI.OpenGL.OpenGLTestModule;
 
 namespace Cosmic
 {
@@ -30,6 +32,8 @@ namespace Cosmic
         CS_LOG_DEBUG("    Vendor:   {}", mInfo.Vendor);
         CS_LOG_DEBUG("    Renderer: {}", mInfo.Renderer);
         CS_LOG_DEBUG("    Version:  {}", mInfo.Version);
+
+        ModuleSystem::Add<OpenGLTestModule>();
     }
 
     void OpenGLGraphicsContext::SwapBuffers()
