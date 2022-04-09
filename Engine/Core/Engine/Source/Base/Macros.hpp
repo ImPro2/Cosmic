@@ -64,14 +64,15 @@
 #endif
 
 #ifdef CS_DEBUG
-#   define CS_ASSERT(Condition, Message)                            \
-    do                                                              \
-    {                                                               \
-        if (!(Condition))                                           \
-        {                                                           \
-            CS_LOG_ERROR("Assertion Failed [{}:{}:{}]:");           \
-            CS_LOG_ERROR(Message);                                  \
-        }                                                           \
+#   define CS_ASSERT(Condition, Message)                                                    \
+    do                                                                                      \
+    {                                                                                       \
+        if (!(Condition))                                                                   \
+        {                                                                                   \
+            CS_LOG_ERROR("Assertion Failed [{}:{}:{}]:", __FILE__, __FUNCTION__, __LINE__); \
+            CS_LOG_ERROR(Message);                                                          \
+            CS_BREAK();                                                                     \
+        }                                                                                   \
     } while(0)
 #endif
 

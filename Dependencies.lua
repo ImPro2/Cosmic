@@ -10,6 +10,6 @@ IncludeDir = {}
 IncludeDir["GLFW"]      = "%{wks.location}/Dependencies/GLFW/include"
 IncludeDir["Glad"]      = "%{wks.location}/Dependencies/Glad/include"
 IncludeDir["GLM"]       = "%{wks.location}/Dependencies/GLM/include"
-IncludeDir["stb_image"] = "%{wks.location}/Dependencies/stb_image"
+IncludeDir["stb_image"] = "%{wks.location}/Dependencies/stb_image/include"
 IncludeDir["YamlCPP"]   = "%{wks.location}/Dependencies/Yaml-CPP/include"
 IncludeDir["ImGui"]     = "%{wks.location}/Dependencies/ImGui"

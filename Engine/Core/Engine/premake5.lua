@@ -32,5 +32,6 @@ project "Engine"
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"Yaml-CPP"
+		"Yaml-CPP",
+		"stb_image"
 	}

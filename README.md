@@ -1,6 +1,6 @@
 ![Cosmic](/Branding/Logos/Logo.png)
 
-2730 Lines. 32 Files. 965 Semicolons._
+_3578 Lines. 50 Files. 1310 Semicolons._
 
 ---
 

@@ -43,7 +43,8 @@ namespace Cosmic
         void OnWindowClose(const WindowCloseEvent& e);
 
     public:
-        static Application& Get() { return *sInstance; }
+        static Application&   Get()       { return *sInstance;    }
+        IDesktopWindow* GetWindow() { return mWindow.get(); }
 
     private:
         inline static Application* sInstance = nullptr;
