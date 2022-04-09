@@ -15,6 +15,7 @@ import Cosmic.Base;
 import Cosmic.App.Application;
 import Cosmic.App.IWindow;
 import Cosmic.Impl.RendererAPI.OpenGL.OpenGLErrors;
+import Cosmic.Renderer.Buffer;
 
 //#define GL_CALL(fn) GLClearError(); fn; CS_ASSERT(GLLogCall(), "a")
 #define GL_CALL(fn)                                                                                                       \
@@ -55,17 +56,25 @@ namespace Cosmic
 
             uint32 indices[] = { 0, 1, 2, 2, 3, 0 };
 
+
+
             // vertex buffer
 
-            GL_CALL(glGenBuffers(1, &mVertexBuffer));
-            GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer));
-            GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, (const void*)vertices, GL_STATIC_DRAW));
+            mVertexBuffer = CreateVertexBuffer(vertices, sizeof(Vertex) * 4);
+            mVertexBuffer->Bind();
+            //xGL_CALL(glGenBuffers(1, &mVertexBuffer));
+            //xGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer));
+            //xGL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, (const void*)vertices, GL_STATIC_DRAW));
 
             // index buffer
 
-            GL_CALL(glGenBuffers(1, &mIndexBuffer));
-            GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer));
-            GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * 6, (const void*)indices, GL_STATIC_DRAW));
+            mIndexBuffer = CreateIndexBuffer(indices, 6);
+            mIndexBuffer->Bind();
+            //xGL_CALL(glGenBuffers(1, &mIndexBuffer));
+            //xGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer));
+            //xGL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * 6, (const void*)indices, GL_STATIC_DRAW));
+
+
 
             // vertex attributes
 
@@ -171,9 +180,9 @@ namespace Cosmic
             if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
                 mCamPos.y -= 0.001f;
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-                mRotation += 1;
-            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
                 mRotation -= 1;
+            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+                mRotation += 1;
             if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
                 mZoomLevel += 0.001f;
             if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
@@ -204,12 +213,12 @@ namespace Cosmic
 
             GL_CALL(glUseProgram(mShaderProgram));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
-            GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer));
-            GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer));
+            mVertexBuffer->Bind();
+            mIndexBuffer->Bind();
 
             // rendering
 
-            GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
+            GL_CALL(glDrawElements(GL_TRIANGLES, mIndexBuffer->GetCount(), GL_UNSIGNED_INT, NULL));
         }
 
         unsigned int CompileShader(unsigned int type, const char* src)
@@ -255,14 +264,15 @@ namespace Cosmic
         }
 
     private:
-        GLuint    mVertexBuffer;
-        GLuint    mIndexBuffer;
-        GLuint    mShaderProgram;
-        GLuint    mTexture;
-        float32   mZoomLevel = 1.0f;
-        glm::vec3 mPosition = { 0.0f, 0.0f, 0.0f };
-        glm::vec3 mCamPos   = { 0.0f, 0.0f, 0.0f };
-        float32   mRotation = 0.0f;
+        //GLuint    mVertexBuffer;
+        Ref<VertexBuffer> mVertexBuffer;
+        Ref<IndexBuffer>  mIndexBuffer;
+        GLuint            mShaderProgram;
+        GLuint            mTexture;
+        float32           mZoomLevel = 1.0f;
+        glm::vec3         mPosition = { 0.0f, 0.0f, 0.0f };
+        glm::vec3         mCamPos   = { 0.0f, 0.0f, 0.0f };
+        float32           mRotation = 0.0f;
     };
 
 }
