@@ -16,6 +16,7 @@ namespace Cosmic
         virtual ~OpenGLVertexBuffer();
 
         void SetData(const void* data, uint32 size, uint32 offset) override;
+        void SetLayout(const VertexBufferLayout& layout)           override;
 
         void Bind()   const override;
         void Unbind() const override;

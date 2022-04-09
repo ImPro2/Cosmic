@@ -6,6 +6,24 @@ module Cosmic.Impl.RendererAPI.OpenGL.OpenGLBuffer;
 namespace Cosmic
 {
 
+    static GLenum EShaderDataTypeToOpenGLType(EShaderDataType type)
+    {
+        switch (type)
+        {
+            case EShaderDataType::Float:    return GL_FLOAT;
+            case EShaderDataType::Float2:   return GL_FLOAT;
+            case EShaderDataType::Float3:   return GL_FLOAT;
+            case EShaderDataType::Float4:   return GL_FLOAT;
+            case EShaderDataType::Mat3:     return GL_FLOAT;
+            case EShaderDataType::Mat4:     return GL_FLOAT;
+            case EShaderDataType::Int:      return GL_INT;
+            case EShaderDataType::Int2:     return GL_INT;
+            case EShaderDataType::Int3:     return GL_INT;
+            case EShaderDataType::Int4:     return GL_INT;
+            case EShaderDataType::Bool:     return GL_BOOL;
+        }
+    }
+
     static GLenum EBufferUsageToOpenGLBufferUsage(EBufferUsage usage)
     {
         switch (usage)
@@ -40,6 +58,30 @@ namespace Cosmic
     void OpenGLVertexBuffer::SetData(const void* data, uint32 size, uint32 offset)
     {
         glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+    }
+
+    void OpenGLVertexBuffer::SetLayout(const VertexBufferLayout& layout)
+    {
+        mLayout = layout;
+
+        glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
+
+        uint32 index = 0;
+
+        for (const auto& element : layout)
+        {
+            glEnableVertexAttribArray(index);
+            glVertexAttribPointer(
+                index,
+                element.ComponentCount,
+                EShaderDataTypeToOpenGLType(element.Type),
+                element.Normalized ? GL_TRUE : GL_FALSE,
+                layout.GetStride(),
+                (GLvoid*)element.Offset
+            );
+
+            index++;
+        }
     }
 
     void OpenGLVertexBuffer::Bind() const

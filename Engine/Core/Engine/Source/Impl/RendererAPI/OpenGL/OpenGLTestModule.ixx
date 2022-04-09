@@ -56,32 +56,22 @@ namespace Cosmic
 
             uint32 indices[] = { 0, 1, 2, 2, 3, 0 };
 
-
-
-            // vertex buffer
-
             mVertexBuffer = CreateVertexBuffer(vertices, sizeof(Vertex) * 4);
-            mVertexBuffer->Bind();
-            //xGL_CALL(glGenBuffers(1, &mVertexBuffer));
-            //xGL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer));
-            //xGL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, (const void*)vertices, GL_STATIC_DRAW));
-
-            // index buffer
+            mVertexBuffer->SetLayout({
+                VertexBufferElement(EShaderDataType::Float2),
+                VertexBufferElement(EShaderDataType::Float2)
+            });
 
             mIndexBuffer = CreateIndexBuffer(indices, 6);
-            mIndexBuffer->Bind();
-            //xGL_CALL(glGenBuffers(1, &mIndexBuffer));
-            //xGL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer));
-            //xGL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * 6, (const void*)indices, GL_STATIC_DRAW));
 
 
 
-            // vertex attributes
-
-            GL_CALL(glEnableVertexAttribArray(0));
-            GL_CALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(0 * sizeof(float32))));
-            GL_CALL(glEnableVertexAttribArray(1));
-            GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2 * sizeof(float32))));
+            //x// vertex attributes
+            //x
+            //xGL_CALL(glEnableVertexAttribArray(0));
+            //xGL_CALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(0 * sizeof(float32))));
+            //xGL_CALL(glEnableVertexAttribArray(1));
+            //xGL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(2 * sizeof(float32))));
 
             // textures
 
