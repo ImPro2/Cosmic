@@ -18,6 +18,7 @@ import Cosmic.Impl.RendererAPI.OpenGL.OpenGLErrors;
 import Cosmic.Impl.RendererAPI.OpenGL.OpenGLShader;
 import Cosmic.Renderer.Buffer;
 import Cosmic.Renderer.Shader;
+import Cosmic.Renderer.Texture;
 
 //#define GL_CALL(fn) GLClearError(); fn; CS_ASSERT(GLLogCall(), "a")
 #define GL_CALL(fn)                                                                                                       \
@@ -68,21 +69,24 @@ namespace Cosmic
 
             // textures
 
-            int32 width, height, nChannels;
-            uint8* data = stbi_load("C:\\dev\\Cosmic\\Branding\\Logos\\Logo.png", &width, &height, &nChannels, 0);
+            mTexture = CreateTexture2D("C:/dev/Cosmic/Branding/Logos/Logo.png");
+            mTexture->Bind(0);
 
-            GL_CALL(glGenTextures(1, &mTexture));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
-
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-
-            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
-            GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-
-            stbi_image_free(data);
+            //xint32 width, height, nChannels;
+            //xuint8* data = stbi_load("C:\\dev\\Cosmic\\Branding\\Logos\\Logo.png", &width, &height, &nChannels, 0);
+            //x
+            //xGL_CALL(glGenTextures(1, &mTexture));
+            //xGL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
+            //x
+            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            //x
+            //xGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+            //xGL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
+            //x
+            //xstbi_image_free(data);
 
             // shaders
 
@@ -150,19 +154,11 @@ namespace Cosmic
             mShader->SetMat4("uTransform", transform);
             mShader->SetFloat3("uColor", color);
 
-            //xOpenGLShader* openGLShader  = static_cast<OpenGLShader*>(mShader.get());
-            //xuint32        shaderProgram = openGLShader->GetRendererID();
-            //xGL_CALL(GLint vpLocation = glGetUniformLocation(shaderProgram, "uViewProjection"));
-            //xGL_CALL(GLint trLocation = glGetUniformLocation(shaderProgram, "uTransform"));
-            //xGL_CALL(GLint clLocation = glGetUniformLocation(shaderProgram, "uColor"));
-            //xGL_CALL(glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(viewProj)));
-            //xGL_CALL(glUniformMatrix4fv(trLocation, 1, GL_FALSE, glm::value_ptr(transform)));
-            //xGL_CALL(glUniform3f(clLocation, color.r, color.b, color.g));
-
             // binding
 
             mShader->Bind();
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
+            mTexture->Bind(0);
+            //xGL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
             mVertexBuffer->Bind();
             mIndexBuffer->Bind();
 
@@ -175,7 +171,8 @@ namespace Cosmic
         Ref<VertexBuffer> mVertexBuffer;
         Ref<IndexBuffer>  mIndexBuffer;
         Ref<Shader>       mShader;
-        GLuint            mTexture;
+        Ref<Texture2D>    mTexture;
+        //xGLuint            mTexture;
         float32           mZoomLevel = 1.0f;
         glm::vec3         mPosition = { 0.0f, 0.0f, 0.0f };
         glm::vec3         mCamPos   = { 0.0f, 0.0f, 0.0f };
