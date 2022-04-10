@@ -50,10 +50,12 @@ namespace Cosmic
         UnorderedMap<GLenum, String> PreProcess(const String& source);
         GLenum                       CreateProgram();
         GLenum                       CreateAndCompileShader(GLenum type, const String& source);
+        int32                        GetUniformLocation(const String& name);
 
     private:
         uint32                       mRendererID;
         UnorderedMap<GLenum, String> mOpenGLSourceCode; // for debugging purposes, I think
+        UnorderedMap<String, int32> mUniformLocationCache;
     };
 
 }

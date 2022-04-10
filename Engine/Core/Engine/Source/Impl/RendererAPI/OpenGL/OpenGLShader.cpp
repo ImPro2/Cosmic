@@ -2,6 +2,7 @@ module;
 #include "cspch.hpp"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 module Cosmic.Impl.RendererAPI.OpenGL.OpenGLShader;
 
@@ -190,82 +191,106 @@ namespace Cosmic
         return shaderID;
     }
 
+    int32 OpenGLShader::GetUniformLocation(const String& name)
+    {
+        if (mUniformLocationCache.contains(name))
+            return mUniformLocationCache.at(name);
 
+        int32 loc = glGetUniformLocation(mRendererID, name.c_str());
+        if (loc == -1) CS_LOG_ERROR("Unidentified uniform '{}'", name);
 
+        mUniformLocationCache[name] = loc;
+        return loc;
+    }
 
     void OpenGLShader::SetFloat(const String& name, float32 value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform1f(loc, value);
     }
 
     void OpenGLShader::SetFloat2(const String& name, const float2& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform2f(loc, value.x, value.y);
     }
 
     void OpenGLShader::SetFloat3(const String& name, const float3& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform3f(loc, value.x, value.y, value.z);
     }
 
     void OpenGLShader::SetFloat4(const String& name, const float4& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform4f(loc, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShader::SetVec2(const String& name, const glm::vec2& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform2f(loc, value.x, value.y);
     }
 
     void OpenGLShader::SetVec3(const String& name, const glm::vec3& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform3f(loc, value.x, value.y, value.z);
     }
 
     void OpenGLShader::SetVec4(const String& name, const glm::vec4& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform4f(loc, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShader::SetInt(const String& name, int32 value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform1i(loc, value);
     }
 
     void OpenGLShader::SetInt2(const String& name, const int2& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform2i(loc, value.x, value.y);
     }
 
     void OpenGLShader::SetInt3(const String& name, const int3& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform3i(loc, value.x, value.y, value.z);
     }
 
     void OpenGLShader::SetInt4(const String& name, const int4& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform4i(loc, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShader::SetMat2(const String& name, const glm::mat2& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniformMatrix2fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void OpenGLShader::SetMat3(const String& name, const glm::mat3& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void OpenGLShader::SetMat4(const String& name, const glm::mat4& value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void OpenGLShader::SetBool(const String& name, bool value)
     {
-
+        int32 loc = GetUniformLocation(name);
+        glUniform1i(loc, value ? 1 : 0);
     }
 
 }

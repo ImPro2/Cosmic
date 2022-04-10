@@ -86,46 +86,7 @@ namespace Cosmic
 
             // shaders
 
-            const char* vertexShaderSource = R"(
-            #version 330 core
-            
-            layout(location = 0) in vec2 aPosition;
-            layout(location = 1) in vec2 aTexCoord;
-
-            out vec2 vTexCoord;
-            out vec4 vColor;
-
-            uniform mat4 uViewProjection;
-            uniform mat4 uTransform;
-            uniform vec3 uColor;
-
-            void main()
-            {
-                vTexCoord   = aTexCoord;
-                vColor      = vec4(uColor, 1.0);
-                gl_Position = uViewProjection * uTransform * vec4(aPosition, 0.0, 1.0);
-            })";
-
-            const char* fragmentShaderSource = R"(
-            #version 330 core
-
-            layout(location = 0) out vec4 aFragColor;
-
-            in vec2 vTexCoord;
-            in vec4 vColor;
-
-            uniform sampler2D uTexture;
-
-            void main()
-            {
-                //aFragColor = texture(uTexture, vTexCoord);
-                aFragColor = vColor;
-            })";
-
-            //xCreateShaders(vertexShaderSource, fragmentShaderSource);
-            //xGL_CALL(glUseProgram(mShaderProgram));
-
-            mShader = CreateShader("Shader", vertexShaderSource, fragmentShaderSource);
+            mShader = CreateShader("C:/dev/Cosmic/Engine/Core/Engine/Assets/Shaders/Standard2D.glsl");
             mShader->Bind();
         }
 
@@ -185,17 +146,18 @@ namespace Cosmic
             view                = glm::scale(view, glm::vec3(mZoomLevel, mZoomLevel, 1));
             glm::mat4 viewProj  = proj * view;
 
-            mShader->Bind();
+            mShader->SetMat4("uViewProjection", viewProj);
+            mShader->SetMat4("uTransform", transform);
+            mShader->SetFloat3("uColor", color);
 
-            OpenGLShader* openGLShader  = static_cast<OpenGLShader*>(mShader.get());
-            uint32        shaderProgram = openGLShader->GetRendererID();
-
-            GL_CALL(GLint vpLocation = glGetUniformLocation(shaderProgram, "uViewProjection"));
-            GL_CALL(GLint trLocation = glGetUniformLocation(shaderProgram, "uTransform"));
-            GL_CALL(GLint clLocation = glGetUniformLocation(shaderProgram, "uColor"));
-            GL_CALL(glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(viewProj)));
-            GL_CALL(glUniformMatrix4fv(trLocation, 1, GL_FALSE, glm::value_ptr(transform)));
-            GL_CALL(glUniform3f(clLocation, color.r, color.b, color.g));
+            //xOpenGLShader* openGLShader  = static_cast<OpenGLShader*>(mShader.get());
+            //xuint32        shaderProgram = openGLShader->GetRendererID();
+            //xGL_CALL(GLint vpLocation = glGetUniformLocation(shaderProgram, "uViewProjection"));
+            //xGL_CALL(GLint trLocation = glGetUniformLocation(shaderProgram, "uTransform"));
+            //xGL_CALL(GLint clLocation = glGetUniformLocation(shaderProgram, "uColor"));
+            //xGL_CALL(glUniformMatrix4fv(vpLocation, 1, GL_FALSE, glm::value_ptr(viewProj)));
+            //xGL_CALL(glUniformMatrix4fv(trLocation, 1, GL_FALSE, glm::value_ptr(transform)));
+            //xGL_CALL(glUniform3f(clLocation, color.r, color.b, color.g));
 
             // binding
 
@@ -209,54 +171,10 @@ namespace Cosmic
             GL_CALL(glDrawElements(GL_TRIANGLES, mIndexBuffer->GetCount(), GL_UNSIGNED_INT, NULL));
         }
 
-        //xunsigned int CompileShader(unsigned int type, const char* src)
-        //x{
-        //x    GL_CALL(unsigned int id = glCreateShader(type));
-        //x    GL_CALL(glShaderSource(id, 1, &src, nullptr));
-        //x    GL_CALL(glCompileShader(id));
-        //x
-        //x    int result;
-        //x    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-        //x    if (result == GL_FALSE)
-        //x    {
-        //x        int length;
-        //x        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        //x        char* message = (char*)alloca(length * sizeof(char*));
-        //x        glGetShaderInfoLog(id, length, &length, message);
-        //x
-        //x        const char* shaderTypeStr = type == GL_VERTEX_SHADER ? "vertex" : "fragment";
-        //x
-        //x        CS_LOG_ERROR("[OpenGL Error]: Failed to compile {} shader. Reason: {}", shaderTypeStr, message);
-        //x
-        //x        glDeleteShader(id);
-        //x        CS_BREAK();
-        //x        return 0;
-        //x    }
-        //x
-        //x    return id;
-        //x}
-        //x
-        //xvoid CreateShaders(const char* vertexShader, const char* fragmentShader)
-        //x{
-        //x    GL_CALL(mShaderProgram = glCreateProgram());
-        //x    GL_CALL(unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader));
-        //x    GL_CALL(unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader));
-        //x
-        //x    GL_CALL(glAttachShader(mShaderProgram, vs));
-        //x    GL_CALL(glAttachShader(mShaderProgram, fs));
-        //x    GL_CALL(glLinkProgram(mShaderProgram));
-        //x    GL_CALL(glValidateProgram(mShaderProgram));
-        //x
-        //x    GL_CALL(glDeleteShader(vs));
-        //x    GL_CALL(glDeleteShader(fs));
-        //x}
-
     private:
-        //GLuint    mVertexBuffer;
         Ref<VertexBuffer> mVertexBuffer;
         Ref<IndexBuffer>  mIndexBuffer;
         Ref<Shader>       mShader;
-        //xGLuint            mShaderProgram;
         GLuint            mTexture;
         float32           mZoomLevel = 1.0f;
         glm::vec3         mPosition = { 0.0f, 0.0f, 0.0f };
