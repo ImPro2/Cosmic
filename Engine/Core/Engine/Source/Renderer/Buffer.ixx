@@ -4,25 +4,10 @@ module;
 export module Cosmic.Renderer.Buffer;
 
 import Cosmic.Base;
+import Cosmic.Renderer.Shader;
 
 namespace Cosmic
 {
-
-    export enum class EShaderDataType
-    {
-        Float,
-        Float2,
-        Float3,
-        Float4,
-        Int,
-        Int2,
-        Int3,
-        Int4,
-        Mat2,
-        Mat3,
-        Mat4,
-        Bool
-    };
 
     export struct VertexBufferElement
     {

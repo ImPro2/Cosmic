@@ -4,6 +4,7 @@ module;
 export module Cosmic.Impl.RendererAPI.OpenGL.OpenGLBuffer;
 
 import Cosmic.Renderer.Buffer;
+import Cosmic.Renderer.Shader;
 import Cosmic.Base;
 
 namespace Cosmic
