@@ -7,6 +7,15 @@ import Cosmic.Impl.RendererAPI.OpenGLRendererAPI;
 namespace Cosmic
 {
 
+    RendererAPI::RendererAPI(ERendererAPI api)
+    {
+        sAPI = api;
+    }
+
+    RendererAPI::~RendererAPI()
+    {
+    }
+
     ERendererAPI PlatformNativeRendererAPI()
     {
 #if   defined(CS_PLATFORM_WINDOWS)

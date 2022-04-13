@@ -11,7 +11,7 @@ namespace Cosmic
     export class RenderCommand
     {
     public:
-        static void Init(ERendererAPI api = PlatformNativeRendererAPI());
+        static void Init(ERendererAPI api);
         static void Shutdown();
         static void SetViewport(uint32 x, uint32 y, uint32 width, uint32 height);
         static void SetClearColor(float4 color);

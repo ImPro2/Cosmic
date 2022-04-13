@@ -7,6 +7,15 @@ CS_MODULE_LOG_INFO(Sandbox, SandboxApp);
 namespace Cosmic
 {
 
+    OpenGLRendererAPI::OpenGLRendererAPI(ERendererAPI api)
+        : RendererAPI(api)
+    {
+    }
+
+    OpenGLRendererAPI::~OpenGLRendererAPI()
+    {
+    }
+
     void OpenGLRendererAPI::Init()
     {
 
@@ -36,14 +45,14 @@ namespace Cosmic
     {
         switch (primitiveTopology)
         {
-            PointList:       glDrawArrays  (GL_POINTS,         0, count);                     break;
-            PointIndexed:    glDrawElements(GL_POINTS,     count, GL_UNSIGNED_INT, (void*)0); break;
-            LineList:        glDrawArrays  (GL_LINES,          0, count);                     break;
-            LineIndexed:     glDrawElements(GL_LINES,      count, GL_UNSIGNED_INT, (void*)0); break;
-            LineStrip:       glDrawArrays  (GL_LINE_STRIP,     0, count);                     break;
-            TriangleList:    glDrawArrays  (GL_TRIANGLES,      0, count);                     break;
-            TriangleIndexed: glDrawElements(GL_TRIANGLES,  count, GL_UNSIGNED_INT, (void*)0); break;
-            TriangleStrip:   glDrawArrays  (GL_TRIANGLE_STRIP, 0, count);                     break;
+            case EPrimitiveTopology::PointList:       glDrawArrays  (GL_POINTS,         0, count);                     return;
+            case EPrimitiveTopology::PointIndexed:    glDrawElements(GL_POINTS,     count, GL_UNSIGNED_INT, (void*)0); return;
+            case EPrimitiveTopology::LineList:        glDrawArrays  (GL_LINES,          0, count);                     return;
+            case EPrimitiveTopology::LineIndexed:     glDrawElements(GL_LINES,      count, GL_UNSIGNED_INT, (void*)0); return;
+            case EPrimitiveTopology::LineStrip:       glDrawArrays  (GL_LINE_STRIP,     0, count);                     return;
+            case EPrimitiveTopology::TriangleList:    glDrawArrays  (GL_TRIANGLES,      0, count);                     return;
+            case EPrimitiveTopology::TriangleIndexed: glDrawElements(GL_TRIANGLES,  count, GL_UNSIGNED_INT, (void*)0); return;
+            case EPrimitiveTopology::TriangleStrip:   glDrawArrays  (GL_TRIANGLE_STRIP, 0, count);                     return;
         }
     }
 

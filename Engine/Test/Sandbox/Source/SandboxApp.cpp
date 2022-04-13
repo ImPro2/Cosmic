@@ -22,10 +22,7 @@ class SandboxApp: public Cosmic::Application
 public:
     SandboxApp()
     {
-        Init({
-            .Name       = "TestSandbox",
-            .WindowInfo = Cosmic::DesktopWindowInfo()
-        });
+        Init({});
     }
 };
 

@@ -24,11 +24,9 @@ namespace Cosmic
     {
         mInfo = std::move(info);
 
-        mWindow = CreateDesktopWindow(mInfo.WindowInfo, [this](const WindowEvent& e)
-        {
-            return this->OnEvent(e);
-        });
+        RenderCommand::Init(mInfo.RendererBackend);
 
+        mWindow = CreateDesktopWindow(mInfo.WindowInfo, [this](const WindowEvent& e) { return this->OnEvent(e); });
         ModuleSystem::Init();
 
         Run();

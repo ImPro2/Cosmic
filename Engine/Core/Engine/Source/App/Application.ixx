@@ -8,14 +8,17 @@ import Cosmic.App.Events;
 import Cosmic.App.WindowInfo;
 import Cosmic.App.IWindow;
 import Cosmic.App.Module;
+import Cosmic.Renderer.RendererAPI;
+import Cosmic.Renderer.RenderCommand;
 
 namespace Cosmic
 {
 
     export struct ApplicationInfo
     {
-        const char*       Name;
-        DesktopWindowInfo WindowInfo;
+        const char*       Name            = "Cosmic Engine";
+        DesktopWindowInfo WindowInfo      = DesktopWindowInfo();
+        ERendererAPI      RendererBackend = PlatformNativeRendererAPI();
     };
 
     export class Application

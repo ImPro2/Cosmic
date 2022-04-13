@@ -19,6 +19,7 @@ import Cosmic.Impl.RendererAPI.OpenGL.OpenGLShader;
 import Cosmic.Renderer.Buffer;
 import Cosmic.Renderer.Shader;
 import Cosmic.Renderer.Texture;
+import Cosmic.Renderer.RenderCommand;
 
 //#define GL_CALL(fn) GLClearError(); fn; CS_ASSERT(GLLogCall(), "a")
 #define GL_CALL(fn)                                                                                                       \
@@ -71,22 +72,6 @@ namespace Cosmic
 
             mTexture = CreateTexture2D("C:/dev/Cosmic/Branding/Logos/Logo.png");
             mTexture->Bind(0);
-
-            //xint32 width, height, nChannels;
-            //xuint8* data = stbi_load("C:\\dev\\Cosmic\\Branding\\Logos\\Logo.png", &width, &height, &nChannels, 0);
-            //x
-            //xGL_CALL(glGenTextures(1, &mTexture));
-            //xGL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
-            //x
-            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-            //xGL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            //x
-            //xGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
-            //xGL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-            //x
-            //xstbi_image_free(data);
 
             // shaders
 
@@ -158,13 +143,13 @@ namespace Cosmic
 
             mShader->Bind();
             mTexture->Bind(0);
-            //xGL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
             mVertexBuffer->Bind();
             mIndexBuffer->Bind();
 
             // rendering
 
-            GL_CALL(glDrawElements(GL_TRIANGLES, mIndexBuffer->GetCount(), GL_UNSIGNED_INT, NULL));
+            //xGL_CALL(glDrawElements(GL_TRIANGLES, mIndexBuffer->GetCount(), GL_UNSIGNED_INT, NULL));
+            RenderCommand::Render(EPrimitiveTopology::TriangleIndexed, mIndexBuffer->GetCount());
         }
 
     private:
@@ -172,7 +157,6 @@ namespace Cosmic
         Ref<IndexBuffer>  mIndexBuffer;
         Ref<Shader>       mShader;
         Ref<Texture2D>    mTexture;
-        //xGLuint            mTexture;
         float32           mZoomLevel = 1.0f;
         glm::vec3         mPosition = { 0.0f, 0.0f, 0.0f };
         glm::vec3         mCamPos   = { 0.0f, 0.0f, 0.0f };

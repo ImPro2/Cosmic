@@ -35,6 +35,7 @@ namespace Cosmic
         : Texture2D(filePath, wrapMode, min, mag)
     {
         int32  width, height, channels;
+        stbi_set_flip_vertically_on_load(true);
         uint8* data = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
 
         if (data)
