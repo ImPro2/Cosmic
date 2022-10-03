@@ -35,4 +35,12 @@ namespace Cosmic
             module->OnEvent(e);
     }
 
+    void ModuleSystem::OnImGuiRender()
+    {
+        CS_PROFILE_FN();
+
+        for (Module* module : sModules)
+            module->OnImGuiRender();
+    }
+
 }

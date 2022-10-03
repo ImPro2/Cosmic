@@ -9,9 +9,12 @@ import Cosmic.App.Log;
 import Cosmic.App.AppEvents;
 import Cosmic.App.Module;
 import Cosmic.App.AppEvents;
+import Cosmic.Gui;
 
 namespace Cosmic
 {
+
+    Application* Application::sInstance = nullptr;
 
     Application::Application()
     {
@@ -36,7 +39,9 @@ namespace Cosmic
         RenderCommand::Init(mInfo.RendererBackend);
 
         mWindow = CreateDesktopWindow(mInfo.WindowInfo, [this](const WindowEvent& e) { return this->OnEvent(e); });
+        
         ModuleSystem::Init();
+        Gui::Init();
 
         OnEvent(ApplicationInitEvent(mInfo));
 
@@ -49,6 +54,7 @@ namespace Cosmic
 
         OnEvent(ApplicationCloseEvent());
 
+        Gui::Shutdown();
         mWindow->Close();
         ModuleSystem::Shutdown();
     }
@@ -71,8 +77,15 @@ namespace Cosmic
             Time::Update();
 
             OnEvent(ApplicationUpdateEvent());
-
             ModuleSystem::OnUpdate();
+
+            if (mInfo.EnableImGui)
+            {
+                Gui::Begin();
+                ModuleSystem::OnImGuiRender();
+                Gui::End();
+            }
+
             mWindow->Update();
         }
 

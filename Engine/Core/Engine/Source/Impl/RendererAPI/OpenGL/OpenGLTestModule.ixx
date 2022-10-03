@@ -96,7 +96,7 @@ namespace Cosmic
 
             color.r += colorAddAmount;
 
-            GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().GetWindow()->GetHandle());
+            GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetHandle());
 
             if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
                 mPosition.x -= 0.001f;

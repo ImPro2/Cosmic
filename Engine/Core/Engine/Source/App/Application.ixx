@@ -22,6 +22,7 @@ namespace Cosmic
         const char*       Name            = "Cosmic Engine";
         DesktopWindowInfo WindowInfo      = DesktopWindowInfo();
         ERendererAPI      RendererBackend = PlatformNativeRendererAPI();
+        bool              EnableImGui     = true;
     };
 
     export class Application
@@ -49,14 +50,14 @@ namespace Cosmic
         void OnWindowClose(const WindowCloseEvent& e);
 
     public:
-        static Application&   Get() { return *sInstance;    }
+        static Application*   Get() { return sInstance;     }
         IDesktopWindow* GetWindow() { return mWindow.get(); }
 
     private:
-        inline static Application* sInstance = nullptr;
-        bool                       mRunning  = true;
-        ApplicationInfo            mInfo;
-        Scope<IDesktopWindow>      mWindow;
+        static Application*   sInstance;
+        bool                  mRunning  = true;
+        ApplicationInfo       mInfo;
+        Scope<IDesktopWindow> mWindow;
     };
 
 }

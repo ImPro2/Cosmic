@@ -16,6 +16,8 @@ namespace Cosmic
         
         sCurrentDeltaTime = currentTime - sLastFrameTime;
         sLastFrameTime    = currentTime;
+
+        sFramesPerSecond = 1 / sCurrentDeltaTime;
     }
 
 }

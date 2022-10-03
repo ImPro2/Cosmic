@@ -8,12 +8,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <format>
+#include <imgui.h>
 
 using namespace Cosmic;
 
 CS_MODULE_LOG_INFO(Sandbox, SandboxApp);
 
 import Cosmic.App;
+import Cosmic.App.Application;
+import Cosmic.Gui;
 import Cosmic.Base;
 import Cosmic.App.IWindow;
 import Cosmic.App.WindowInfo;
@@ -35,6 +38,8 @@ namespace Cosmic
     public:
         void OnInit() override
         {
+            CS_PROFILE_FN();
+
             struct Vertex
             {
                 float2 position;
@@ -68,6 +73,8 @@ namespace Cosmic
 
         void OnUpdate(Dt dt) override
         {
+            CS_PROFILE_FN();
+
             // clear screen
 
             RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
@@ -98,14 +105,12 @@ namespace Cosmic
             // rendering
 
             RenderCommand::Render(EPrimitiveTopology::TriangleIndexed, mIndexBuffer->GetCount());
-
-            // print time stuff
-
-            CS_LOG_INFO("Time Info: CurrentTime: ({}), DeltaTime: ({}), LastFrameTime: ({})", (float32)Time::GetTime(), (float32)dt, (float32)Time::GetLastFrameTime());
         }
 
         void Input(Dt dt)
         {
+            CS_PROFILE_FN();
+
             glm::vec2 velocity = {
                 (float32)Input::IsKeyPressed(EKeyCode::D) - (float32)Input::IsKeyPressed(EKeyCode::A),
                 (float32)Input::IsKeyPressed(EKeyCode::W) - (float32)Input::IsKeyPressed(EKeyCode::S)
@@ -154,13 +159,32 @@ namespace Cosmic
 
         void OnMouseScroll(const MouseScrollEvent& e)
         {
+            CS_PROFILE_FN();
+
             mZoomLevel += e.GetOffset() * Time::GetDeltaTime() * 10.0f;
         }
 
         void OnEvent(const Event& e) override
         {
+            CS_PROFILE_FN();
+
             EventDispatcher dispatcher(e);
             CS_DISPATCH_EVENT(MouseScrollEvent, OnMouseScroll);
+        }
+
+        void OnImGuiRender() override
+        {
+            ImGui::ShowDemoWindow();
+            ImGui::Begin("SandboxApp Properties");
+            {
+                ImGui::DragFloat3("Position", glm::value_ptr(mPosition), 0.1f, -10.0f, 10.0f);
+                ImGui::DragFloat3("Camera Position", glm::value_ptr(mCamPos), 0.1f, -10.0f, 10.0f);
+                ImGui::DragFloat("Rotation", &mRotation);
+                ImGui::Text("Delta Time: %fms", (float32)Time::GetDeltaTime());
+                ImGui::Text("FPS: %fms", (float32)Time::GetFPS());
+                ImGui::Text("Current Time: %fms", (float32)Time::GetTime());
+            }
+            ImGui::End();
         }
 
     private:

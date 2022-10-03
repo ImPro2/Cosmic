@@ -27,10 +27,11 @@ namespace Cosmic
     export class Module
     {
     public:
-        virtual void OnInit()                      { };
-        virtual void OnShutdown()                  { };
-        virtual void OnUpdate(Dt dt)               { };
+        virtual void OnInit()                { };
+        virtual void OnShutdown()            { };
+        virtual void OnUpdate(Dt dt)         { };
         virtual void OnEvent(const Event& e) { };
+        virtual void OnImGuiRender()         { };
 
     public:
         const String& GetName() const { return mName; }
@@ -70,12 +71,24 @@ namespace Cosmic
             });
         }
 
+        template<typename T>
+        static T* Get()
+        {
+            const char* name = typeid(T).name();
+            for (Module* module : sModules)
+            {
+                if (module->GetName() == name)
+                    return static_cast<T*>(module);
+            }
+        }
+
     private:
         static void Init();
         static void Shutdown();
 
         static void OnUpdate();
         static void OnEvent(const Event& e);
+        static void OnImGuiRender();
 
     private:
         inline static std::vector<Module*> sModules;

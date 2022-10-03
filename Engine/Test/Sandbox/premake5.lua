@@ -3,7 +3,8 @@ project "Sandbox"
 	
 	links
 	{
-		"Engine"
+		"Engine",
+		"ImGui"
 	}
 
 	files
@@ -19,5 +20,6 @@ project "Sandbox"
 		"%{IncludeDir.GLFW}", -- temporary
 		"%{IncludeDir.Glad}", -- temporary
 		"%{IncludeDir.GLM}",
-		"%{IncludeDir.Optick}"
+		"%{IncludeDir.Optick}",
+		"%{IncludeDir.ImGui}"
 	}
