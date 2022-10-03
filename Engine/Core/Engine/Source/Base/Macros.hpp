@@ -1,4 +1,5 @@
 #pragma once
+#include <optick.h>
 
 // Identify the compiler
 
@@ -74,6 +75,8 @@
             CS_BREAK();                                                                     \
         }                                                                                   \
     } while(0)
+#elif defined(CS_RELEASE) || defined(CS_DIST)
+#   define CS_ASSERT(Condition, Message)
 #endif
 
 #define CS_INVALID_ENUM(type) CS_ASSERT(false, "Invalid enum of type `{}` reached.", #type)
@@ -97,3 +100,8 @@ namespace _CosmicModuleLogInfo                                      \
 // Events
 
 #define CS_DISPATCH_EVENT(type, listener) dispatcher.Dispatch<##type##>([this](const type##& e) { this->##listener##(e); })
+
+// Profiling
+
+#define CS_PROFILE_RUN_LOOP(name) OPTICK_FRAME(name)
+#define CS_PROFILE_FN() OPTICK_EVENT()

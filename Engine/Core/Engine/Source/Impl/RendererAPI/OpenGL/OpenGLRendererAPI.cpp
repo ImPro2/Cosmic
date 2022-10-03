@@ -10,39 +10,49 @@ namespace Cosmic
     OpenGLRendererAPI::OpenGLRendererAPI(ERendererAPI api)
         : RendererAPI(api)
     {
+        CS_PROFILE_FN();
     }
 
     OpenGLRendererAPI::~OpenGLRendererAPI()
     {
+        CS_PROFILE_FN();
     }
 
     void OpenGLRendererAPI::Init()
     {
-
+        CS_PROFILE_FN();
     }
 
     void OpenGLRendererAPI::Shutdown()
     {
-
+        CS_PROFILE_FN();
     }
 
     void OpenGLRendererAPI::SetViewport(uint32 x, uint32 y, uint32 width, uint32 height)
     {
+        CS_PROFILE_FN();
+
         glViewport(x, y, width, height);
     }
 
     void OpenGLRendererAPI::SetClearColor(float4 color)
     {
+        CS_PROFILE_FN();
+
         glClearColor(color.r, color.g, color.b, color.a);
     }
 
     void OpenGLRendererAPI::Clear()
     {
+        CS_PROFILE_FN();
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void OpenGLRendererAPI::Render(EPrimitiveTopology primitiveTopology, uint32 count)
     {
+        CS_PROFILE_FN();
+
         switch (primitiveTopology)
         {
             case EPrimitiveTopology::PointList:       glDrawArrays  (GL_POINTS,         0, count);                     return;

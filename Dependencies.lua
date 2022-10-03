@@ -4,6 +4,7 @@ group "Dependencies"
     include "Dependencies/Yaml-CPP"
     include "Dependencies/ImGui"
     include "Dependencies/stb_image"
+    include "Dependencies/Optick"
 group ""
 
 IncludeDir = {}
@@ -13,3 +14,4 @@ IncludeDir["GLM"]       = "%{wks.location}/Dependencies/GLM/include"
 IncludeDir["stb_image"] = "%{wks.location}/Dependencies/stb_image/include"
 IncludeDir["YamlCPP"]   = "%{wks.location}/Dependencies/Yaml-CPP/include"
 IncludeDir["ImGui"]     = "%{wks.location}/Dependencies/ImGui"
+IncludeDir["Optick"]    = "%{wks.location}/Dependencies/Optick/src"

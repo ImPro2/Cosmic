@@ -8,9 +8,14 @@ export module Cosmic.App.Module;
 
 import Cosmic.Base;
 import Cosmic.App.Events;
+import Cosmic.Time;
+import Cosmic.Time.DeltaTime;
 
 export import Cosmic.Base;
+export import Cosmic.App.WindowEvents;
+export import Cosmic.App.AppEvents;
 export import Cosmic.App.Events;
+export import Cosmic.Time;
 
 namespace Cosmic
 {
@@ -24,8 +29,8 @@ namespace Cosmic
     public:
         virtual void OnInit()                      { };
         virtual void OnShutdown()                  { };
-        virtual void OnUpdate()                    { };
-        virtual void OnEvent(const WindowEvent& e) { };
+        virtual void OnUpdate(Dt dt)               { };
+        virtual void OnEvent(const Event& e) { };
 
     public:
         const String& GetName() const { return mName; }
@@ -70,7 +75,7 @@ namespace Cosmic
         static void Shutdown();
 
         static void OnUpdate();
-        static void OnEvent(const WindowEvent& e);
+        static void OnEvent(const Event& e);
 
     private:
         inline static std::vector<Module*> sModules;

@@ -79,7 +79,7 @@ namespace Cosmic
             mShader->Bind();
         }
 
-        void OnUpdate() override
+        void OnUpdate(Dt dt) override
         {
             // clearing
 
@@ -148,7 +148,6 @@ namespace Cosmic
 
             // rendering
 
-            //xGL_CALL(glDrawElements(GL_TRIANGLES, mIndexBuffer->GetCount(), GL_UNSIGNED_INT, NULL));
             RenderCommand::Render(EPrimitiveTopology::TriangleIndexed, mIndexBuffer->GetCount());
         }
 

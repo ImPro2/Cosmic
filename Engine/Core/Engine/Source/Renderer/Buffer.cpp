@@ -56,16 +56,21 @@ namespace Cosmic
           Offset(0),
           Size(EShaderDataTypeToSize(type))
     {
+        CS_PROFILE_FN();
     }
 
     VertexBufferLayout::VertexBufferLayout(std::initializer_list<VertexBufferElement> elements)
         : mElements(elements)
     {
+        CS_PROFILE_FN();
+
         CalculateOffsetsAndStride();
     }
 
     void VertexBufferLayout::CalculateOffsetsAndStride()
     {
+        CS_PROFILE_FN();
+
         uint32 offset = 0;
         mStride       = 0;
 
@@ -83,6 +88,7 @@ namespace Cosmic
     VertexBuffer::VertexBuffer(void* vertices, uint32 size, EBufferUsage usage)
         : mSize(size), mUsage(usage)
     {
+        CS_PROFILE_FN();
     }
 
     // index buffer
@@ -90,12 +96,15 @@ namespace Cosmic
     IndexBuffer::IndexBuffer(uint32* indices, uint32 count, EBufferUsage usage)
         : mCount(count), mUsage(usage)
     {
+        CS_PROFILE_FN();
     }
 
     // creation functions
 
     Ref<VertexBuffer> CreateVertexBuffer(void* vertices, uint32 size, EBufferUsage usage)
     {
+        CS_PROFILE_FN();
+
         switch (RendererAPI::Get())
         {
             case ERendererAPI::OpenGL: return CreateRef<OpenGLVertexBuffer>(vertices, size, usage); break;
@@ -104,6 +113,8 @@ namespace Cosmic
 
     Ref<IndexBuffer>  CreateIndexBuffer(uint32* indices, uint32 count, EBufferUsage usage)
     {
+        CS_PROFILE_FN();
+
         switch (RendererAPI::Get())
         {
             case ERendererAPI::OpenGL: return CreateRef<OpenGLIndexBuffer>(indices, count, usage); break;

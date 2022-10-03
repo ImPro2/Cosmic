@@ -10,3 +10,6 @@
 [submodule "Dependencies/Yaml-CPP"]
 	path = Dependencies/Yaml-CPP
 	url = https://github.com/ImPro2/yaml-cpp
+[submodule "Dependencies/Optick"]
+	path = Dependencies/Optick
+	url = https://github.com/bombomby/optick.git

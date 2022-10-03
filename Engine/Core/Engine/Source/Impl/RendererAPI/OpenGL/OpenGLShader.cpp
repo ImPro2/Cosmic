@@ -39,6 +39,8 @@ namespace Cosmic
     OpenGLShader::OpenGLShader(const String& filePath)
         : Shader(filePath)
     {
+        CS_PROFILE_FN();
+
         String source     = ReadFile(filePath);
         mOpenGLSourceCode = PreProcess(source);
         mRendererID       = CreateProgram();
@@ -49,6 +51,8 @@ namespace Cosmic
     OpenGLShader::OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc)
         : Shader(name, vertexSrc, fragmentSrc)
     {
+        CS_PROFILE_FN();
+
         mOpenGLSourceCode[GL_VERTEX_SHADER]   = vertexSrc;
         mOpenGLSourceCode[GL_FRAGMENT_SHADER] = fragmentSrc;
 
@@ -59,21 +63,27 @@ namespace Cosmic
 
     OpenGLShader::~OpenGLShader()
     {
-
+        CS_PROFILE_FN();
     }
 
     void OpenGLShader::Bind() const
     {
+        CS_PROFILE_FN();
+
         glUseProgram(mRendererID);
     }
 
     void OpenGLShader::Unbind() const
     {
+        CS_PROFILE_FN();
+
         glUseProgram(0);
     }
 
     String OpenGLShader::ReadFile(const String& path)
     {
+        CS_PROFILE_FN();
+
         String result;
         std::ifstream in(path, std::ios::in | std::ios::binary);
 
@@ -103,6 +113,8 @@ namespace Cosmic
 
     UnorderedMap<GLenum, String> OpenGLShader::PreProcess(const String& source)
     {
+        CS_PROFILE_FN();
+
         UnorderedMap<GLenum, String> sources;
 
         const char* typeToken = "#type";
@@ -125,6 +137,8 @@ namespace Cosmic
 
     GLenum OpenGLShader::CreateProgram()
     {
+        CS_PROFILE_FN();
+
         uint32 programID = glCreateProgram();
 
         UnorderedMap<GLenum, String> sources = mOpenGLSourceCode;
@@ -167,6 +181,8 @@ namespace Cosmic
 
     GLenum OpenGLShader::CreateAndCompileShader(GLenum type, const String& source)
     {
+        CS_PROFILE_FN();
+
         uint32 shaderID = glCreateShader(type);
         const char* src = source.c_str();
         glShaderSource(shaderID, 1, &src, nullptr);
@@ -193,6 +209,8 @@ namespace Cosmic
 
     int32 OpenGLShader::GetUniformLocation(const String& name)
     {
+        CS_PROFILE_FN();
+
         if (mUniformLocationCache.contains(name))
             return mUniformLocationCache.at(name);
 
@@ -205,90 +223,120 @@ namespace Cosmic
 
     void OpenGLShader::SetFloat(const String& name, float32 value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform1f(loc, value);
     }
 
     void OpenGLShader::SetFloat2(const String& name, const float2& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform2f(loc, value.x, value.y);
     }
 
     void OpenGLShader::SetFloat3(const String& name, const float3& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform3f(loc, value.x, value.y, value.z);
     }
 
     void OpenGLShader::SetFloat4(const String& name, const float4& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform4f(loc, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShader::SetVec2(const String& name, const glm::vec2& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform2f(loc, value.x, value.y);
     }
 
     void OpenGLShader::SetVec3(const String& name, const glm::vec3& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform3f(loc, value.x, value.y, value.z);
     }
 
     void OpenGLShader::SetVec4(const String& name, const glm::vec4& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform4f(loc, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShader::SetInt(const String& name, int32 value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform1i(loc, value);
     }
 
     void OpenGLShader::SetInt2(const String& name, const int2& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform2i(loc, value.x, value.y);
     }
 
     void OpenGLShader::SetInt3(const String& name, const int3& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform3i(loc, value.x, value.y, value.z);
     }
 
     void OpenGLShader::SetInt4(const String& name, const int4& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform4i(loc, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShader::SetMat2(const String& name, const glm::mat2& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniformMatrix2fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void OpenGLShader::SetMat3(const String& name, const glm::mat3& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void OpenGLShader::SetMat4(const String& name, const glm::mat4& value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void OpenGLShader::SetBool(const String& name, bool value)
     {
+        CS_PROFILE_FN();
+
         int32 loc = GetUniformLocation(name);
         glUniform1i(loc, value ? 1 : 0);
     }

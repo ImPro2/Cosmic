@@ -7,9 +7,12 @@ import Cosmic.Base.Tuples;
 import Cosmic.App.Events;
 import Cosmic.App.WindowInfo;
 import Cosmic.App.IWindow;
-import Cosmic.App.Module;
 import Cosmic.Renderer.RendererAPI;
 import Cosmic.Renderer.RenderCommand;
+import Cosmic.App.Events;
+import Cosmic.App.WindowEvents;
+import Cosmic.Time;
+import Cosmic.App.OS;
 
 namespace Cosmic
 {
@@ -39,14 +42,14 @@ namespace Cosmic
     protected:
         // Make this method protected so that the class that derives from this class
         // can call this method when it overrides it.
-        virtual void OnEvent(const WindowEvent& e);
+        virtual void OnEvent(const Event& e);
 
     private:
         void OnWindowResize(const WindowResizeEvent& e);
         void OnWindowClose(const WindowCloseEvent& e);
 
     public:
-        static Application&   Get()       { return *sInstance;    }
+        static Application&   Get() { return *sInstance;    }
         IDesktopWindow* GetWindow() { return mWindow.get(); }
 
     private:

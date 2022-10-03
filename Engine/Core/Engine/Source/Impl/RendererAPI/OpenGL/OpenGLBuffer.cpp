@@ -52,16 +52,22 @@ namespace Cosmic
 
     OpenGLVertexBuffer::~OpenGLVertexBuffer()
     {
+        CS_PROFILE_FN();
+
         glDeleteBuffers(1, &mRendererID);
     }
 
     void OpenGLVertexBuffer::SetData(const void* data, uint32 size, uint32 offset)
     {
+        CS_PROFILE_FN();
+
         glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     }
 
     void OpenGLVertexBuffer::SetLayout(const VertexBufferLayout& layout)
     {
+        CS_PROFILE_FN();
+
         mLayout = layout;
 
         glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
@@ -86,11 +92,15 @@ namespace Cosmic
 
     void OpenGLVertexBuffer::Bind() const
     {
+        CS_PROFILE_FN();
+
         glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
     }
 
     void OpenGLVertexBuffer::Unbind() const
     {
+        CS_PROFILE_FN();
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
@@ -99,6 +109,8 @@ namespace Cosmic
     OpenGLIndexBuffer::OpenGLIndexBuffer(uint32* indices, uint32 count, EBufferUsage usage)
         : IndexBuffer(indices, count, usage)
     {
+        CS_PROFILE_FN();
+
         glGenBuffers(1, &mRendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * count, (const void*)indices, EBufferUsageToOpenGLBufferUsage(usage));
@@ -106,16 +118,22 @@ namespace Cosmic
 
     OpenGLIndexBuffer::~OpenGLIndexBuffer()
     {
+        CS_PROFILE_FN();
+
         glDeleteBuffers(1, &mRendererID);
     }
 
     void OpenGLIndexBuffer::Bind() const
     {
+        CS_PROFILE_FN();
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID);
     }
 
     void OpenGLIndexBuffer::Unbind() const
     {
+        CS_PROFILE_FN();
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 

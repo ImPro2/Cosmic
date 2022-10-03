@@ -25,6 +25,7 @@ project "Engine"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.YamlCPP}",
+		"%{IncludeDir.Optick}"
 	}
 
 	links
@@ -33,5 +34,6 @@ project "Engine"
 		"Glad",
 		"ImGui",
 		"Yaml-CPP",
-		"stb_image"
+		"stb_image",
+		"OptickCore"
 	}

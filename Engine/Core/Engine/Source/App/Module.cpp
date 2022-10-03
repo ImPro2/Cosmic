@@ -7,22 +7,30 @@ namespace Cosmic
 
     void ModuleSystem::Init()
     {
-        sModules.reserve(100);
+        CS_PROFILE_FN();
+
+        //xsModules.reserve(100);
     }
 
     void ModuleSystem::Shutdown()
     {
+        CS_PROFILE_FN();
+
         sModules.clear();
     }
 
     void ModuleSystem::OnUpdate()
     {
+        CS_PROFILE_FN();
+
         for (Module* module : sModules)
-            module->OnUpdate();
+            module->OnUpdate(float32(Time::GetDeltaTime()));
     }
 
-    void ModuleSystem::OnEvent(const WindowEvent& e)
+    void ModuleSystem::OnEvent(const Event& e)
     {
+        CS_PROFILE_FN();
+
         for (Module* module : sModules)
             module->OnEvent(e);
     }

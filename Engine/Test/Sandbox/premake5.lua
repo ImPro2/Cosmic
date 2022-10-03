@@ -15,5 +15,9 @@ project "Sandbox"
 
 	includedirs
 	{
-		"../../Core/Engine/Source"
+		"../../Core/Engine/Source",
+		"%{IncludeDir.GLFW}", -- temporary
+		"%{IncludeDir.Glad}", -- temporary
+		"%{IncludeDir.GLM}",
+		"%{IncludeDir.Optick}"
 	}

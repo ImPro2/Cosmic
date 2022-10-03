@@ -1,3 +1,4 @@
+#include "cspch.hpp"
 #include "WindowsUtils.hpp"
 
 import Cosmic.App.Log;
@@ -7,6 +8,8 @@ namespace Cosmic::WindowsUtils
 {
     void OutputWindowsErrorCode(DWORD dwErrorCode, ::Cosmic::StringView logMod, ::Cosmic::StringView file, ::Cosmic::StringView func, ::Cosmic::int32 line)
     {
+        CS_PROFILE_FN();
+
         char* pMsgBuf = nullptr;
 
         const DWORD nMsgLen = FormatMessageA(

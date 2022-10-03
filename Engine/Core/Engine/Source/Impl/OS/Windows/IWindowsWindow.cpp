@@ -13,6 +13,7 @@ import Cosmic.Base.Tuples;
 import Cosmic.App.IWindow;
 import Cosmic.App.WindowInfo;
 import Cosmic.App.WindowEvents;
+import Cosmic.App.KeyAndMouseCodes;
 
 namespace Cosmic
 {
@@ -22,6 +23,8 @@ namespace Cosmic
     IWindowsDesktopWindow::IWindowsDesktopWindow(const DesktopWindowInfo& info, WindowEventCallback callback)
         : IDesktopWindow(info, callback)
     {
+        CS_PROFILE_FN();
+
         CS_LOG_INFO("Creating window {0}: [{1}:{2}]", mData.Title.c_str(), mData.Size.width, mData.Size.height);
 
         Init();
@@ -30,11 +33,15 @@ namespace Cosmic
 
     IWindowsDesktopWindow::~IWindowsDesktopWindow()
     {
+        CS_PROFILE_FN();
+
         Close();
     }
 
     void IWindowsDesktopWindow::Init()
     {
+        CS_PROFILE_FN();
+
         if (sGLFWWindowCount == 0)
             CS_ASSERT(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW.");
 
@@ -53,7 +60,7 @@ namespace Cosmic
 
     void IWindowsDesktopWindow::SetupCallbacks()
     {
-#define _CS_CALLBACK(event, __VA_ARGS__) info(##event##(__VA_ARGS__))
+        CS_PROFILE_FN();
 
         glfwSetWindowUserPointer(mHandle, &mData);
 
@@ -92,21 +99,21 @@ namespace Cosmic
                 case GLFW_REPEAT:
                 {
                     repeatCount++;
-                    data(KeyPressEvent((uint8)key, repeatCount, data.Info, true));
+                    data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
                     //x_CS_CALLBACK(KeyPressEvent, (uint8)key, repeatCount, info, true);
                     //xEventSystem::Submit<KeyPressEvent>(KeyPressEvent((uint8)key, repeatCount, info, true));
                     break;
                 }
                 case GLFW_PRESS:
                 {
-                    data(KeyPressEvent((uint8)key, repeatCount, data.Info, true));
+                    data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
                     //x_CS_CALLBACK(KeyPressEvent, (uint8)key, repeatCount, info, true);
                     //xEventSystem::Submit<KeyPressEvent>(KeyPressEvent((uint8)key, repeatCount, info, true));
                     break;
                 }
                 case GLFW_RELEASE:
                 {
-                    data(KeyReleaseEvent((uint8)key, data.Info, true));
+                    data(KeyReleaseEvent((EKeyCode)key, data.Info, true));
                     //x_CS_CALLBACK(KeyReleaseEvent, (uint8)key, info, true);
                     //xEventSystem::Submit<KeyReleaseEvent>(KeyReleaseEvent((uint8)key, info, true));
                     repeatCount = 0;
@@ -142,10 +149,10 @@ namespace Cosmic
             switch (action)
             {
                 case GLFW_PRESS:   //xEventSystem::Submit<MouseButtonClickEvent>(MouseButtonClickEvent((uint8)button, info, true));     break;
-                    data(MouseButtonClickEvent((uint8)button, data.Info, true)); break;
+                    data(MouseButtonClickEvent((EMouseCode)button, data.Info, true)); break;
                     //x_CS_CALLBACK(MouseButtonClickEvent, (uint8)button, info, true); break;
                 case GLFW_RELEASE: //xEventSystem::Submit<MouseButtonReleaseEvent>(MouseButtonReleaseEvent((uint8)button, info, true)); break;
-                    data(MouseButtonReleaseEvent((uint8)button, data.Info, true)); break;
+                    data(MouseButtonReleaseEvent((EMouseCode)button, data.Info, true)); break;
                     //x_CS_CALLBACK(MouseButtonReleaseEvent, (uint8)button, info, true); break;
             }
         });
@@ -153,17 +160,23 @@ namespace Cosmic
 
     void IWindowsDesktopWindow::Show()
     {
+        CS_PROFILE_FN();
+
         glfwShowWindow(mHandle);
     }
 
     void IWindowsDesktopWindow::Update()
     {
+        CS_PROFILE_FN();
+
         glfwPollEvents();
         mGraphicsContext->SwapBuffers();
     }
 
     void IWindowsDesktopWindow::Close()
     {
+        CS_PROFILE_FN();
+
         glfwDestroyWindow(mHandle);
 
         sGLFWWindowCount--;
@@ -176,16 +189,22 @@ namespace Cosmic
 
     void IWindowsDesktopWindow::SetSize(float2 size)
     {
+        CS_PROFILE_FN();
+
         // TODO:
     }
 
     void IWindowsDesktopWindow::SetPosition(float2 pos)
     {
+        CS_PROFILE_FN();
+
         // TODO:
     }
 
     void IWindowsDesktopWindow::SetTitle(const String& title)
     {
+        CS_PROFILE_FN();
+
         // TODO:
 
         mData(WindowTitleEvent(title, mData.Info, true));
@@ -194,6 +213,8 @@ namespace Cosmic
 
     void IWindowsDesktopWindow::SetVSync(bool vsync)
     {
+        CS_PROFILE_FN();
+
         if (vsync)
             glfwSwapInterval(1);
         else

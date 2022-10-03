@@ -11,6 +11,8 @@ namespace Cosmic
 
     Scope<GraphicsContext> CreateGraphicsContext(void* window)
     {
+        CS_PROFILE_FN();
+
         switch (RendererAPI::Get())
         {
             case ERendererAPI::OpenGL: return CreateScope<OpenGLGraphicsContext>((GLFWwindow*)window); break;

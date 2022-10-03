@@ -4,6 +4,7 @@ export module Cosmic.App.OS;
 
 import Cosmic.App.ConsoleColor;
 import Cosmic.Base.Singleton;
+import Cosmic.Base;
 
 namespace Cosmic
 {
@@ -17,5 +18,7 @@ namespace Cosmic
         static void FlushConsoleLine();
         static void SetConsoleColor(ConsoleColorPair color);
         static void Print(const char* text);
+
+        static float32 GetCurrentTime();
     };
 }

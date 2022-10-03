@@ -4,6 +4,7 @@ module;
 
 #include <Windows.h>
 #include <windows.h>
+#include <profileapi.h>
 export module Cosmic.Impl.OS.Windows.WindowsOS;
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsOS);
@@ -11,7 +12,7 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsOS);
 import Cosmic.App.OS;
 import Cosmic.App.Log;
 import Cosmic.App.ConsoleColor;
-import Cosmic.Base.Types;
+import Cosmic.Base;
 
 namespace Cosmic
 {
@@ -19,10 +20,13 @@ namespace Cosmic
     namespace Utils
     {
 
-        static int32 sCurrentConsoleLinePos = 0;
+        static int32         sCurrentConsoleLinePos = 0;
+        static LARGE_INTEGER sStartTime;
 
         WORD EConsoleColorToWindowsConsoleColor(ConsoleColorPair color)
         {
+            CS_PROFILE_FN();
+
             using enum ::Cosmic::EConsoleColor;
 
             switch (color.bg)
@@ -386,15 +390,21 @@ namespace Cosmic
 
     void OS::Init()
     {
+        CS_PROFILE_FN();
+
+        // Get the start time to get the current time later on.
+        QueryPerformanceCounter(&Utils::sStartTime);
     }
 
     void OS::Shutdown()
     {
-
+        CS_PROFILE_FN();
     }
 
     void OS::FlushConsole()
     {
+        CS_PROFILE_FN();
+
         Utils::sCurrentConsoleLinePos = 0;
 
         COORD                      topLeft  = { 0, 0 };
@@ -412,6 +422,8 @@ namespace Cosmic
 
     void OS::FlushConsoleLine()
     {
+        CS_PROFILE_FN();
+
         COORD                      coord   = { 0, (SHORT)Utils::sCurrentConsoleLinePos };
         HANDLE                     console = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO screen;
@@ -427,17 +439,32 @@ namespace Cosmic
 
     void OS::SetConsoleColor(ConsoleColorPair color)
     {
+        CS_PROFILE_FN();
+
         WORD wAttributes = Utils::EConsoleColorToWindowsConsoleColor(color);
         CS_WINDOWS_CALL(SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wAttributes), "Unable to set the console color.");
     }
 
     void OS::Print(const char* text)
     {
+        CS_PROFILE_FN();
+
         // TODO: Check if `text` contains '\n'
         Utils::sCurrentConsoleLinePos++;
 
-        CS_WINDOWS_CALL(WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), text, (DWORD)strlen(text), nullptr, nullptr), "Unable to print to the console.");
+        CS_WINDOWS_CALL(WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), text, (DWORD)strlen(text), nullptr, nullptr), "Unable to log to the console.");
     }
 
+#undef GetCurrentTime
+    float32 OS::GetCurrentTime()
+    {
+        CS_PROFILE_FN();
+
+        LARGE_INTEGER currentTime, frequency;
+        QueryPerformanceCounter(&currentTime);
+        QueryPerformanceFrequency(&frequency);
+
+        return static_cast<float32>((currentTime.QuadPart - Utils::sStartTime.QuadPart) / (double)frequency.QuadPart);
+    }
 
 }

@@ -34,6 +34,8 @@ namespace Cosmic
     OpenGLTexture2D::OpenGLTexture2D(const String& filePath, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag)
         : Texture2D(filePath, wrapMode, min, mag)
     {
+        CS_PROFILE_FN();
+
         int32  width, height, channels;
         stbi_set_flip_vertically_on_load(true);
         uint8* data = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
@@ -76,6 +78,8 @@ namespace Cosmic
     OpenGLTexture2D::OpenGLTexture2D(uint32 width, uint32 height, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag)
         : Texture2D(width, height, wrapMode, min, mag)
     {
+        CS_PROFILE_FN();
+
         mInternalFormat  = GL_RGBA8;
         mDataFormat      = GL_RGBA;
         GLenum wrap      = ETextureWrapModeToOpenGLWrapMode(wrapMode);
@@ -94,11 +98,15 @@ namespace Cosmic
 
     OpenGLTexture2D::~OpenGLTexture2D()
     {
+        CS_PROFILE_FN();
+
         glDeleteTextures(1, &mRendererID);
     }
 
     void OpenGLTexture2D::SetData(void* data, uint32 size)
     {
+        CS_PROFILE_FN();
+
         uint32 bpp = mDataFormat == GL_RGBA ? 4 : 3;
         glTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mWidth, mHeight, 0, mDataFormat, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -106,6 +114,8 @@ namespace Cosmic
 
     void OpenGLTexture2D::Bind(uint32 slot) const
     {
+        CS_PROFILE_FN();
+
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_2D, mRendererID);
     }

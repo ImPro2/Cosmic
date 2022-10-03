@@ -9,15 +9,21 @@ namespace Cosmic
 
     RendererAPI::RendererAPI(ERendererAPI api)
     {
+        CS_PROFILE_FN();
+
         sAPI = api;
     }
 
     RendererAPI::~RendererAPI()
     {
+        CS_PROFILE_FN();
+
     }
 
     ERendererAPI PlatformNativeRendererAPI()
     {
+        CS_PROFILE_FN();
+
 #if   defined(CS_PLATFORM_WINDOWS)
         //xreturn ERendererAPI::DirectX;
         return ERendererAPI::OpenGL;
@@ -31,6 +37,8 @@ namespace Cosmic
 
     Scope<RendererAPI> CreateRendererAPI(ERendererAPI api)
     {
+        CS_PROFILE_FN();
+
         switch (api)
         {
             case ERendererAPI::OpenGL:  return CreateScope<OpenGLRendererAPI>(api); break;

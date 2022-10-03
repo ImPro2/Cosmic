@@ -20,6 +20,8 @@ namespace Cosmic
 
     void OpenGLGraphicsContext::Init()
     {
+        CS_PROFILE_FN();
+
         glfwMakeContextCurrent(mWindow);
         int32 status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
         CS_ASSERT(status, "Failed to initialize Glad!");
@@ -33,11 +35,13 @@ namespace Cosmic
         CS_LOG_DEBUG("    Renderer: {}", mInfo.Renderer);
         CS_LOG_DEBUG("    Version:  {}", mInfo.Version);
 
-        ModuleSystem::Add<OpenGLTestModule>();
+        //xModuleSystem::Add<OpenGLTestModule>();
     }
 
     void OpenGLGraphicsContext::SwapBuffers()
     {
+        CS_PROFILE_FN();
+
         glfwSwapBuffers(mWindow);
     }
 

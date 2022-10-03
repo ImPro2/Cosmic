@@ -3,6 +3,7 @@ module;
 #include <functional>
 export module Cosmic.App.WindowEvents;
 
+import Cosmic.App.Events;
 import Cosmic.Base;
 import Cosmic.Base.Types;
 import Cosmic.Base.Tuples;
@@ -12,15 +13,7 @@ import Cosmic.App.WindowInfo;
 namespace Cosmic
 {
 
-    export enum class EWindowEventType
-    {
-        None = -1,
-        WindowCreate, WindowClose, WindowResize,     WindowMove,        WindowTitle,
-        KeyPress,     KeyRelease,  KeyType,
-        MouseMove,    MouseScroll, MouseButtonClick, MouseButtonRelease
-    };
-
-    export struct WindowEvent
+    export struct WindowEvent : public Event
     {
     public:
         WindowEvent(const DesktopWindowInfo& info, bool isPrimary)
@@ -31,9 +24,6 @@ namespace Cosmic
     public:
         inline bool                     IsPrimary() const { return mIsPrimary; }
         inline const DesktopWindowInfo& GetInfo()   const { return mInfo;      }
-
-    public:
-        virtual EWindowEventType GetType() = 0;
 
     private:
         bool                     mIsPrimary;
@@ -49,8 +39,8 @@ namespace Cosmic
         }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();                }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::WindowCreate; }
+        virtual EEventType GetType() const  override { return GetStaticType();                }
+        static  EEventType GetStaticType()    { return EEventType::WindowCreate; }
     };
     export struct WindowCloseEvent : public WindowEvent
     {
@@ -61,8 +51,8 @@ namespace Cosmic
         }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();               }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::WindowClose; }
+        virtual EEventType GetType() const  const  override { return GetStaticType();               }
+        static  EEventType GetStaticType()    { return EEventType::WindowClose; }
     };
     export struct WindowResizeEvent : public WindowEvent
     {
@@ -79,8 +69,8 @@ namespace Cosmic
 
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();                }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::WindowResize; }
+        virtual EEventType GetType() const override { return GetStaticType();                }
+        static  EEventType GetStaticType()    { return EEventType::WindowResize; }
 
     private:
         uint2 mSize;
@@ -99,8 +89,8 @@ namespace Cosmic
         inline int32 GetYPosition() const { return mPos.y; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();              }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::WindowMove; }
+        virtual EEventType GetType() const override { return GetStaticType();              }
+        static  EEventType GetStaticType()    { return EEventType::WindowMove; }
 
     private:
        int2 mPos;
@@ -117,8 +107,8 @@ namespace Cosmic
         inline const String& GetTitle()  const { return mTitle; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();               }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::WindowTitle; }
+        virtual EEventType GetType() const  override { return GetStaticType();               }
+        static  EEventType GetStaticType()    { return EEventType::WindowTitle; }
 
     public:
         String mTitle;
@@ -136,8 +126,8 @@ namespace Cosmic
         inline uint8    GetRepeatCount() const { return mRepeatCount; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();            }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::KeyPress; }
+        virtual EEventType GetType() const  override { return GetStaticType();            }
+        static  EEventType GetStaticType()    { return EEventType::KeyPress; }
 
     private:
         EKeyCode mKey;
@@ -155,8 +145,8 @@ namespace Cosmic
         inline EKeyCode GetKeyCode() const { return mKey; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();              }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::KeyRelease; }
+        virtual EEventType GetType() const  override { return GetStaticType();              }
+        static  EEventType GetStaticType()    { return EEventType::KeyRelease; }
 
     private:
         EKeyCode mKey;
@@ -173,8 +163,8 @@ namespace Cosmic
         inline char GetChar() const { return mChar; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();           }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::KeyType; }
+        virtual EEventType GetType() const  override { return GetStaticType();           }
+        static  EEventType GetStaticType()    { return EEventType::KeyType; }
 
     private:
         char mChar;
@@ -191,8 +181,8 @@ namespace Cosmic
         inline float2 GetPosition() const { return mPos; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();             }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::MouseMove; }
+        virtual EEventType GetType() const  override { return GetStaticType();             }
+        static  EEventType GetStaticType()    { return EEventType::MouseMove; }
 
     private:
         float2 mPos;
@@ -209,8 +199,8 @@ namespace Cosmic
         inline float32 GetOffset() const { return mOffset; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();               }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::MouseScroll; }
+        virtual EEventType GetType() const  override { return GetStaticType();               }
+        static  EEventType GetStaticType()    { return EEventType::MouseScroll; }
 
     private:
         float32 mOffset;
@@ -227,8 +217,8 @@ namespace Cosmic
         inline EMouseCode GetButton() const { return mButton; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();                    }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::MouseButtonClick; }
+        virtual EEventType GetType() const  override { return GetStaticType();                    }
+        static  EEventType GetStaticType()    { return EEventType::MouseButtonClick; }
 
     private:
         EMouseCode mButton;
@@ -245,8 +235,8 @@ namespace Cosmic
         inline EMouseCode GetButton() const { return mButton; }
 
     public:
-        virtual EWindowEventType GetType() override { return GetStaticType();                      }
-        static  EWindowEventType GetStaticType()    { return EWindowEventType::MouseButtonRelease; }
+        virtual EEventType GetType() const  override { return GetStaticType();                      }
+        static  EEventType GetStaticType()    { return EEventType::MouseButtonRelease; }
 
     private:
         EMouseCode mButton;

@@ -1,3 +1,4 @@
+module;
 #include "cspch.hpp"
 export module Cosmic.App;
 
