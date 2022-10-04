@@ -36,7 +36,7 @@ namespace Cosmic
 
         glm::normalize(velocity);
 
-        mCameraPosition += mCameraTranslationAcceleration * dt * glm::vec3(velocity.x, velocity.y, 0.0f);
+        mCameraPosition += mZoomLevel * mCameraTranslationAcceleration * dt * glm::vec3(velocity.x, velocity.y, 0.0f);
 
         if (mRotation)
         {
@@ -61,7 +61,8 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        mZoomLevel -= e.GetOffset() * 10.0f * Time::GetDeltaTime();
+        mZoomLevel -= e.GetOffset() * 0.25f * mZoomLevel;
+        mZoomLevel = std::max(mZoomLevel, 0.25f);
         mCamera.SetProjection(-mAspectRatio * mZoomLevel, mAspectRatio * mZoomLevel, -mZoomLevel, mZoomLevel);
     }
 
@@ -71,8 +72,6 @@ namespace Cosmic
 
         mAspectRatio = (float32)e.GetWidth() / (float32)e.GetHeight();
         mCamera.SetProjection(-mAspectRatio * mZoomLevel, mAspectRatio * mZoomLevel, -mZoomLevel, mZoomLevel);
-
-        //CS_LOG_TRACE("Current Window Size: [{}:{}], Current Aspect Ratio: {}", (float32)e.GetWidth(), (float32)e.GetHeight(), mAspectRatio);
     }
 
 }

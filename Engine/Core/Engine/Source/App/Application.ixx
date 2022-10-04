@@ -55,7 +55,8 @@ namespace Cosmic
 
     private:
         static Application*   sInstance;
-        bool                  mRunning  = true;
+        bool                  mRunning   = true;
+        bool                  mMinimized = false;
         ApplicationInfo       mInfo;
         Scope<IDesktopWindow> mWindow;
     };

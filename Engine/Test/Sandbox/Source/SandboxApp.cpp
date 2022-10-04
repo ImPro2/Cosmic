@@ -31,6 +31,8 @@ import Cosmic.Time;
 import Cosmic.App.Input;
 import Cosmic.Renderer.OrthographicCamera;
 import Cosmic.Renderer.OrthographicCameraController;
+import Cosmic.Time.DeltaTime;
+import Cosmic.Renderer.Renderer2D;
 
 namespace Cosmic
 {
@@ -42,71 +44,37 @@ namespace Cosmic
         {
             CS_PROFILE_FN();
 
-            struct Vertex
-            {
-                float2 position;
-                float2 texCoords;
-            };
-
-            Vertex vertices[]
-            {
-                { { -0.5f, -0.5f }, { 0.0f, 0.0f } },
-                { {  0.5f, -0.5f }, { 1.0f, 0.0f } },
-                { {  0.5f,  0.5f }, { 1.0f, 1.0f } },
-                { { -0.5f,  0.5f }, { 0.0f, 1.0f } },
-            };
-
-            uint32 indices[] = { 0, 1, 2,   2, 3, 0 };
-
-            mVertexBuffer = CreateVertexBuffer(vertices, sizeof(Vertex) * 4);
-            mVertexBuffer->SetLayout({
-                VertexBufferElement(EShaderDataType::Float2),
-                VertexBufferElement(EShaderDataType::Float2),
-            });
-
-            mIndexBuffer = CreateIndexBuffer(indices, 6);
-
-            mTexture = CreateTexture2D("C:/dev/Cosmic/Branding/Logos/Logo.png");
-            mTexture->Bind(0);
-
-            mShader = CreateShader("C:/dev/Cosmic/Engine/Core/Engine/Assets/Shaders/Standard2D.glsl");
-            mShader->Bind();
-
             mCameraController.SetAspectRatio(1280.0f / 720.0f);
             mCameraController.SetRotation(true);
+
+            mCosmicLogoTexture = CreateTexture2D("C:/dev/Cosmic/Branding/Logos/Logo.png");
         }
 
         void OnUpdate(Dt dt) override
         {
             CS_PROFILE_FN();
 
-            // clear screen
-
-            RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
-            RenderCommand::Clear();
-
-            // update
-
-            Input(dt);
+            // Update
 
             mCameraController.OnUpdate();
+            Input(dt);
 
-            glm::mat4 transform = glm::translate(glm::mat4(1.0f), mPosition);
-            transform = glm::rotate(transform, glm::radians(mRotation), glm::vec3(0.0f, 0.0f, 1.0f));
+            // Render
 
-            mShader->SetMat4("uViewProjection", mCameraController.GetCamera().GetViewProjMat());
-            mShader->SetMat4("uTransform", transform);
+            RenderCommand::SetClearColor(mClearColor);
+            RenderCommand::Clear();
 
-            // binding
+            Renderer2D::BeginScene(mCameraController.GetCamera());
 
-            mShader->Bind();
-            mTexture->Bind(0);
-            mVertexBuffer->Bind();
-            mIndexBuffer->Bind();
+            for (int32 y = 0; y < 10; y++)
+            {
+                for (int32 x = 0; x < 10; x++)
+                {
+                    Renderer2D::RenderQuad(mPosition + mQuadSpacing * glm::vec3(x, y, 0.0f), mRotation, mScale, mCosmicLogoTexture, mColor);
+                }
+            }
 
-            // rendering
-
-            RenderCommand::Render(EPrimitiveTopology::TriangleIndexed, mIndexBuffer->GetCount());
+            Renderer2D::EndScene();
         }
 
         void Input(Dt dt)
@@ -118,16 +86,8 @@ namespace Cosmic
                 (float32)Input::IsKeyPressed(EKeyCode::I) - (float32)Input::IsKeyPressed(EKeyCode::K)
             };
 
-            mPosition += 10.0f   * dt * glm::vec3(velocity.x, velocity.y, 0.0f);
-            mRotation += 1000.0f * dt * ((float32)Input::IsKeyPressed(EKeyCode::U) - (float32)Input::IsKeyPressed(EKeyCode::O));
-        }
-
-        void OnWindowResize(const WindowResizeEvent& e)
-        {
-            float32 width  = (float32)e.GetWidth();
-            float32 height = (float32)e.GetHeight();
-            float32 aspectRatio = width / height;
-            CS_LOG_TRACE("[{}:{}]: {}", width, height, aspectRatio);
+            mPosition += mPositionAcceleration * dt * glm::vec3(velocity.x, velocity.y, 0.0f);
+            mRotation += mRotationAcceleration * dt * ((float32)Input::IsKeyPressed(EKeyCode::U) - (float32)Input::IsKeyPressed(EKeyCode::O));
         }
 
         void OnEvent(const Event& e) override
@@ -135,10 +95,6 @@ namespace Cosmic
             CS_PROFILE_FN();
 
             mCameraController.OnEvent(e);
-
-            EventDispatcher dispatcher(e);
-
-            CS_DISPATCH_EVENT(WindowResizeEvent, OnWindowResize);
         }
 
         void OnImGuiRender() override
@@ -146,25 +102,38 @@ namespace Cosmic
             ImGui::ShowDemoWindow();
             ImGui::Begin("SandboxApp Properties");
             {
-                ImGui::DragFloat3("Position", glm::value_ptr(mPosition), 0.1f, -10.0f, 10.0f);
-                ImGui::DragFloat("Rotation", &mRotation);
+                ImGui::DragFloat2("Quad Position", glm::value_ptr(mPosition), 0.1f, -10.0f, 10.0f);
+                ImGui::DragFloat("Quad Rotation", &mRotation, 0.1f);
+                ImGui::DragFloat2("Quad Scale", glm::value_ptr(mScale), 0.1f, -10.0f, 10.0f);
 
-                ImGui::Text("Delta Time: %fms", (float32)Time::GetDeltaTime());
-                ImGui::Text("FPS: %fms", (float32)Time::GetFPS());
-                ImGui::Text("Current Time: %fms", (float32)Time::GetTime());
+                ImGui::ColorEdit4("Quad Color", &mColor.x);
+                ImGui::ColorEdit4("Clear Color", &mClearColor.x);
+
+                ImGui::DragFloat("Quad Spacing", &mQuadSpacing, 0.1f, -20.0f, 20.0f);
+
+                ImGui::Text("Delta Time: %fms", ((TimeUnit)Time::GetDeltaTime()).InMilliSeconds());
+                ImGui::Text("FPS: %fs", Time::GetFPS().InSeconds());
+                ImGui::Text("Average FPS: %fs", Time::GetAverageFPS().InSeconds());
+                ImGui::Text("Current Time: %fs", Time::GetTime().InSeconds());
             }
             ImGui::End();
         }
 
     private:
-        Ref<VertexBuffer> mVertexBuffer;
-        Ref<IndexBuffer>  mIndexBuffer;
-        Ref<Texture2D>    mTexture;
-        Ref<Shader>       mShader;
+        glm::vec3 mPosition   = { 0.0f, 0.0f, 0.0f };
+        float32   mRotation   = 0.0f;
+        glm::vec2 mScale      = { 1.0f, 1.0f };
+        float4    mColor      = { 0.8f, 0.2f, 0.3f, 1.0f };
+        float4    mClearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 
-        glm::vec3         mPosition = { 0.0f, 0.0f, 0.0f };
-        float32           mRotation = 0.0f;
+        float32 mPositionAcceleration = 1.0f;
+        float32 mRotationAcceleration = 1.0f;
+
+        float32 mQuadSpacing = 1.1f;
+
         OrthographicCameraController mCameraController;
+
+        Ref<Texture2D> mCosmicLogoTexture;
     };
 
     class SandboxApp : public Application
@@ -172,16 +141,22 @@ namespace Cosmic
     public:
         SandboxApp()
         {
+            CS_PROFILE_FN();
+
             Init({});
         }
 
         void OnInit(const ApplicationInitEvent& e)
         {
+            CS_PROFILE_FN();
+
             ModuleSystem::Add<DebugModule>();
         }
 
         void OnEvent(const Event& e) override
         {
+            CS_PROFILE_FN();
+
             Application::OnEvent(e);
 
             EventDispatcher dispatcher(e);
@@ -191,6 +166,8 @@ namespace Cosmic
 
     Application* CreateApplication()
     {
+        CS_PROFILE_FN();
+
         return new SandboxApp();
     }
 

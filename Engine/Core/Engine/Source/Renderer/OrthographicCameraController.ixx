@@ -32,8 +32,12 @@ namespace Cosmic
         void OnEvent(const Event& e);
 
     public:
+        void SetZoomLevel(float32 level) { mZoomLevel = level; }
+
+    public:
         OrthographicCamera& GetCamera() { return mCamera; }
         const OrthographicCamera& GetCamera() const { return mCamera; }
+        float32 GetZoomLevel() const { return mZoomLevel; }
 
     private:
         void OnMouseScroll(const MouseScrollEvent& e);

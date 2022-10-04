@@ -21,8 +21,9 @@ namespace Cosmic
         float32 InNanoSeconds()  { return InMicroSeconds() * 1000.0f; }
 
         operator float32() const { return mTime; }
+        void operator+=(TimeUnit other) { mTime += (float32)other; }
 
-    private:
+    protected:
         float32 mTime = 0.0f;
     };
 

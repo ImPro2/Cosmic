@@ -20,6 +20,8 @@ import Cosmic.Renderer.Buffer;
 import Cosmic.Renderer.Shader;
 import Cosmic.Renderer.Texture;
 import Cosmic.Renderer.RenderCommand;
+import Cosmic.Time.DeltaTime;
+import Cosmic.Time;
 
 //#define GL_CALL(fn) GLClearError(); fn; CS_ASSERT(GLLogCall(), "a")
 #define GL_CALL(fn)                                                                                                       \

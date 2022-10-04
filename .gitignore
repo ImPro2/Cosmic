@@ -14,3 +14,6 @@ bin-int/
 # Cosmic files
 
 **.log
+
+# Optick profiling sessions
+Profiling/

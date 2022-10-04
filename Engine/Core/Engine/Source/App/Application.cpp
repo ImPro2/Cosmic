@@ -10,6 +10,8 @@ import Cosmic.App.AppEvents;
 import Cosmic.App.Module;
 import Cosmic.App.AppEvents;
 import Cosmic.Gui;
+import Cosmic.Renderer.RenderCommand;
+import Cosmic.Renderer.Renderer2D;
 
 namespace Cosmic
 {
@@ -38,9 +40,11 @@ namespace Cosmic
         OS::Init();
         RenderCommand::Init(mInfo.RendererBackend);
 
-        mWindow = CreateDesktopWindow(mInfo.WindowInfo, [this](const WindowEvent& e) { return this->OnEvent(e); });
-        
         ModuleSystem::Init();
+
+        mWindow = CreateDesktopWindow(mInfo.WindowInfo, [this](const WindowEvent& e) { return this->OnEvent(e); });
+
+        Renderer2D::Init();
         Gui::Init();
 
         OnEvent(ApplicationInitEvent(mInfo));
@@ -55,6 +59,8 @@ namespace Cosmic
         OnEvent(ApplicationCloseEvent());
 
         Gui::Shutdown();
+        Renderer2D::Shutdown();
+        RenderCommand::Shutdown();
         mWindow->Close();
         ModuleSystem::Shutdown();
     }
@@ -76,9 +82,12 @@ namespace Cosmic
 
             Time::Update();
 
-            OnEvent(ApplicationUpdateEvent());
-            ModuleSystem::OnUpdate();
-
+            if (!mMinimized)
+            {
+                ModuleSystem::OnUpdate();
+                OnEvent(ApplicationUpdateEvent());
+            }
+            
             if (mInfo.EnableImGui)
             {
                 Gui::Begin();
@@ -107,6 +116,11 @@ namespace Cosmic
     void Application::OnWindowResize(const WindowResizeEvent& e)
     {
         CS_PROFILE_FN();
+
+        if (e.GetWidth() == 0 || e.GetHeight() == 0)
+            mMinimized = true;
+
+        RenderCommand::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
     }
 
     void Application::OnWindowClose(const WindowCloseEvent& e)

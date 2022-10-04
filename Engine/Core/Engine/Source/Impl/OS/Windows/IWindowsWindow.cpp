@@ -54,7 +54,6 @@ namespace Cosmic
 
         SetupCallbacks();
 
-        //xEventSystem::Submit<WindowCreateEvent>(WindowCreateEvent(mData, true));
         mData(WindowCreateEvent(mData.Info, true));
     }
 
@@ -66,9 +65,7 @@ namespace Cosmic
 
         glfwSetWindowCloseCallback(mHandle, [](GLFWwindow* window) {
             DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
-            //xEventSystem::Submit<WindowCloseEvent>(WindowCloseEvent(info, true));
-            //xinfo(WindowCloseEvent(info, true));
-            //x_CS_CALLBACK(WindowCloseEvent, info, true);
+
             data(WindowCloseEvent(data.Info, true));
         });
 
@@ -77,18 +74,8 @@ namespace Cosmic
             data.Size.width  = (uint32)width;
             data.Size.height = (uint32)height;
 
-            //xEventSystem::Submit<WindowResizeEvent>(WindowResizeEvent(info.Size, info, true));
-            //x_CS_CALLBACK(WindowResizeEvent, info.Size, info, true);
             data(WindowResizeEvent(data.Size, data.Info, true));
         });
-
-        //xglfwSetWindowMoveCallback(mHandle, [](GLFWwindow* window, int xpos, int ypos) {
-        //x    DesktopWindowInfo& info = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
-        //x    info.Position.x = xpos;
-        //x    info.Position.y = ypos;
-        //x
-        //x    EventSystem::Submit<WindowMoveEvent>(WindowMoveEvent({ xpos, ypos }, info, true));
-        //x});
 
         glfwSetKeyCallback(mHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
             DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
@@ -100,22 +87,16 @@ namespace Cosmic
                 {
                     repeatCount++;
                     data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
-                    //x_CS_CALLBACK(KeyPressEvent, (uint8)key, repeatCount, info, true);
-                    //xEventSystem::Submit<KeyPressEvent>(KeyPressEvent((uint8)key, repeatCount, info, true));
                     break;
                 }
                 case GLFW_PRESS:
                 {
                     data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
-                    //x_CS_CALLBACK(KeyPressEvent, (uint8)key, repeatCount, info, true);
-                    //xEventSystem::Submit<KeyPressEvent>(KeyPressEvent((uint8)key, repeatCount, info, true));
                     break;
                 }
                 case GLFW_RELEASE:
                 {
                     data(KeyReleaseEvent((EKeyCode)key, data.Info, true));
-                    //x_CS_CALLBACK(KeyReleaseEvent, (uint8)key, info, true);
-                    //xEventSystem::Submit<KeyReleaseEvent>(KeyReleaseEvent((uint8)key, info, true));
                     repeatCount = 0;
                     break;
                 }
@@ -125,22 +106,16 @@ namespace Cosmic
         glfwSetCharCallback(mHandle, [](GLFWwindow* window, unsigned int keycode) {
             DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
             data(KeyTypeEvent((char)keycode, data.Info, true));
-            //x_CS_CALLBACK(KeyTypeEvent, (char)keycode, info, true);
-            //xEventSystem::Submit<KeyTypeEvent>(KeyTypeEvent((char)keycode, info, true));
         });
 
         glfwSetCursorPosCallback(mHandle, [](GLFWwindow* window, double xpos, double ypos) {
             DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
             data(MouseMoveEvent({ (float32)xpos, (float32)ypos }, data.Info, true));
-            //x_CS_CALLBACK(MouseMoveEvent, { (float32)xpos, (float32)ypos }, info, true);
-            //xEventSystem::Submit<MouseMoveEvent>(MouseMoveEvent({ (float32)xpos, (float32)ypos }, info, true));
         });
 
         glfwSetScrollCallback(mHandle, [](GLFWwindow* window, double xoffset, double yoffset) {
             DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
             data(MouseScrollEvent((float32)yoffset, data.Info, true));
-            //x_CS_CALLBACK(MouseScrollEvent, (float32)yoffset, info, true);
-            //xEventSystem::Submit<MouseScrollEvent>(MouseScrollEvent((float32)yoffset, info, true));
         });
 
         glfwSetMouseButtonCallback(mHandle, [](GLFWwindow* window, int button, int action, int mods) {
@@ -148,12 +123,10 @@ namespace Cosmic
 
             switch (action)
             {
-                case GLFW_PRESS:   //xEventSystem::Submit<MouseButtonClickEvent>(MouseButtonClickEvent((uint8)button, info, true));     break;
+                case GLFW_PRESS:
                     data(MouseButtonClickEvent((EMouseCode)button, data.Info, true)); break;
-                    //x_CS_CALLBACK(MouseButtonClickEvent, (uint8)button, info, true); break;
-                case GLFW_RELEASE: //xEventSystem::Submit<MouseButtonReleaseEvent>(MouseButtonReleaseEvent((uint8)button, info, true)); break;
+                case GLFW_RELEASE:
                     data(MouseButtonReleaseEvent((EMouseCode)button, data.Info, true)); break;
-                    //x_CS_CALLBACK(MouseButtonReleaseEvent, (uint8)button, info, true); break;
             }
         });
     }

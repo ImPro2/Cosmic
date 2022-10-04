@@ -24,6 +24,7 @@ namespace Cosmic
         static TimeUnit  GetLastFrameTime() { return sLastFrameTime;                 }
         static TimeUnit  GetTime()          { return TimeUnit(OS::GetCurrentTime()); }
         static TimeUnit  GetFPS()           { return sFramesPerSecond;               }
+        static TimeUnit  GetAverageFPS()    { return sAverageFramesPerSecond;        }
 
     private:
         static void Update();
@@ -32,6 +33,7 @@ namespace Cosmic
         inline static TimeUnit  sLastFrameTime;      // time last frame started
         inline static DeltaTime sCurrentDeltaTime;
         inline static TimeUnit  sFramesPerSecond;
+        inline static TimeUnit  sAverageFramesPerSecond;
 
     private:
         friend class Application;

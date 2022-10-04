@@ -4,6 +4,8 @@ module;
 export module Cosmic.Renderer.Renderer2D;
 
 import Cosmic.Base;
+import Cosmic.Renderer.OrthographicCamera;
+import Cosmic.Renderer.Texture;
 
 namespace Cosmic
 {
@@ -12,17 +14,18 @@ namespace Cosmic
     export class Renderer2D
     {
     public:
-        void Init();
-        void Shutdown();
+        static void Init();
+        static void Shutdown();
 
-        void Begin();
-        void End();
+        static void BeginScene(const OrthographicCamera& camera);
+        static void EndScene();
 
-        void RenderQuad(const glm::vec2& position, const glm::vec2& size, float4 color);
-        void RenderQuad(const glm::vec3& position, const glm::vec2& size, float4 color);
+        // Primitives
 
-        void RenderRotatedQuad(const glm::vec2& position, const glm::vec2& size, float4 color, float32 rotation);
-        void RenderRotatedQuad(const glm::vec3& position, const glm::vec2& size, float4 color, float32 rotation);
+        static void RenderQuad(const glm::vec2& position, float32 rotation, const glm::vec2& scale, float4 color);
+        static void RenderQuad(const glm::vec3& position, float32 rotation, const glm::vec2& scale, float4 color);
+        static void RenderQuad(const glm::vec2& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f });
+        static void RenderQuad(const glm::vec3& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f });
     };
 
 }

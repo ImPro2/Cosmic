@@ -23,7 +23,7 @@ namespace Cosmic
         void Unbind() const override;
 
     private:
-        uint32 mRendererID;
+        uint32 mRendererID = 0;
     };
 
     export class OpenGLIndexBuffer : public IndexBuffer
@@ -36,7 +36,7 @@ namespace Cosmic
         void Unbind() const override;
 
     private:
-        uint32 mRendererID;
+        uint32 mRendererID = 0;
     };
 
 }

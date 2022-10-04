@@ -70,6 +70,8 @@ namespace Cosmic
 
     void Gui::Begin()
     {
+        CS_PROFILE_FN();
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -77,6 +79,8 @@ namespace Cosmic
 
     void Gui::End()
     {
+        CS_PROFILE_FN();
+
         ImGuiIO&        io         = ImGui::GetIO();
         //Application& app = Application::Get();
         //IDesktopWindow* window = app.GetWindow();

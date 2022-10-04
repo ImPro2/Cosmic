@@ -84,7 +84,7 @@ namespace Cosmic
         mDataFormat      = GL_RGBA;
         GLenum wrap      = ETextureWrapModeToOpenGLWrapMode(wrapMode);
         GLenum minScale  = ETextureScalingFilterToOpenGLScalingFilter(min);
-        GLenum magScale = ETextureScalingFilterToOpenGLScalingFilter(mag);
+        GLenum magScale  = ETextureScalingFilterToOpenGLScalingFilter(mag);
 
         glGenTextures(1, &mRendererID);
         glBindTexture (GL_TEXTURE_2D, mRendererID);
