@@ -23,7 +23,7 @@ namespace Cosmic
         static DeltaTime GetDeltaTime()     { return sCurrentDeltaTime;              }
         static TimeUnit  GetLastFrameTime() { return sLastFrameTime;                 }
         static TimeUnit  GetTime()          { return TimeUnit(OS::GetCurrentTime()); }
-        static TimeUnit  GetFPS()           { return sFramesPerSecond;}
+        static TimeUnit  GetFPS()           { return sFramesPerSecond;               }
 
     private:
         static void Update();

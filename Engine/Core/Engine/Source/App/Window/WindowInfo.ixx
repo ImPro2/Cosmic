@@ -17,8 +17,8 @@ namespace Cosmic
         bool   IsVSync;
 
         DesktopWindowInfo(
-            uint2         size  = { 800, 600 },
-            uint2         pos   = { 25,  25  },
+            uint2         size  = { 1280, 720 },
+            uint2         pos   = { 25,   25  },
             const String& title = "Cosmic Window",
             bool          vsync = false
         )

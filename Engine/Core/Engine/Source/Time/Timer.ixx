@@ -1,5 +1,6 @@
 module;
 #include "cspch.hpp"
+#include <functional>
 export module Cosmic.Time.Timer;
 
 import Cosmic.Time.TimeUnit;
