@@ -15,8 +15,8 @@ namespace Cosmic
         OpenGLTexture2D(uint32 width, uint32 height, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag);
         ~OpenGLTexture2D();
 
-        void SetData(void* data, uint32 size) override;
-        void Bind(uint32 slot)          const override;
+        void SetData(void* data, uint32 size)         override;
+        void Bind(uint32 slot)                  const override;
 
     public:
         uint32 GetRendererID() const override { return (uint32)mRendererID; }

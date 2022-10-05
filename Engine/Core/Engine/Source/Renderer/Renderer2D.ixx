@@ -19,13 +19,14 @@ namespace Cosmic
 
         static void BeginScene(const OrthographicCamera& camera);
         static void EndScene();
+        static void Flush();
 
         // Primitives
 
         static void RenderQuad(const glm::vec2& position, float32 rotation, const glm::vec2& scale, float4 color);
         static void RenderQuad(const glm::vec3& position, float32 rotation, const glm::vec2& scale, float4 color);
-        static void RenderQuad(const glm::vec2& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f });
-        static void RenderQuad(const glm::vec3& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f });
+        static void RenderQuad(const glm::vec2& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f }, float32 tilingFactor = 1.0f);
+        static void RenderQuad(const glm::vec3& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f }, float32 tilingFactor = 1.0f);
     };
 
 }

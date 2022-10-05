@@ -57,8 +57,8 @@ namespace Cosmic
         VertexBuffer(void* vertices, uint32 size, EBufferUsage usage);
         virtual ~VertexBuffer() = default;
 
-        virtual void SetData(const void* data, uint32 size, uint32 offset) = 0;
-        virtual void SetLayout(const VertexBufferLayout& layout)           = 0;
+        virtual void SetData(const void* data, uint32 size, uint32 offset = 0) = 0;
+        virtual void SetLayout(const VertexBufferLayout& layout)               = 0;
 
     public:
         virtual void Bind()   const = 0;

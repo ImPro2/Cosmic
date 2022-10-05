@@ -66,11 +66,12 @@ namespace Cosmic
 
             Renderer2D::BeginScene(mCameraController.GetCamera());
 
-            for (int32 y = 0; y < 10; y++)
+            //Renderer2D::RenderQuad(mPosition, mRotation, mScale, mColor);
+            for (int32 y = 0; y < mVerticalQuadCount; y++)
             {
-                for (int32 x = 0; x < 10; x++)
+                for (int32 x = 0; x < mHorizontalQuadCount; x++)
                 {
-                    Renderer2D::RenderQuad(mPosition + mQuadSpacing * glm::vec3(x, y, 0.0f), mRotation, mScale, mCosmicLogoTexture, mColor);
+                    Renderer2D::RenderQuad(mPosition + mQuadSpacing * glm::vec3(x, y, 0.0f), mRotation, mScale, mCosmicLogoTexture, mColor, (float32)x * (float32)y);
                 }
             }
 
@@ -110,6 +111,8 @@ namespace Cosmic
                 ImGui::ColorEdit4("Clear Color", &mClearColor.x);
 
                 ImGui::DragFloat("Quad Spacing", &mQuadSpacing, 0.1f, -20.0f, 20.0f);
+                ImGui::DragInt("Vertical Quad Count", &mVerticalQuadCount, 1, -100, 100);
+                ImGui::DragInt("Horizontal Quad Count", &mHorizontalQuadCount, 1, -100, 100);
 
                 ImGui::Text("Delta Time: %fms", ((TimeUnit)Time::GetDeltaTime()).InMilliSeconds());
                 ImGui::Text("FPS: %fs", Time::GetFPS().InSeconds());
@@ -134,6 +137,9 @@ namespace Cosmic
         OrthographicCameraController mCameraController;
 
         Ref<Texture2D> mCosmicLogoTexture;
+
+        int32 mVerticalQuadCount   = 10;
+        int32 mHorizontalQuadCount = 10;
     };
 
     class SandboxApp : public Application

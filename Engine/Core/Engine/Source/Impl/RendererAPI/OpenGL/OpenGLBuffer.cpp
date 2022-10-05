@@ -42,6 +42,8 @@ namespace Cosmic
     OpenGLVertexBuffer::OpenGLVertexBuffer(void* vertices, uint32 size, EBufferUsage usage)
         : VertexBuffer(vertices, size, usage)
     {
+        CS_PROFILE_FN();
+
         glGenBuffers(1, &mRendererID);
         glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
         glBufferData(GL_ARRAY_BUFFER, size, nullptr, EBufferUsageToOpenGLBufferUsage(usage));
@@ -61,6 +63,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+        glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
         glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     }
 
