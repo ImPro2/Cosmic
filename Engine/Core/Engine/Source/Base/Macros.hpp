@@ -99,7 +99,7 @@ namespace _CosmicModuleLogInfo                                      \
 
 // Events
 
-#define CS_DISPATCH_EVENT(type, listener) dispatcher.Dispatch<##type##>([this](const type##& e) { this->##listener##(e); })
+#define CS_DISPATCH_EVENT(type, listener) dispatcher.Dispatch<##type##>([this](const type##& e) -> bool { return this->##listener##(e); })
 
 // Profiling
 

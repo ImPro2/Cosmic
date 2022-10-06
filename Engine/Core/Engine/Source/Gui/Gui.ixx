@@ -2,17 +2,17 @@ module;
 #include "cspch.hpp"
 export module Cosmic.Gui;
 
+import Cosmic.App.Events;
+
 namespace Cosmic
 {
-
-    class Event;
 
     export class Gui
     {
     public:
         static void Init();
         static void Shutdown();
-        static void OnEvent(const Event& e);
+        static void OnEvent(Event* e);
 
     public:
         static void BlockEvents(bool block) { sBlockEvents = block; }

@@ -33,6 +33,7 @@ import Cosmic.Renderer.OrthographicCamera;
 import Cosmic.Renderer.OrthographicCameraController;
 import Cosmic.Time.DeltaTime;
 import Cosmic.Renderer.Renderer2D;
+import Cosmic.Renderer.Framebuffer;
 
 namespace Cosmic
 {
@@ -48,6 +49,12 @@ namespace Cosmic
             mCameraController.SetRotation(true);
 
             mCosmicLogoTexture = CreateTexture2D("C:/dev/Cosmic/Branding/Logos/Logo.png");
+
+            FramebufferInfo fbInfo = {};
+            fbInfo.Width = 1280.0f;
+            fbInfo.Height = 720.0f;
+            fbInfo.SwapChainTarget = false;
+            mFramebuffer = CreateFramebuffer(fbInfo);
         }
 
         void OnUpdate(Dt dt) override
@@ -58,9 +65,11 @@ namespace Cosmic
 
             mCameraController.OnUpdate();
             Input(dt);
+            Renderer2D::ResetStatistics();
 
             // Render
 
+            mFramebuffer->Bind();
             RenderCommand::SetClearColor(mClearColor);
             RenderCommand::Clear();
 
@@ -71,11 +80,13 @@ namespace Cosmic
             {
                 for (int32 x = 0; x < mHorizontalQuadCount; x++)
                 {
-                    Renderer2D::RenderQuad(mPosition + mQuadSpacing * glm::vec3(x, y, 0.0f), mRotation, mScale, mCosmicLogoTexture, mColor, (float32)x * (float32)y);
+                    Renderer2D::RenderQuad(mPosition + mQuadSpacing * glm::vec3(x, y, 0.0f), mRotation, mScale, mCosmicLogoTexture, mColor);
                 }
             }
 
             Renderer2D::EndScene();
+
+            mFramebuffer->Unbind();
         }
 
         void Input(Dt dt)
@@ -100,12 +111,16 @@ namespace Cosmic
 
         void OnImGuiRender() override
         {
+            CS_PROFILE_FN();
+
             ImGui::ShowDemoWindow();
             ImGui::Begin("SandboxApp Properties");
             {
                 ImGui::DragFloat2("Quad Position", glm::value_ptr(mPosition), 0.1f, -10.0f, 10.0f);
                 ImGui::DragFloat("Quad Rotation", &mRotation, 0.1f);
                 ImGui::DragFloat2("Quad Scale", glm::value_ptr(mScale), 0.1f, -10.0f, 10.0f);
+                ImGui::DragFloat("Quad Position Acceleration", &mPositionAcceleration, 0.1f, -100.0f, 100.0f);
+                ImGui::DragFloat("Quad Rotation Acceleration", &mRotationAcceleration, 0.1f, -100.0f, 100.0f);
 
                 ImGui::ColorEdit4("Quad Color", &mColor.x);
                 ImGui::ColorEdit4("Clear Color", &mClearColor.x);
@@ -114,10 +129,42 @@ namespace Cosmic
                 ImGui::DragInt("Vertical Quad Count", &mVerticalQuadCount, 1, -100, 100);
                 ImGui::DragInt("Horizontal Quad Count", &mHorizontalQuadCount, 1, -100, 100);
 
+                const auto& stats = Renderer2D::GetStatistics();
+
+                ImGui::Text("Renderer2D Statistics:");
+                ImGui::Text("\tDraw Calls: %i", stats.DrawCalls);
+                ImGui::Text("\tQuads:      %i", stats.QuadCount);
+                ImGui::Text("\tVertices:   %i", stats.TotalVertexCount);
+                ImGui::Text("\tIndices:    %i", stats.TotalIndexCount);
+
                 ImGui::Text("Delta Time: %fms", ((TimeUnit)Time::GetDeltaTime()).InMilliSeconds());
                 ImGui::Text("FPS: %fs", Time::GetFPS().InSeconds());
                 ImGui::Text("Average FPS: %fs", Time::GetAverageFPS().InSeconds());
                 ImGui::Text("Current Time: %fs", Time::GetTime().InSeconds());
+            }
+            ImGui::End();
+
+            bool open = true;
+            ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoScrollbar;
+            ImGui::Begin("Viewport", &open, windowFlags);
+            {
+                static uint32 previousWidth  = ImGui::GetWindowWidth();
+                static uint32 previousHeight = ImGui::GetWindowHeight();
+
+                uint32 width = ImGui::GetWindowWidth();
+                uint32 height = ImGui::GetWindowHeight();
+
+                uint32 textureID = mFramebuffer->GetColorAttachmentRendererID();
+                ImGui::Image((void*)textureID, ImVec2((float32)mFramebuffer->GetInfo().Width, (float32)mFramebuffer->GetInfo().Height));
+
+                if (width != previousWidth || height != previousHeight)
+                {
+                    mFramebuffer->Resize(width, height);
+                    mCameraController.OnResize(width, height);
+                }
+
+                previousWidth  = width;
+                previousHeight = height;
             }
             ImGui::End();
         }
@@ -137,6 +184,7 @@ namespace Cosmic
         OrthographicCameraController mCameraController;
 
         Ref<Texture2D> mCosmicLogoTexture;
+        Ref<Framebuffer> mFramebuffer;
 
         int32 mVerticalQuadCount   = 10;
         int32 mHorizontalQuadCount = 10;

@@ -109,26 +109,33 @@ namespace Cosmic
 
         CS_DISPATCH_EVENT(WindowCloseEvent, OnWindowClose);
         CS_DISPATCH_EVENT(WindowResizeEvent, OnWindowResize);
+        Gui::OnEvent((Event*)std::addressof(e));
 
         ModuleSystem::OnEvent(e);
     }
 
-    void Application::OnWindowResize(const WindowResizeEvent& e)
+    bool Application::OnWindowResize(const WindowResizeEvent& e)
     {
         CS_PROFILE_FN();
 
         if (e.GetWidth() == 0 || e.GetHeight() == 0)
             mMinimized = true;
+        else
+            mMinimized = false;
 
         RenderCommand::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
+
+        return false;
     }
 
-    void Application::OnWindowClose(const WindowCloseEvent& e)
+    bool Application::OnWindowClose(const WindowCloseEvent& e)
     {
         CS_PROFILE_FN();
 
         if (e.IsPrimary())
             Close();
+
+        return true;
     }
 
 }

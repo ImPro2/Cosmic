@@ -18,13 +18,14 @@ namespace Cosmic
     export struct Event
     {
         virtual EEventType GetType() const = 0;
+        bool Block = false;
     };
 
     export class EventDispatcher
     {
     public:
         EventDispatcher(const Event& event)
-            : m_Event(const_cast<Event&>(event))
+            : mEvent(const_cast<Event&>(event))
         {
         }
         
@@ -34,13 +35,13 @@ namespace Cosmic
         {
             CS_PROFILE_FN();
 
-            if (m_Event.GetType() == T::GetStaticType())
+            if (mEvent.GetType() == T::GetStaticType())
             {
-                func(static_cast<T&>(m_Event));
+               mEvent.Block |= func(static_cast<T&>(mEvent));
             }
         }
     private:
-        Event& m_Event;
+        Event& mEvent;
     };
 
 }

@@ -15,6 +15,8 @@ import Cosmic.App.Events;
 namespace Cosmic
 {
 
+    static bool sInitialized = false;
+
     void Gui::Init()
     {
         CS_PROFILE_FN();
@@ -45,6 +47,8 @@ namespace Cosmic
     
         ImGui_ImplGlfw_InitForOpenGL(windowHandle, true);
         ImGui_ImplOpenGL3_Init("#version 410");
+
+        sInitialized = true;
     }
 
     void Gui::Shutdown()
@@ -56,16 +60,21 @@ namespace Cosmic
         ImGui::DestroyContext();
     }
 
-    void Gui::OnEvent(const Event& e)
+    void Gui::OnEvent(Event* e)
     {
-    //    CS_PROFILE_FN();
-    //
-    //    if (mBlockEvents)
-    //    {
-    //        //ImGuiIO& io = ImGui::GetIO();
-    //        //e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
-    //        //e.Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
-    //    }
+        CS_PROFILE_FN();
+        if (!sInitialized) return;
+    
+        if (sBlockEvents)
+        {
+            ImGuiIO& io = ImGui::GetIO();
+
+            bool mouse = (e->GetType() == EEventType::MouseMove) || (e->GetType() == EEventType::MouseScroll) || (e->GetType() == EEventType::MouseButtonClick);
+            bool keyboard = (e->GetType() == EEventType::KeyPress) || (e->GetType() == EEventType::KeyRelease) || (e->GetType() == EEventType::KeyType);
+
+            e->Block |= mouse & io.WantCaptureMouse;
+            e->Block |= keyboard & io.WantCaptureKeyboard;
+        }
     }
 
     void Gui::Begin()

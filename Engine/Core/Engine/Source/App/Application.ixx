@@ -46,8 +46,8 @@ namespace Cosmic
         virtual void OnEvent(const Event& e);
 
     private:
-        void OnWindowResize(const WindowResizeEvent& e);
-        void OnWindowClose(const WindowCloseEvent& e);
+        bool OnWindowResize(const WindowResizeEvent& e);
+        bool OnWindowClose(const WindowCloseEvent& e);
 
     public:
         static Application*   Get() { return sInstance;     }

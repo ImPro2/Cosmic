@@ -8,8 +8,6 @@ namespace Cosmic
     void ModuleSystem::Init()
     {
         CS_PROFILE_FN();
-
-        //xsModules.reserve(100);
     }
 
     void ModuleSystem::Shutdown()
@@ -23,6 +21,9 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+        for (Module* module : sFrontModules)
+            module->OnUpdate(float32(Time::GetDeltaTime()));
+
         for (Module* module : sModules)
             module->OnUpdate(float32(Time::GetDeltaTime()));
     }
@@ -31,6 +32,9 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+        for (Module* module : sFrontModules)
+            module->OnEvent(e);
+
         for (Module* module : sModules)
             module->OnEvent(e);
     }
@@ -38,6 +42,9 @@ namespace Cosmic
     void ModuleSystem::OnImGuiRender()
     {
         CS_PROFILE_FN();
+
+        for (Module* module : sFrontModules)
+            module->OnImGuiRender();
 
         for (Module* module : sModules)
             module->OnImGuiRender();

@@ -30,6 +30,7 @@ namespace Cosmic
     public:
         void OnUpdate();
         void OnEvent(const Event& e);
+        void OnResize(uint32 width, uint32 height);
 
     public:
         void SetZoomLevel(float32 level) { mZoomLevel = level; }
@@ -40,8 +41,8 @@ namespace Cosmic
         float32 GetZoomLevel() const { return mZoomLevel; }
 
     private:
-        void OnMouseScroll(const MouseScrollEvent& e);
-        void OnWindowResize(const WindowResizeEvent& e);
+        bool OnMouseScroll(const MouseScrollEvent& e);
+        bool OnMouseMove(const MouseMoveEvent& e);
 
     private:
         float32 mAspectRatio;
@@ -52,8 +53,10 @@ namespace Cosmic
 
         glm::vec3 mCameraPosition = glm::vec3(0.0f);
         float32 mCameraRotation = 0.0f;
-        float32 mCameraTranslationAcceleration = 1.0f;
+        float32 mCameraTranslationAcceleration = 2.0f;
         float32 mCameraRotationAcceleration = 100.0f;
+
+        float32 mWidth, mHeight;
     };
 
 }

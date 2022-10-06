@@ -44,6 +44,9 @@ include "Dependencies.lua"
 group "Engine"
 	group "Engine/Core"
 		include "Engine/Core/Engine"
+
+	group "Engine/Tools"
+		include "Engine/Tools/Editor"
 	
 	group "Engine/Test"
 		include "Engine/Test/Sandbox"

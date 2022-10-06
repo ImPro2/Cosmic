@@ -16,6 +16,7 @@ export import Cosmic.App.WindowEvents;
 export import Cosmic.App.AppEvents;
 export import Cosmic.App.Events;
 export import Cosmic.Time;
+export import Cosmic.Time.DeltaTime;
 
 namespace Cosmic
 {
@@ -46,19 +47,28 @@ namespace Cosmic
     export class ModuleSystem
     {
     public:
-        template<typename T>
-        static void Add()
+        template<typename T, typename ... Args>
+        static void Add(Args&& ... args)
         {
-            Module* module = new T();
+            Module* module = new T(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             module->OnInit();
             sModules.push_back(module);
         }
 
+        template<typename T, typename ... Args>
+        static void AddFront(Args&& ... args)
+        {
+            Module* module = new T(std::forward<Args>(args)...);
+            module->mName = typeid(T).name();
+            module->OnInit();
+            sFrontModules.push_back(module);
+        }
+
         template<typename T>
         static void Remove()
         {
-            std::erase_if(sModules, [](Module* module)
+            auto eraseFunction = [](Module* module)
             {
                 if (module->mName == typeid(T).name())
                 {
@@ -68,13 +78,21 @@ namespace Cosmic
                 }
 
                 return false;
-            });
+            };
+
+            std::erase_if(sFrontModules, eraseFunction);
+            std::erase_if(sModules, eraseFunction);
         }
 
         template<typename T>
         static T* Get()
         {
             const char* name = typeid(T).name();
+            for (Module* module : sFrontModules)
+            {
+                if (module->GetName() == name)
+                    return static_cast<T*>(module);
+            }
             for (Module* module : sModules)
             {
                 if (module->GetName() == name)
@@ -92,6 +110,7 @@ namespace Cosmic
 
     private:
         inline static std::vector<Module*> sModules;
+        inline static std::vector<Module*> sFrontModules;
         friend class Application;
     };
 
