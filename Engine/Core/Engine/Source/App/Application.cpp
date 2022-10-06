@@ -11,6 +11,7 @@ import Cosmic.App.Module;
 import Cosmic.App.AppEvents;
 import Cosmic.Gui;
 import Cosmic.Renderer.RenderCommand;
+import Cosmic.Time;
 import Cosmic.Renderer.Renderer2D;
 
 namespace Cosmic

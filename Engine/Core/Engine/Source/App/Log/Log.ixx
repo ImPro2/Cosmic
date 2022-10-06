@@ -8,19 +8,12 @@ export module Cosmic.App.Log;
 import Cosmic.Base;
 import Cosmic.App.ConsoleColor;
 import Cosmic.App.OS;
+import Cosmic.App.Application;
+import Cosmic.App.LogEvents;
+import Cosmic.App.LogSeverity;
 
 namespace Cosmic
 {
-
-    export enum class ELogSeverity
-    {
-        Trace,
-        Debug,
-        Info,
-        Warn,
-        Error,
-        Critical
-    };
 
     export class Log
     {
@@ -40,7 +33,7 @@ namespace Cosmic
 
             LogOut(format, ELogSeverity::Debug, std::make_format_args(args...));
         }
-        
+
         template<typename ... Args>
         static void Info(const char* format, const Args& ... args)
         {
@@ -48,7 +41,7 @@ namespace Cosmic
 
             LogOut(format, ELogSeverity::Info, std::make_format_args(args...));
         }
-        
+
         template<typename ... Args>
         static void Warn(const char* format, const Args& ... args)
         {
@@ -56,7 +49,7 @@ namespace Cosmic
 
             LogOut(format, ELogSeverity::Warn, std::make_format_args(args...));
         }
-        
+
         template<typename ... Args>
         static void Error(const char* format, const Args& ... args)
         {
@@ -64,7 +57,7 @@ namespace Cosmic
 
             LogOut(format, ELogSeverity::Error, std::make_format_args(args...));
         }
-        
+
         template<typename ... Args>
         static void Critical(const char* format, const Args& ... args)
         {
@@ -83,6 +76,8 @@ namespace Cosmic
 
             LogToConsole(msg, severity);
             LogToFile(msg, severity);
+
+            Application::Get()->OnEvent(LogEvent(msg, severity));
         }
 
         static void LogToConsole(const String& msg, ELogSeverity severity)
@@ -97,21 +92,6 @@ namespace Cosmic
         static void LogToFile(const String& msg, ELogSeverity severity)
         {
             // TODO: Implement
-        }
-
-        static ConsoleColorPair ELogSeverityToConsoleColor(ELogSeverity severity)
-        {
-            CS_PROFILE_FN();
-
-            switch (severity)
-            {
-                case ELogSeverity::Trace:    return { EConsoleColor::BrightWhite,  EConsoleColor::Black };
-                case ELogSeverity::Debug:    return { EConsoleColor::BrightCyan,   EConsoleColor::Black };
-                case ELogSeverity::Info:     return { EConsoleColor::BrightGreen,  EConsoleColor::Black };
-                case ELogSeverity::Warn:     return { EConsoleColor::BrightYellow, EConsoleColor::Black };
-                case ELogSeverity::Error:    return { EConsoleColor::BrightRed,    EConsoleColor::Black };
-                case ELogSeverity::Critical: return { EConsoleColor::Red,          EConsoleColor::White };
-            }
         }
     };
 

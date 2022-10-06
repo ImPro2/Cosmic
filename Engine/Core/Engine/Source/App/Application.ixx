@@ -11,7 +11,6 @@ import Cosmic.Renderer.RendererAPI;
 import Cosmic.Renderer.RenderCommand;
 import Cosmic.App.Events;
 import Cosmic.App.WindowEvents;
-import Cosmic.Time;
 import Cosmic.App.OS;
 
 namespace Cosmic
@@ -40,9 +39,7 @@ namespace Cosmic
     private:
         void Run();
 
-    protected:
-        // Make this method protected so that the class that derives from this class
-        // can call this method when it overrides it.
+    public:
         virtual void OnEvent(const Event& e);
 
     private:

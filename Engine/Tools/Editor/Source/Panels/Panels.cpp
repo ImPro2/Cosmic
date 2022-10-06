@@ -3,6 +3,7 @@ module;
 module Editor.Panels;
 
 import Editor.Panels.ViewportPanel;
+import Editor.Panels.ConsolePanel;
 
 namespace Cosmic
 {
@@ -13,6 +14,8 @@ namespace Cosmic
 
         ModuleSystem::Add<ViewportPanel>(framebuffer);
         mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<ViewportPanel>()));
+        ModuleSystem::Add<ConsolePanel>();
+        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<ConsolePanel>()));
     }
 
     void Panels::ShowAll()

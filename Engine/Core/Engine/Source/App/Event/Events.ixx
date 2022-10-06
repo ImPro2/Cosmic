@@ -9,6 +9,7 @@ namespace Cosmic
     export enum class EEventType
     {
         None = -1,
+        LogEvent,
         AppInit, AppUpdate, AppClose,
         WindowCreate, WindowClose, WindowResize, WindowMove, WindowTitle,
         KeyPress, KeyRelease, KeyType,

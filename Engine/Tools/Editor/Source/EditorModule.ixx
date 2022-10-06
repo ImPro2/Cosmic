@@ -8,6 +8,7 @@ import Editor.Panels.ViewportPanel;
 
 import Cosmic.App;
 import Cosmic.Time.DeltaTime;
+import Cosmic.Time;
 import Cosmic.Renderer.RenderCommand;
 import Cosmic.Renderer.Texture;
 import Cosmic.Renderer.Framebuffer;

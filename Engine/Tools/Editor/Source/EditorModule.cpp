@@ -22,6 +22,7 @@ namespace Cosmic
         mFramebuffer = CreateFramebuffer(fbInfo);
 
         mPanels.Init(mFramebuffer);
+
         CS_LOG_INFO("Successfully initialized editor.");
     }
 
@@ -50,6 +51,8 @@ namespace Cosmic
         Renderer2D::EndScene();
 
         mFramebuffer->Unbind();
+
+        CS_LOG_INFO("FPS: {}s, Delta Time: {}ms, Current Time: {}s", Time::GetFPS().InSeconds(), Time::GetDeltaTime().InMilliSeconds(), Time::GetTime().InSeconds());
     }
 
     void EditorModule::OnEvent(const Event& e)
