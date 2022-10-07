@@ -1,5 +1,6 @@
 module;
 #include "cspch.hpp"
+#include <entt/entt.hpp>
 export module Editor.Panels;
 
 import Cosmic.Base;
@@ -8,6 +9,7 @@ import Cosmic.App.WindowEvents;
 
 import Cosmic.App.Module;
 import Cosmic.Renderer.Framebuffer;
+import Cosmic.ECS.Scene;
 
 namespace Cosmic
 {
@@ -25,7 +27,7 @@ namespace Cosmic
     export class Panels
     {
     public:
-        void Init(const Ref<Framebuffer>& framebuffer);
+        void Init(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene);
         void ShowAll();
 
     public:

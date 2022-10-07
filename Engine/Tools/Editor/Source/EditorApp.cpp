@@ -1,6 +1,7 @@
 module;
 #include "cspch.hpp"
 #include "EntryPoint/EntryPoint.hpp"
+#include <entt/entt.hpp>
 module Editor.EditorApp;
 
 namespace Cosmic

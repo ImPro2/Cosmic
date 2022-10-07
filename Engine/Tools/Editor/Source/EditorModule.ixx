@@ -1,6 +1,7 @@
 module;
 #include "cspch.hpp"
 #include <glm/glm.hpp>
+#include <entt/entt.hpp>
 export module Editor.EditorModule;
 
 import Editor.Panels;
@@ -14,6 +15,9 @@ import Cosmic.Renderer.Texture;
 import Cosmic.Renderer.Framebuffer;
 import Cosmic.Renderer.Renderer2D;
 import Cosmic.Renderer.OrthographicCamera;
+
+import Cosmic.ECS.Scene;
+import Cosmic.ECS.Components;
 
 namespace Cosmic
 {
@@ -31,6 +35,8 @@ namespace Cosmic
         void SetupDockSpace();
 
     private:
+        Ref<Scene> mActiveScene;
+
         Ref<Texture2D> mCosmicLogoTexture;
         Ref<Framebuffer> mFramebuffer;
 

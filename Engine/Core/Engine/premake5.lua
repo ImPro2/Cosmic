@@ -7,14 +7,6 @@ project "Engine"
 		"Source/**.ixx",
 		"Source/**.hpp"
 	}
-	
-	-- group "Dependencies/GLM"
-	-- 	files
-	-- 	{
-	-- 		"%{wks.location}/Dependencies/GLM/glm/**.hpp",
-	--		"%{wks.location}/Dependencies/GLM/glm/**.inl"
-	-- 	}
-	-- group ""
 
 	includedirs
 	{
@@ -25,7 +17,8 @@ project "Engine"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.YamlCPP}",
-		"%{IncludeDir.Optick}"
+		"%{IncludeDir.Optick}",
+		"%{IncludeDir.EnTT}"
 	}
 
 	links

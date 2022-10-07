@@ -1,10 +1,10 @@
 module;
 #include "cspch.hpp"
 #include <imgui.h>
+#include <entt/entt.hpp>
 module Editor.EditorModule;
 
 CS_MODULE_LOG_INFO(Editor, EditorModule);
-
 
 namespace Cosmic
 {
@@ -21,7 +21,14 @@ namespace Cosmic
         fbInfo.SwapChainTarget = false;
         mFramebuffer = CreateFramebuffer(fbInfo);
 
-        mPanels.Init(mFramebuffer);
+        mActiveScene = CreateRef<Scene>();
+
+        // Temporary
+        Entity entity = mActiveScene->CreateEntity("Entity 1");
+        auto& sprite = entity.AddComponent<SpriteRendererComponent>();
+        sprite.Color = { 0.82f, 0.25f, 0.12f, 1.0f };
+
+        mPanels.Init(mFramebuffer, mActiveScene);
 
         CS_LOG_INFO("Successfully initialized editor.");
     }
@@ -43,16 +50,13 @@ namespace Cosmic
 
         const OrthographicCamera& camera = mPanels.GetPanel<ViewportPanel>()->GetCameraController().GetCamera();
 
-        // Temporary
         Renderer2D::BeginScene(camera);
-        {
-            Renderer2D::RenderQuad({ 0.0f, 0.0f, 0.0f }, 0.0f, { 1.0f, 1.0f }, mCosmicLogoTexture);
-        }
+        mActiveScene->OnUpdate(dt);
         Renderer2D::EndScene();
 
         mFramebuffer->Unbind();
 
-        CS_LOG_INFO("FPS: {}s, Delta Time: {}ms, Current Time: {}s", Time::GetFPS().InSeconds(), Time::GetDeltaTime().InMilliSeconds(), Time::GetTime().InSeconds());
+        //CS_LOG_INFO("FPS: {}s, Delta Time: {}ms, Current Time: {}s", Time::GetFPS().InSeconds(), Time::GetDeltaTime().InMilliSeconds(), Time::GetTime().InSeconds());
     }
 
     void EditorModule::OnEvent(const Event& e)
@@ -65,6 +69,11 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         SetupDockSpace();
+
+        //ImGui::Begin("Temporary Settings");
+        //auto& squareColor = mSquareEntity.GetComponent<SpriteRendererComponent>().Color;
+        //ImGui::ColorEdit4("Square Color", &squareColor.x);
+        //ImGui::End();
 
         ImGui::ShowDemoWindow();
     }

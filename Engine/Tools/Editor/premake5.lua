@@ -21,5 +21,7 @@ project "Editor"
 		"%{IncludeDir.Glad}", -- temporary
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.Optick}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.EnTT}",
+		"%{IncludeDir.FontAwesome}"
 	}

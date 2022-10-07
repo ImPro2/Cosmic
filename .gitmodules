@@ -13,3 +13,6 @@
 [submodule "Dependencies/Optick"]
 	path = Dependencies/Optick
 	url = https://github.com/bombomby/optick.git
+[submodule "Dependencies/EnTT"]
+	path = Dependencies/EnTT
+	url = https://github.com/ImPro2/entt.git
