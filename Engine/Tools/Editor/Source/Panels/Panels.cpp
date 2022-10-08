@@ -6,6 +6,7 @@ module Editor.Panels;
 import Editor.Panels.ViewportPanel;
 import Editor.Panels.ConsolePanel;
 import Editor.Panels.SceneHierarchyPanel;
+import Editor.Panels.InspectorPanel;
 
 namespace Cosmic
 {
@@ -14,12 +15,17 @@ namespace Cosmic
     {
         mPanels.reserve(10);
 
-        ModuleSystem::Add<ViewportPanel>(framebuffer);
+        ModuleSystem::Add<ViewportPanel>(framebuffer, scene);
         mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<ViewportPanel>()));
+ 
         ModuleSystem::Add<ConsolePanel>();
         mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<ConsolePanel>()));
+        
         ModuleSystem::Add<SceneHierarchyPanel>(scene);
         mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<SceneHierarchyPanel>()));
+
+        ModuleSystem::Add<InspectorPanel>();
+        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<InspectorPanel>()));
     }
 
     void Panels::ShowAll()

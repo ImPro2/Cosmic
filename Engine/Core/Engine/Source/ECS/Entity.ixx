@@ -4,7 +4,6 @@ module;
 export module Cosmic.ECS.Entity;
 
 import Cosmic.App.Log;
-import Cosmic.ECS.Components;
 import Cosmic.Base;
 
 namespace Cosmic
@@ -66,7 +65,7 @@ namespace Cosmic
         operator uint32()       const { return (uint32)mEntityHandle;       }
 
     private:
-        entt::entity mEntityHandle{ 0 };
+        entt::entity mEntityHandle{ entt::null };
         entt::registry* mRegistry = nullptr;
     };
 

@@ -115,6 +115,18 @@ namespace Cosmic
         sData = nullptr;
     }
 
+    void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
+    {
+        CS_PROFILE_FN();
+
+        glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
+
+        sData->Standard2DShader->Bind();
+        sData->Standard2DShader->SetMat4("uViewProjection", viewProj);
+
+        StartBatch();
+    }
+
     void Renderer2D::BeginScene(const OrthographicCamera& camera)
     {
         CS_PROFILE_FN();

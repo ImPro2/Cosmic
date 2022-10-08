@@ -5,6 +5,7 @@ export module Cosmic.Renderer.Renderer2D;
 
 import Cosmic.Base;
 import Cosmic.Renderer.OrthographicCamera;
+import Cosmic.Renderer.Camera;
 import Cosmic.Renderer.Texture;
 
 namespace Cosmic
@@ -26,6 +27,7 @@ namespace Cosmic
         static void Init();
         static void Shutdown();
 
+        static void BeginScene(const Camera& camera, const glm::mat4& transform);
         static void BeginScene(const OrthographicCamera& camera);
         static void EndScene();
 

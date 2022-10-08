@@ -15,9 +15,11 @@ import Cosmic.Renderer.Texture;
 import Cosmic.Renderer.Framebuffer;
 import Cosmic.Renderer.Renderer2D;
 import Cosmic.Renderer.OrthographicCamera;
+import Cosmic.Renderer.Camera;
 
 import Cosmic.ECS.Scene;
 import Cosmic.ECS.Components;
+import Cosmic.ECS.NativeScript;
 
 namespace Cosmic
 {
@@ -33,12 +35,15 @@ namespace Cosmic
 
     private:
         void SetupDockSpace();
+        void SetupMenuBar();
 
     private:
         Ref<Scene> mActiveScene;
 
         Ref<Texture2D> mCosmicLogoTexture;
         Ref<Framebuffer> mFramebuffer;
+
+        Entity mCameraEntity;
 
         Panels mPanels;
     };

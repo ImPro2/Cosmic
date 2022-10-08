@@ -2,6 +2,8 @@ module;
 #include "cspch.hpp"
 #include <imgui.h>
 #include <entt/entt.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 module Editor.EditorModule;
 
 CS_MODULE_LOG_INFO(Editor, EditorModule);
@@ -28,6 +30,40 @@ namespace Cosmic
         auto& sprite = entity.AddComponent<SpriteRendererComponent>();
         sprite.Color = { 0.82f, 0.25f, 0.12f, 1.0f };
 
+        mCameraEntity = mActiveScene->CreateEntity("Camera Entity");
+        mCameraEntity.AddComponent<CameraComponent>();
+
+        class PlayerScript : public NativeScript
+        {
+        public:
+            void OnCreate()
+            {
+                CS_LOG_INFO("Hello, world!");
+            }
+
+            void OnDestroy()
+            {
+            }
+
+            void OnUpdate(Dt dt)
+            {
+                auto& transform = GetComponent<TransformComponent>().Transform;
+
+                glm::vec2 direction = {
+                    (float32)Input::IsKeyPressed(EKeyCode::D) - (float32)Input::IsKeyPressed(EKeyCode::A),
+                    (float32)Input::IsKeyPressed(EKeyCode::W) - (float32)Input::IsKeyPressed(EKeyCode::S)
+                };
+
+                transform[3][0] += mAcceleration * direction.x * dt;
+                transform[3][1] += mAcceleration * direction.y * dt;
+            }
+
+        private:
+            float32 mAcceleration = 5.0f;
+        };
+
+        mCameraEntity.AddComponent<NativeScriptComponent>().Bind<PlayerScript>();
+
         mPanels.Init(mFramebuffer, mActiveScene);
 
         CS_LOG_INFO("Successfully initialized editor.");
@@ -44,15 +80,14 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+        Renderer2D::ResetStatistics();
         mFramebuffer->Bind();
+        RenderCommand::SetClearColor({ 0.2f, 0.3f, 0.2f, 1.0f });
         RenderCommand::Clear();
-        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 
-        const OrthographicCamera& camera = mPanels.GetPanel<ViewportPanel>()->GetCameraController().GetCamera();
+        //const OrthographicCamera& camera = mPanels.GetPanel<ViewportPanel>()->GetCameraController().GetCamera();
 
-        Renderer2D::BeginScene(camera);
         mActiveScene->OnUpdate(dt);
-        Renderer2D::EndScene();
 
         mFramebuffer->Unbind();
 
@@ -68,6 +103,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+        SetupMenuBar();
         SetupDockSpace();
 
         //ImGui::Begin("Temporary Settings");
@@ -101,7 +137,28 @@ namespace Cosmic
         ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
         ImGui::DockSpace(dockspaceID);
 
+        SetupMenuBar();
+
         ImGui::End();
+    }
+
+    void EditorModule::SetupMenuBar()
+    {
+        if (ImGui::BeginMainMenuBar())
+        {
+            bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
+
+            if (ImGui::BeginMenu("View"))
+            {
+                for (Panel* panel : mPanels.GetPanels())
+                {
+                    ImGui::MenuItem(panel->GetName().c_str(), "", panel->IsOpenPtr());
+                }
+
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
     }
 
 }

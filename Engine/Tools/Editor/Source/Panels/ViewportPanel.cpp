@@ -2,13 +2,14 @@ module;
 #include "cspch.hpp"
 #include <imgui.h>
 #include <glm/glm.hpp>
+#include <entt/entt.hpp>
 module Editor.Panels.ViewportPanel;
 
 namespace Cosmic
 {
 
-    ViewportPanel::ViewportPanel(const Ref<Framebuffer>& framebuffer)
-        : mFramebuffer(framebuffer)
+    ViewportPanel::ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene)
+        : mFramebuffer(framebuffer), mScene(scene), Panel("Viewport Panel")
     {
         CS_PROFILE_FN();
 
@@ -51,10 +52,12 @@ namespace Cosmic
 
             // Check if the framebuffer's size matches the window size
 
-            if (fbWidth != width || fbHeight != height)
+            if (fbWidth != width || fbHeight != height && width > 0.0f && height > 0.0f)
             {
                 mFramebuffer->Resize(width, height);
                 mCameraController.OnResize(width, height);
+
+                mScene->OnViewportResize(width, height);
             }
 
             // Render the image

@@ -17,11 +17,18 @@ namespace Cosmic
     export class Panel : public Module
     {
     public:
-        void Show(bool open) { mOpen = open; }
-        bool IsOpen()  const { return mOpen; }
+        Panel() = default;
+        Panel(const String& name) : mPanelName(name) { }
+
+    public:
+        void  Show(bool open)         { mOpen = open;  }
+        bool  IsOpen()          const { return mOpen;  }
+        bool* IsOpenPtr()             { return &mOpen; }
+        const String& GetPanelName() const { return mPanelName; }
 
     protected:
         bool mOpen = true;
+        String mPanelName = "";
     };
 
     export class Panels
@@ -41,6 +48,8 @@ namespace Cosmic
                     return static_cast<T*>(panel);
             }
         }
+
+        const Vector<Panel*>& GetPanels() const { return mPanels; }
 
     private:
         Vector<Panel*> mPanels;

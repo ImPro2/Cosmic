@@ -23,14 +23,67 @@ namespace Cosmic
 
     void Scene::OnUpdate(Dt dt)
     {
-        // Render Quads
+        // Update scripts
+        {
+            mRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+            {
+                if (!nsc.Instance)
+                {
+                    nsc.Instance          = nsc.InstantiateScript();
+                    nsc.Instance->mEntity = Entity{ entity, &mRegistry };
+                    nsc.Instance->OnCreate();
+                }
+                nsc.Instance->OnUpdate(Time::GetDeltaTime());
+            });
+        }
 
-        auto view = mRegistry.view<TransformComponent, SpriteRendererComponent>();
+        Camera*    mainCamera          = nullptr;
+        glm::mat4* mainCameraTransform = nullptr;
+
+        // Find main camera
+        {
+            auto view = mRegistry.view<TransformComponent, CameraComponent>();
+            for (auto entity : view)
+            {
+                auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
+
+                if (camera.Primary)
+                {
+                    mainCamera          = &camera.Camera;
+                    mainCameraTransform = &transform.Transform;
+                }
+            }
+        }
+
+        // Only render if main camera exists
+        if (mainCamera)
+        {
+            Renderer2D::BeginScene(*mainCamera, *mainCameraTransform);
+
+            auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+            for (auto entity : group)
+            {
+                auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+
+                Renderer2D::RenderQuad(transform, sprite.Color);
+            }
+
+            Renderer2D::EndScene();
+        }
+    }
+
+    void Scene::OnViewportResize(uint32 width, uint32 height)
+    {
+        // Resize non-fixed aspect ratio cameras.
+
+        auto view = mRegistry.view<CameraComponent>();
         for (auto entity : view)
         {
-            auto [transform, sprite] = view.get<TransformComponent, SpriteRendererComponent>(entity);
-
-            Renderer2D::RenderQuad(transform, sprite.Color);
+            auto& cameraComponent = view.get<CameraComponent>(entity);
+            if (!cameraComponent.FixedAspectRatio)
+            {
+                cameraComponent.Camera.SetViewportSize(width, height);
+            }
         }
     }
 

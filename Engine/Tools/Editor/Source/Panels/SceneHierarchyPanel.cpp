@@ -11,6 +11,7 @@ namespace Cosmic
 {
 
     SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene)
+        : Panel("Scene Hierarchy Panel")
     {
         mScene = scene;
     }
@@ -114,6 +115,7 @@ namespace Cosmic
                 if (deleteEntity)
                 {
                     mScene->RemoveEntity(entity);
+                    mSelectedEntity = Entity();
                     CS_LOG_INFO("Deleted Entity {}", text);
                 }
 

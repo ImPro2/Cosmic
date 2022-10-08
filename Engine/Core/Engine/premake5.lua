@@ -18,7 +18,8 @@ project "Engine"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.YamlCPP}",
 		"%{IncludeDir.Optick}",
-		"%{IncludeDir.EnTT}"
+		"%{IncludeDir.EnTT}",
+		"%{IncludeDir.FontAwesome}"
 	}
 
 	links

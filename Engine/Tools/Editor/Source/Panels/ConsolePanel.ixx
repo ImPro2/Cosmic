@@ -18,6 +18,9 @@ namespace Cosmic
     export class ConsolePanel : public Panel
     {
     public:
+        ConsolePanel();
+
+    public:
         void OnEvent(const Event& e) override;
         void OnImGuiRender() override;
 

@@ -4,10 +4,14 @@ module;
 export module Cosmic.ECS.Scene;
 
 import Cosmic.Time.DeltaTime;
+import Cosmic.Time;
 import Cosmic.Renderer.Renderer2D;
+import Cosmic.Renderer.Camera;
 import Cosmic.Base;
 import Cosmic.ECS.Components;
 import Cosmic.ECS.Entity;
+import Cosmic.ECS.SceneCamera;
+import Cosmic.ECS.NativeScript;
 
 namespace Cosmic
 {
@@ -20,6 +24,7 @@ namespace Cosmic
 
     public:
         void OnUpdate(Dt dt);
+        void OnViewportResize(uint32 width, uint32 height);
 
     public:
         Entity CreateEntity(const String& name = "");

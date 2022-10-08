@@ -1,5 +1,6 @@
 module;
 #include "cspch.hpp"
+#include <entt/entt.hpp>
 export module Editor.Panels.ViewportPanel;
 
 import Editor.Panels;
@@ -10,6 +11,7 @@ import Cosmic.Renderer.OrthographicCameraController;
 import Cosmic.Time.DeltaTime;
 import Cosmic.Gui;
 import Cosmic.App.Events;
+import Cosmic.ECS.Scene;
 
 namespace Cosmic
 {
@@ -17,7 +19,7 @@ namespace Cosmic
     export class ViewportPanel : public Panel
     {
     public:
-        ViewportPanel(const Ref<Framebuffer>& framebuffer);
+        ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene);
 
     public:
         void OnUpdate(Dt dt) override;
@@ -29,6 +31,7 @@ namespace Cosmic
 
     private:
         Ref<Framebuffer> mFramebuffer;
+        Ref<Scene>       mScene;
         OrthographicCameraController mCameraController;
     };
 
