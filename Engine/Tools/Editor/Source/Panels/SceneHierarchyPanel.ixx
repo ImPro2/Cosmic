@@ -17,6 +17,7 @@ import Cosmic.ECS.Entity;
 import Cosmic.ECS.Components;
 import Cosmic.App.Events;
 import Cosmic.App.WindowEvents;
+import Cosmic.App.EditorEvents;
 
 namespace Cosmic
 {
@@ -33,6 +34,9 @@ namespace Cosmic
 
     public:
         Entity GetSelectedEntity() { return mSelectedEntity; }
+
+    private:
+        bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
 
     private:
         Ref<Scene> mScene;

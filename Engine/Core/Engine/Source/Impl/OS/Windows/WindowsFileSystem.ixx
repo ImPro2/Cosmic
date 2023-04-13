@@ -8,9 +8,12 @@ module;
 export module Cosmic.Impl.OS.Windows.WindowsFileSystem;
 
 import Cosmic.App.FileSystem;
+import Cosmic.App.File;
+import Cosmic.App.FileSystemEvents;
 import Cosmic.App.Log;
 import Cosmic.Base.Cast;
 import Cosmic.Base.Types;
+import Cosmic.App.Application;
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsFileSystem);
 
@@ -19,7 +22,6 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsFileSystem);
 #undef CreateDirectory
 #undef RemoveDirectory
 #undef CreateFile
-
 
 namespace Cosmic
 {
@@ -41,174 +43,118 @@ namespace Cosmic
 
     }
 
-
-    /********************************************************
-    *                         File                          *
-    ********************************************************/
-
-    const std::string_view File::GetName()
+    void FileSystem::Init(const Directory& fileSystemWatcherPath)
     {
-        const std::string_view nameAndExt = GetNameAndExtension();
-
-        return nameAndExt.substr(0, nameAndExt.find('.'));
+        mFileSystemWatcherDirectory = fileSystemWatcherPath;
+        mFileSystemWatcherThread = std::thread(&FileSystem::FileSystemWatcherThread);
     }
 
-    const std::string_view File::GetExtension()
+    void FileSystem::Shutdown()
     {
-        const std::string_view nameAndExt = GetNameAndExtension();
 
-        return nameAndExt.substr(nameAndExt.find('.') + 1, nameAndExt.size() - 1);
     }
 
-    const std::string_view File::GetNameAndExtension()
+
+    void FileSystem::FileSystemWatcherThread()
     {
-        return std::string_view(mAbsolutePath.c_str() + mAbsolutePath.find_last_of('/') + 1);
-    }
+        HANDLE dirHandle = CreateFileA(mFileSystemWatcherDirectory.c_str(), GENERIC_READ | FILE_LIST_DIRECTORY,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+            NULL
+        );
 
-    const std::string_view File::GetAbsolutePath()
-    {
-        return mAbsolutePath;
-    }
+        int flags = 0;
+        flags |= FILE_NOTIFY_CHANGE_FILE_NAME;
+        flags |= FILE_NOTIFY_CHANGE_DIR_NAME;
+        flags |= FILE_NOTIFY_CHANGE_ATTRIBUTES;
+        flags |= FILE_NOTIFY_CHANGE_SIZE;
+        flags |= FILE_NOTIFY_CHANGE_LAST_WRITE;
+        flags |= FILE_NOTIFY_CHANGE_LAST_ACCESS;
+        flags |= FILE_NOTIFY_CHANGE_CREATION;
+        flags |= FILE_NOTIFY_CHANGE_SECURITY;
 
-    const std::string_view File::GetParentDirectory()
-    {
-        // TODO: Do extra checks and stuff
+        char filename[100];
+        char buffer[2048];
+        DWORD bytesReturned;
+        FILE_NOTIFY_INFORMATION* pNotify;
+        int offset = 0;
+        OVERLAPPED pollingOverlap;
+        pollingOverlap.OffsetHigh = 0;
+        pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
-        std::string_view s(mAbsolutePath.c_str(), mAbsolutePath.find_last_of('/'));
-        return s;
-    }
+        bool result = true;
+        HANDLE hEvents[2];
+        hEvents[0] = pollingOverlap.hEvent;
+        hEvents[1] = CreateEventA(NULL, TRUE, FALSE, NULL);
 
-    const size_t File::GetSize()
-    {
-        // TODO: Make this work
-
-        HANDLE      hFile;
-        DWORD       fileSize     = 0;
-        std::string absolutePath = mAbsolutePath;
-
-        // Ensure that windows can read the file path correctly
-
-        Utils::ReplaceAll(absolutePath, "/", "\\");
-
-        // Obtain the file handle
-
-        CS_WINDOWS_CALL(hFile = ::CreateFileA(
-            absolutePath.c_str(),                         // file to open
-            GENERIC_READ,                                 // open for reading
-            FILE_SHARE_READ,                              // share for reading
-            NULL,                                         // default security
-            OPEN_EXISTING,                                // existing file only
-            FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, // normal file
-            NULL                                          // no attr. template
-        ), "Unable to open file ``.");
-
-        // Get the file size
-
-        CS_WINDOWS_CALL(::GetFileSize(
-            hFile,
-            &fileSize
-        ), "Failed to get the desired file size of file `{}`", mAbsolutePath);
-
-        // Close the file handle
-
-        ::CloseHandle(hFile);
-
-        // Return the file size
-
-        return (size_t)fileSize;
-    }
-
-#define BUFFER_SIZE 1024
-
-    const std::string File::Read()
-    {
-        HANDLE     hFile;
-        DWORD      dwNumberOfBytesRead     =   0;
-        char       readBuffer[BUFFER_SIZE] = { 0 };
-        OVERLAPPED ol                      = { 0 };
-
-        // get the file handle and open the file
-
-        CS_WINDOWS_CALL(hFile = CreateFileA(
-            mAbsolutePath.c_str(),                        // file to open
-            GENERIC_READ,                                 // open for reading
-            FILE_SHARE_READ,                              // share for reading
-            NULL,                                         // default security
-            OPEN_EXISTING,                                // existing file only
-            FILE_ATTRIBUTE_NORMAL,                        // normal file
-            NULL                                          // no attr. template
-        ), "Unable to open file ``.");
-
-        // read the file
-
-        CS_WINDOWS_CALL(ReadFile(
-            hFile,                // file to open
-            readBuffer,           // output pointer containing file contents
-            BUFFER_SIZE - 1,      // number of bytes to read
-            &dwNumberOfBytesRead, // number of bytes read
-            &ol                   // output of LPOVERLAPPED
-        ), "Unable to read file ``.");
-
-        // insert a NULL character
-
-        if (dwNumberOfBytesRead > 0 && dwNumberOfBytesRead < BUFFER_SIZE)
+        while (result)
         {
-            readBuffer[dwNumberOfBytesRead] = '\0';
+            result = ReadDirectoryChangesW(
+                dirHandle,
+                &buffer,
+                sizeof(buffer),
+                true,
+                flags,
+                &bytesReturned,
+                &pollingOverlap,
+                NULL
+            );
+
+            DWORD event = WaitForMultipleObjects(2, hEvents, FALSE, INFINITE);
+            offset = 0;
+            int rename = 0;
+
+            if (event == WAIT_OBJECT_0 + 1)
+            {
+                break;
+            }
+
+            do
+            {
+                pNotify = (FILE_NOTIFY_INFORMATION*)((char*)buffer + offset);
+                strcpy(filename, "");
+                int filenamelen = WideCharToMultiByte(CP_ACP, 0, pNotify->FileName, pNotify->FileNameLength / 2, filename, sizeof(filename), NULL, NULL);
+                filename[pNotify->FileNameLength / 2] = '\0';
+
+                File file = File(filename);
+
+                switch (pNotify->Action)
+                {
+                    case FILE_ACTION_ADDED:
+                    {
+                        Application::Get()->OnEvent(FileAddedEvent(file));
+                        break;
+                    }
+                    case FILE_ACTION_REMOVED:
+                    {
+                        Application::Get()->OnEvent(FileRemovedEvent(file));
+                        break;
+                    }
+                    case FILE_ACTION_MODIFIED:
+                    {
+                        Application::Get()->OnEvent(FileModifiedEvent(file));
+                        break;
+                    }
+                    case FILE_ACTION_RENAMED_NEW_NAME:
+                    {
+                        Application::Get()->OnEvent(FileRenamedEvent(file));
+                        break;
+                    }
+                    default:
+                    {
+                        CS_LOG_INFO("asdf");
+                        break;
+                    }
+                }
+
+                offset += pNotify->NextEntryOffset;
+
+            } while (pNotify->NextEntryOffset);
         }
 
-        // close the file
-
-        ::CloseHandle(hFile);
-
-        // return
-
-        return std::string(readBuffer);
+        CloseHandle(dirHandle);
     }
 
-    const unsigned char* File::ReadBinary()
-    {
-        // TODO: Implement
-        return nullptr;
-    }
-
-    void File::Write(const std::string_view text)
-    {
-        HANDLE     hFile;
-
-        // get the file handle and open the file
-
-        CS_WINDOWS_CALL(hFile = CreateFileA(
-            mAbsolutePath.c_str(),                        // file to open
-            GENERIC_WRITE,                                // open for writing
-            0,                                            // do not share for writing
-            NULL,                                         // default security
-            OPEN_EXISTING,                                // existing file only
-            FILE_ATTRIBUTE_NORMAL,                        // normal file
-            NULL                                          // no attr. template
-        ), "Unable to open file ``.");
-
-        // write to the file
-
-        CS_WINDOWS_CALL(WriteFile(
-            hFile,
-            text.data(),
-            strlen(text.data()),
-            nullptr,
-            NULL
-        ), "Unable to write to file ``");
-
-        ::CloseHandle(hFile);
-    }
-
-    void File::WriteBinary(const unsigned char* text)
-    {
-        // TODO: Implement
-    }
-
-
-    /*************************************************************
-    *                         FileSystem                         *
-    *************************************************************/
 
     FilesAndDirectoriesInDirectory FileSystem::GetAllFilesAndDirectoriesInDirectory(const Directory& parentDir)
     {
@@ -244,7 +190,7 @@ namespace Cosmic
         return result;
     }
 
-    bool FileSystem::IsFileOrDirectory(const std::string& path)
+    bool FileSystem::IsFileOrDirectory(const String& path)
     {
         if (path.find('.') != std::string_view::npos)
             return true;
@@ -299,7 +245,7 @@ namespace Cosmic
         ), "Unable to remove the file.");
     }
 
-    void FileSystem::CopyFile(const File& file, const std::string_view path)
+    void FileSystem::CopyFile(const File& file, const StringView path)
     {
         CS_WINDOWS_CALL(::CopyFileA(
             ((File)file).GetAbsolutePath().data(), // existing file to be copied.
@@ -316,7 +262,7 @@ namespace Cosmic
         ), "Failed to move the file.");
     }
 
-    void FileSystem::RenameFile(const File& file, const std::string_view newName)
+    void FileSystem::RenameFile(const File& file, const StringView newName)
     {
         std::string newFileName = std::vformat("{}/{}", std::make_format_args(((File)file).GetParentDirectory().data(), newName.data()));
         ((File)file).SetAbsolutePath(std::string_view(newFileName));
@@ -327,13 +273,13 @@ namespace Cosmic
         ), "Unable to rename file.");
     }
 
-    void FileSystem::RenameFileExtension(const File& file, const std::string_view ext)
+    void FileSystem::RenameFileExtension(const File& file, const StringView ext)
     {
         std::string newName = std::vformat("{}{}", std::make_format_args(((File)file).GetName().data(), ext.data()));
         RenameFile(file, std::string_view(newName));
     }
 
-    void FileSystem::RenameFileName(const File& file, const std::string_view name)
+    void FileSystem::RenameFileName(const File& file, const StringView name)
     {
         std::string newName = std::vformat("{}{}", std::make_format_args(name.data(), ((File)file).GetExtension()));
         RenameFile(file, std::string_view(newName));

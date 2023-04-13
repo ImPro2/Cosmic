@@ -8,6 +8,7 @@ module Cosmic.ECS.Scene;
 CS_MODULE_LOG_INFO(Cosmic, ECS.Scene);
 
 import Cosmic.App.Log;
+import Cosmic.ECS.Components;
 
 namespace Cosmic
 {
@@ -25,20 +26,22 @@ namespace Cosmic
     {
         // Update scripts
         {
-            mRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+            mRegistry.view<NativeScriptComponent, TransformComponent>().each([=](auto entity, auto& nsc, auto& transform)
             {
-                if (!nsc.Instance)
+                //auto a = entt::type_seq<TransformComponent>();
+                if (!nsc.Instance && nsc.Bound)
                 {
-                    nsc.Instance          = nsc.InstantiateScript();
+                    nsc.Instance          = nsc.ScriptCallbacks.InstantiateScript();
                     nsc.Instance->mEntity = Entity{ entity, &mRegistry };
                     nsc.Instance->OnCreate();
                 }
-                nsc.Instance->OnUpdate(Time::GetDeltaTime());
+                if (nsc.Bound)
+                    nsc.Instance->OnUpdate(Time::GetDeltaTime());
             });
         }
 
-        Camera*    mainCamera          = nullptr;
-        glm::mat4* mainCameraTransform = nullptr;
+        Camera*   mainCamera          = nullptr;
+        glm::mat4 mainCameraTransform = glm::mat4(1.0f);
 
         // Find main camera
         {
@@ -50,7 +53,7 @@ namespace Cosmic
                 if (camera.Primary)
                 {
                     mainCamera          = &camera.Camera;
-                    mainCameraTransform = &transform.Transform;
+                    mainCameraTransform = transform.GetTransform();
                 }
             }
         }
@@ -58,18 +61,49 @@ namespace Cosmic
         // Only render if main camera exists
         if (mainCamera)
         {
-            Renderer2D::BeginScene(*mainCamera, *mainCameraTransform);
+            Renderer2D::BeginScene(*mainCamera, mainCameraTransform);
 
             auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
             for (auto entity : group)
             {
                 auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
-                Renderer2D::RenderQuad(transform, sprite.Color);
+                Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
             }
 
             Renderer2D::EndScene();
         }
+    }
+
+    void Scene::OnUpdateEditor(Dt dt, const OrthographicCamera& camera)
+    {
+        // Update scripts
+        {
+            mRegistry.view<NativeScriptComponent, TransformComponent>().each([=](auto entity, auto& nsc, auto& transform)
+                {
+                    //auto a = entt::type_seq<TransformComponent>();
+                    if (!nsc.Instance && nsc.Bound)
+                    {
+                        nsc.Instance = nsc.ScriptCallbacks.InstantiateScript();
+                        nsc.Instance->mEntity = Entity{ entity, &mRegistry };
+                        nsc.Instance->OnCreate();
+                    }
+                    if (nsc.Bound)
+                        nsc.Instance->OnUpdate(Time::GetDeltaTime());
+                });
+        }
+
+        Renderer2D::BeginScene(camera);
+
+        auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+        for (auto entity : group)
+        {
+            auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+
+            Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
+        }
+
+        Renderer2D::EndScene();
     }
 
     void Scene::OnViewportResize(uint32 width, uint32 height)

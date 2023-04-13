@@ -1,12 +1,16 @@
 module;
 #include "cspch.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 #include <entt/entt.hpp>
 export module Cosmic.ECS.Components;
 
 import Cosmic.Base;
 import Cosmic.ECS.SceneCamera;
-import Cosmic.ECS.NativeScript;
+import Cosmic.Script.NativeScript;
+import Cosmic.Script.ScriptEngine;
 import Cosmic.Time.DeltaTime;
 import Cosmic.Time;
 
@@ -35,22 +39,30 @@ namespace Cosmic
 
     export struct TransformComponent
     {
-        glm::mat4 Transform = glm::mat4(1.0f);
+        glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
 
         TransformComponent()                          = default;
         TransformComponent(const TransformComponent&) = default;
-        TransformComponent(const glm::mat4& transform)
-            : Transform(transform)
+        TransformComponent(const glm::vec3& translation)
+            : Translation(translation)
         {
+        }
+
+        glm::mat4 GetTransform() const
+        {
+            glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
+
+            return glm::translate(glm::mat4(1.0f), Translation) * rotation * glm::scale(glm::mat4(1.0f), Scale);
         }
 
         void Reset()
         {
-            Transform = glm::mat4(1.0f);
+            Translation = { 0.0f, 0.0f, 0.0f };
+            Rotation = { 0.0f, 0.0f, 0.0f };
+            Scale = { 1.0f, 1.0f, 1.0f };
         }
-
-        operator glm::mat4& ()             { return Transform; }
-        operator const glm::mat4& () const { return Transform; }
     };
 
     export struct SpriteRendererComponent
@@ -93,23 +105,26 @@ namespace Cosmic
     export struct NativeScriptComponent
     {
         NativeScript* Instance = nullptr;
+        NativeScriptCallbacks ScriptCallbacks = {};
+        String ClassName = "";
+        bool Bound = false;
 
-        NativeScript* (*InstantiateScript)();
-        void (*DestroyScript)(NativeScriptComponent*);
-
-        template<typename T>
-        void Bind()
+        void Bind(const String& className)
         {
-            InstantiateScript = []()          -> NativeScript* { return new T();                               };
-            DestroyScript     = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
+            ScriptCallbacks = ScriptEngine::AddNativeScript(className);
+            Bound = true;
+            ClassName = className;
         }
 
         void Reset()
         {
-            Instance          = nullptr;
+            Instance = nullptr;
  
-            InstantiateScript = []() -> NativeScript*          { return nullptr; };
-            DestroyScript     = [](NativeScriptComponent* nsc) {                 };
+            ScriptCallbacks.InstantiateScript = []() -> NativeScript* { return nullptr; };
+            ScriptCallbacks.DestroyScript     = [](NativeScript* instance) { };
+
+            ClassName = "";
+            Bound = false;
         }
     };
 

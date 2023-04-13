@@ -8,6 +8,9 @@ module Editor.EditorModule;
 
 CS_MODULE_LOG_INFO(Editor, EditorModule);
 
+import Cosmic.ECS.Entity;
+import Cosmic.ECS.SceneSerializer;
+
 namespace Cosmic
 {
 
@@ -24,45 +27,6 @@ namespace Cosmic
         mFramebuffer = CreateFramebuffer(fbInfo);
 
         mActiveScene = CreateRef<Scene>();
-
-        // Temporary
-        Entity entity = mActiveScene->CreateEntity("Entity 1");
-        auto& sprite = entity.AddComponent<SpriteRendererComponent>();
-        sprite.Color = { 0.82f, 0.25f, 0.12f, 1.0f };
-
-        mCameraEntity = mActiveScene->CreateEntity("Camera Entity");
-        mCameraEntity.AddComponent<CameraComponent>();
-
-        class PlayerScript : public NativeScript
-        {
-        public:
-            void OnCreate()
-            {
-                CS_LOG_INFO("Hello, world!");
-            }
-
-            void OnDestroy()
-            {
-            }
-
-            void OnUpdate(Dt dt)
-            {
-                auto& transform = GetComponent<TransformComponent>().Transform;
-
-                glm::vec2 direction = {
-                    (float32)Input::IsKeyPressed(EKeyCode::D) - (float32)Input::IsKeyPressed(EKeyCode::A),
-                    (float32)Input::IsKeyPressed(EKeyCode::W) - (float32)Input::IsKeyPressed(EKeyCode::S)
-                };
-
-                transform[3][0] += mAcceleration * direction.x * dt;
-                transform[3][1] += mAcceleration * direction.y * dt;
-            }
-
-        private:
-            float32 mAcceleration = 5.0f;
-        };
-
-        mCameraEntity.AddComponent<NativeScriptComponent>().Bind<PlayerScript>();
 
         mPanels.Init(mFramebuffer, mActiveScene);
 
@@ -97,6 +61,10 @@ namespace Cosmic
     void EditorModule::OnEvent(const Event& e)
     {
         CS_PROFILE_FN();
+
+        EventDispatcher dispatcher(e);
+        CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
+        CS_DISPATCH_EVENT(FileModifiedEvent, OnFileModified);
     }
 
     void EditorModule::OnImGuiRender()
@@ -105,11 +73,6 @@ namespace Cosmic
 
         SetupMenuBar();
         SetupDockSpace();
-
-        //ImGui::Begin("Temporary Settings");
-        //auto& squareColor = mSquareEntity.GetComponent<SpriteRendererComponent>().Color;
-        //ImGui::ColorEdit4("Square Color", &squareColor.x);
-        //ImGui::End();
 
         ImGui::ShowDemoWindow();
     }
@@ -133,11 +96,17 @@ namespace Cosmic
 
         ImGui::PopStyleVar(3);
 
-        ImGuiIO& io = ImGui::GetIO();
-        ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
-        ImGui::DockSpace(dockspaceID);
+        ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyDefault_;
+        if (ImGui::BeginTabBar("##MainTabBar", tabBarFlags))
+        {
 
-        SetupMenuBar();
+
+            ImGui::EndTabBar();
+        }
+
+        //ImGuiIO& io = ImGui::GetIO();
+        //ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
+        //ImGui::DockSpace(dockspaceID);
 
         ImGui::End();
     }
@@ -147,18 +116,166 @@ namespace Cosmic
         if (ImGui::BeginMainMenuBar())
         {
             bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
+            bool shift = Input::IsKeyPressed(EKeyCode::LeftShift) || Input::IsKeyPressed(EKeyCode::RightShift);
 
+            if (ImGui::BeginMenu("File"))
+            {
+                if (ImGui::MenuItem("Open Scene", "CTRL+O") || control && Input::IsKeyPressed(EKeyCode::O))
+                {
+                    OpenScene();
+                }
+                if (ImGui::MenuItem("Save Scene", "CTRL+S") || control && !shift && Input::IsKeyPressed(EKeyCode::S))
+                {
+                    SaveScene();
+                }
+                if (ImGui::MenuItem("Save Scene As", "CTRL+SHIFT+S") || control && shift && Input::IsKeyPressed(EKeyCode::S))
+                {
+                    SaveSceneAs();
+                }
+
+                ImGui::EndMenu();
+            }
             if (ImGui::BeginMenu("View"))
             {
+                if (ImGui::MenuItem("Show All", ""))
+                {
+                    mPanels.ShowAll();
+                }
+
                 for (Panel* panel : mPanels.GetPanels())
                 {
-                    ImGui::MenuItem(panel->GetName().c_str(), "", panel->IsOpenPtr());
+                    ImGui::MenuItem(panel->GetPanelName().c_str(), "", panel->IsOpenPtr());
                 }
 
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
         }
+    }
+
+    bool EditorModule::OnKeyPressed(const KeyPressEvent& e)
+    {
+        bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
+        bool shift   = Input::IsKeyPressed(EKeyCode::LeftShift)   || Input::IsKeyPressed(EKeyCode::RightShift);
+        bool alt     = Input::IsKeyPressed(EKeyCode::LeftAlt)     || Input::IsKeyPressed(EKeyCode::RightAlt);
+
+        switch (e.GetKeyCode())
+        {
+            case EKeyCode::S:
+            {
+                if (control)
+                {
+                    if (shift)
+                    {
+                        SaveSceneAs();
+                    }
+                    else
+                    {
+                        SaveScene();
+                    }
+                }
+                break;
+            }
+            case EKeyCode::O:
+            {
+                if (control)
+                {
+                    OpenScene();
+                }
+                break;
+            }
+            case EKeyCode::N:
+            {
+                if (control)
+                {
+                    NewScene();
+                }
+                break;
+            }
+            case EKeyCode::D:
+            {
+                if (control)
+                {
+                    // Duplicate entity
+                }
+            }
+            case EKeyCode::X:
+            {
+                if (control)
+                {
+                    // Remove entity
+                }
+            }
+            case EKeyCode::Q: break;
+            case EKeyCode::W: break;
+            case EKeyCode::E: break;
+            case EKeyCode::R: break;
+        }
+
+        return false;
+    }
+
+    bool EditorModule::OnFileModified(const FileModifiedEvent& e)
+    {
+        const String modified = e.GetFile().GetNameAndExtension();
+        const String& scriptAssemblyPath = Application::Get()->GetInfo().ScriptAssemblyPath;
+
+        if (modified == scriptAssemblyPath)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    void EditorModule::SaveScene()
+    {
+        if (!mActiveScenePath.empty())
+        {
+            SceneSerializer serializer(mActiveScene);
+            serializer.Serialize(mActiveScenePath);
+
+            Application::Get()->OnEvent(EditorSceneSavedEvent(mActiveScene));
+        }
+    }
+
+    void EditorModule::SaveSceneAs()
+    {
+        String newPath = OS::SaveFileDialog("");
+
+        if (!newPath.empty())
+        {
+            mActiveScenePath = newPath;
+            SceneSerializer serializer(mActiveScene);
+            serializer.Serialize(mActiveScenePath);
+
+            Application::Get()->OnEvent(EditorSceneSavedAsEvent(mActiveScene));
+        }
+    }
+
+    void EditorModule::OpenScene()
+    {
+        {
+            SceneSerializer serializer(mActiveScene);
+            serializer.Serialize(mActiveScenePath);
+        }
+
+        String newPath = OS::OpenFileDialog("Cosmic Scene (*.cscene)\0*.cscene\0");
+        
+        if (!newPath.empty())
+        {
+            mActiveScenePath = newPath;
+            mActiveScene = CreateRef<Scene>();
+            
+            SceneSerializer serializer(mActiveScene);
+            serializer.Deserialize(mActiveScenePath);
+
+            Application::Get()->OnEvent(EditorSceneOpenedEvent(mActiveScene));
+        }
+    }
+
+    void EditorModule::NewScene()
+    {
+    
     }
 
 }

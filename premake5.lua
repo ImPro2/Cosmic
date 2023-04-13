@@ -41,6 +41,15 @@ workspace "Cosmic"
 
 include "Dependencies.lua"
 
+group "Dependencies"
+    include "Dependencies/GLFW"
+    include "Dependencies/Glad"
+    include "Dependencies/Yaml-CPP"
+    include "Dependencies/ImGui"
+    include "Dependencies/stb_image"
+    include "Dependencies/Optick"
+group ""
+
 group "Engine"
 	group "Engine/Core"
 		include "Engine/Core/Engine"

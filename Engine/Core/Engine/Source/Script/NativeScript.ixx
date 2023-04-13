@@ -1,6 +1,6 @@
 module;
 #include "cspch.hpp"
-export module Cosmic.ECS.NativeScript;
+export module Cosmic.Script.NativeScript;
 
 import Cosmic.ECS.Entity;
 import Cosmic.Time;
@@ -33,16 +33,31 @@ namespace Cosmic
             return mEntity.GetComponent<T>();
         }
 
+        template<typename T>
+        bool HasComponent()
+        {
+            return mEntity.HasComponent<T>();
+        }
+
     protected:
         virtual void OnCreate()      { }
         virtual void OnDestroy()     { }
         virtual void OnUpdate(Dt dt) { }
 
-    private:
+    protected:
         Entity mEntity;
 
     private:
         friend class Scene;
+    };
+
+    export typedef NativeScript* (*InstantiateNativeScriptCallback)();
+    export typedef void(*DestroyNativeScriptCallback)(NativeScript*);
+
+    export struct NativeScriptCallbacks
+    {
+        InstantiateNativeScriptCallback InstantiateScript;
+        DestroyNativeScriptCallback     DestroyScript;
     };
 
 }

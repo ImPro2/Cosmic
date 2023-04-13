@@ -59,6 +59,9 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+        if (!mOpen)
+            return;
+
         if (ImGui::Begin("Console", &mOpen))
         {
             static bool showTraceLogs    = true;
@@ -116,7 +119,7 @@ namespace Cosmic
 
             if (columnCount != 0)
             {
-                if (ImGui::BeginTable("Logs Table", columnCount, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY))
+                if (ImGui::BeginTable("Logs Table", columnCount, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg))
                 {
                     if (showFiles)    ImGui::TableSetupColumn("Files");
                     if (showSeverity) ImGui::TableSetupColumn("Severity");

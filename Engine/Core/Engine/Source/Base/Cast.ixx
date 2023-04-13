@@ -9,7 +9,7 @@ namespace Cosmic
     export template<typename From, typename To>
     To Cast(From from)
     {
-        static_assert(false);
+        //static_assert(false);
     }
 
     export std::wstring Cast(std::string s)

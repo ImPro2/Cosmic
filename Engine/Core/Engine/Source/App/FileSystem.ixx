@@ -1,51 +1,15 @@
 module;
 #include "cspch.hpp"
+#include <thread>
 export module Cosmic.App.FileSystem;
 
+import Cosmic.App.File;
 import Cosmic.Base.Types;
 
 namespace Cosmic
 {
 
-    export using Directory = String;
-    class FileSystem;
-    class File;
-
-    export class File
-    {
-    public:
-        const StringView     GetName();
-        const StringView     GetExtension();
-        const StringView     GetNameAndExtension();
-
-        const StringView     GetAbsolutePath();
-        const StringView     GetParentDirectory();
-
-        const size_t         GetSize();
-
-        const String         Read();
-        const unsigned char* ReadBinary();
-
-        void                   Write(const StringView text);
-        void                   WriteBinary(const unsigned char* text);
-
-        File(const std::string_view absolutePath)
-            : mAbsolutePath(absolutePath)
-        {
-        }
-    
-    private:
-        void SetAbsolutePath(const StringView absolutePath)
-        {
-            mAbsolutePath = absolutePath;
-        }
-
-    private:
-        String mAbsolutePath;
-
-    private:
-        friend class FileSystem;
-    };
+    export using Directory = String;    
 
     export struct FilesAndDirectoriesInDirectory
     {
@@ -55,6 +19,10 @@ namespace Cosmic
 
     export class FileSystem
     {
+    public:
+        static void Init(const Directory& fileSystemWatcherPath);
+        static void Shutdown();
+
     public:
         static FilesAndDirectoriesInDirectory GetAllFilesAndDirectoriesInDirectory(const Directory& parentDir);
         static bool                           IsFileOrDirectory(const String& path); // returns true for a file, false for directory
@@ -70,6 +38,13 @@ namespace Cosmic
         static void RenameFile(         const File&            file, const StringView nameAndExt);
         static void RenameFileExtension(const File&            file, const StringView ext);
         static void RenameFileName(     const File&            file, const StringView name);
+
+    private:
+        static void FileSystemWatcherThread();
+
+    private:
+        inline static std::thread mFileSystemWatcherThread;
+        inline static Directory   mFileSystemWatcherDirectory;
     };
 
 }

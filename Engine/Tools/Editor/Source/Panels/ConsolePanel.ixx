@@ -6,6 +6,7 @@ export module Editor.Panels.ConsolePanel;
 import Editor.Panels;
 
 import Cosmic.App.Module;
+import Cosmic.Base;
 import Cosmic.App.Log;
 import Cosmic.App.ConsoleColor;
 import Cosmic.App.LogSeverity;
@@ -28,7 +29,7 @@ namespace Cosmic
         bool OnLog(const LogEvent& e);
 
     private:
-        Vector<LogEvent>   mLogQueue;
+        Vector<LogEvent> mLogQueue;
     };
 
 }

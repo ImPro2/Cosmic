@@ -20,5 +20,12 @@ namespace Cosmic
         static void Print(const char* text);
 
         static float32 GetCurrentTime();
+
+        static String OpenFileDialog(const char* filter);
+        static String SaveFileDialog(const char* filter);
+
+        static void* LoadDynamicLibrary(const char* path);
+        static void  FreeDynamicLibrary(void* library);
+        static void* RetrieveFunctionFromDynamicLibrary(const char* name, void* library);
     };
 }

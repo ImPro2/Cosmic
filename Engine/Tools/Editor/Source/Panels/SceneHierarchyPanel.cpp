@@ -20,6 +20,7 @@ namespace Cosmic
     {
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(MouseButtonClickEvent, OnMouseButtonClick);
+        CS_DISPATCH_EVENT(EditorSceneOpenedEvent, OnEditorSceneOpened);
     }
 
     bool SceneHierarchyPanel::OnMouseButtonClick(const MouseButtonClickEvent& e)
@@ -30,6 +31,9 @@ namespace Cosmic
 
     void SceneHierarchyPanel::OnImGuiRender()
     {
+        if (!mOpen)
+            return;
+
         if (ImGui::Begin("Scene Hierarchy"), &mOpen)
         {
             char tag[128] = "";
@@ -63,7 +67,9 @@ namespace Cosmic
                 const char* text        = entity.GetComponent<TagComponent>().Tag.c_str();
 
                 if (!hasChildren)
-                    flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+                    flags |= ImGuiTreeNodeFlags_NoTreePushOnOpen;
+                else
+                    flags |= ImGuiTreeNodeFlags_OpenOnDoubleClick;
                 if (isSelected)
                     flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -142,6 +148,12 @@ namespace Cosmic
         ImGui::End();
 
         mClicked = false;
+    }
+
+    bool SceneHierarchyPanel::OnEditorSceneOpened(const EditorSceneOpenedEvent& e)
+    {
+        mScene = e.GetScene();
+        return true;
     }
 
 }

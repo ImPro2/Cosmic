@@ -11,17 +11,17 @@ import Cosmic.Renderer.RendererAPI;
 import Cosmic.Renderer.RenderCommand;
 import Cosmic.App.Events;
 import Cosmic.App.WindowEvents;
-import Cosmic.App.OS;
 
 namespace Cosmic
 {
 
     export struct ApplicationInfo
     {
-        const char*       Name            = "Cosmic Engine";
-        DesktopWindowInfo WindowInfo      = DesktopWindowInfo();
-        ERendererAPI      RendererBackend = PlatformNativeRendererAPI();
-        bool              EnableImGui     = true;
+        const char*       Name               = "Cosmic Engine";
+        DesktopWindowInfo WindowInfo         = DesktopWindowInfo();
+        ERendererAPI      RendererBackend    = PlatformNativeRendererAPI();
+        bool              EnableImGui        = true;
+        String            ScriptAssemblyPath = "SandboxScript.dll";
     };
 
     export class Application
@@ -47,7 +47,9 @@ namespace Cosmic
         bool OnWindowClose(const WindowCloseEvent& e);
 
     public:
-        static Application*   Get() { return sInstance;     }
+        static Application* Get() { return sInstance;     }
+        const ApplicationInfo& GetInfo() const { return mInfo; }
+        static void Set(Application* instance) { sInstance = instance; }
         IDesktopWindow* GetWindow() { return mWindow.get(); }
 
     private:

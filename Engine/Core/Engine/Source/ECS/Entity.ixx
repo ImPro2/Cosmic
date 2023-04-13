@@ -16,8 +16,9 @@ namespace Cosmic
         void operator=(const Entity& other)
         {
             mEntityHandle = other.mEntityHandle;
-            mRegistry     = other.mRegistry;
+            mRegistry = other.mRegistry;
         }
+
         Entity(entt::entity handle, entt::registry* registry)
             : mEntityHandle(handle), mRegistry(registry)
         {
@@ -47,7 +48,7 @@ namespace Cosmic
         template<typename T>
         bool HasComponent()
         {
-            return mRegistry->has<T>(mEntityHandle);
+            return mRegistry->all_of<T>(mEntityHandle);
         }
 
         bool operator==(const Entity& other) const
@@ -59,6 +60,8 @@ namespace Cosmic
         {
             return !(*this == other);
         }
+
+        entt::registry& GetRegistry() const { return *mRegistry; }
         
         operator bool()         const { return mEntityHandle != entt::null; }
         operator entt::entity() const { return mEntityHandle;               }

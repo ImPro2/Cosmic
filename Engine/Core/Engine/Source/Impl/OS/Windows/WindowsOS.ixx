@@ -5,6 +5,7 @@ module;
 #include <Windows.h>
 #include <windows.h>
 #include <profileapi.h>
+#include <Libloaderapi.h>
 export module Cosmic.Impl.OS.Windows.WindowsOS;
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsOS);
@@ -13,6 +14,10 @@ import Cosmic.App.OS;
 import Cosmic.App.Log;
 import Cosmic.App.ConsoleColor;
 import Cosmic.Base;
+import Cosmic.Script.NativeScript;
+import Cosmic.App.Application;
+import Cosmic.App.IWindow;
+import Cosmic.Impl.OS.Windows.IWindowsWindow;
 
 namespace Cosmic
 {
@@ -443,6 +448,9 @@ namespace Cosmic
 
         WORD wAttributes = Utils::EConsoleColorToWindowsConsoleColor(color);
         CS_WINDOWS_CALL(SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wAttributes), "Unable to set the console color.");
+
+        DWORD error = GetLastError();
+        SetLastError(0);
     }
 
     void OS::Print(const char* text)
@@ -453,6 +461,9 @@ namespace Cosmic
         Utils::sCurrentConsoleLinePos++;
 
         CS_WINDOWS_CALL(WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), text, (DWORD)strlen(text), nullptr, nullptr), "Unable to log to the console.");
+
+        DWORD error = GetLastError();
+        SetLastError(0);
     }
 
 #undef GetCurrentTime
@@ -465,6 +476,77 @@ namespace Cosmic
         QueryPerformanceFrequency(&frequency);
 
         return static_cast<float32>((currentTime.QuadPart - Utils::sStartTime.QuadPart) / (double)frequency.QuadPart);
+    }
+
+    String OS::OpenFileDialog(const char* filter)
+    {
+        OPENFILENAMEA ofn = {};
+        char szFile[260] = {};
+        char currentDir[256] = {};
+        
+        ofn.lStructSize = sizeof(OPENFILENAME);
+        ofn.hwndOwner = static_cast<IWindowsDesktopWindow*>(Application::Get()->GetWindow())->GetNativeHandle();
+        ofn.lpstrFile = szFile;
+        ofn.nMaxFile = sizeof(szFile);
+        
+        if (GetCurrentDirectoryA(256, currentDir))
+            ofn.lpstrInitialDir = currentDir;
+
+        ofn.lpstrFilter = filter;
+        ofn.nFilterIndex = 1;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+        if (GetOpenFileNameA(&ofn) == TRUE)
+            return ofn.lpstrFile;
+
+        return "";
+    }
+
+    String OS::SaveFileDialog(const char* filter)
+    {
+        OPENFILENAMEA ofn = {};
+        char szFile[260] = {};
+        char currentDir[256] = {};
+
+        ofn.lStructSize = sizeof(OPENFILENAME);
+        ofn.hwndOwner = static_cast<IWindowsDesktopWindow*>(Application::Get()->GetWindow())->GetNativeHandle();
+        ofn.lpstrFile = szFile;
+        ofn.nMaxFile = sizeof(szFile);
+
+        if (GetCurrentDirectoryA(256, currentDir))
+            ofn.lpstrInitialDir = currentDir;
+
+        ofn.lpstrFilter = filter;
+        ofn.nFilterIndex = 1;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+
+        ofn.lpstrDefExt = strchr(filter, '\0') + 1;
+
+        if (GetSaveFileNameA(&ofn) == TRUE)
+            return ofn.lpstrFile;
+
+        return "";
+    }
+
+    void* OS::LoadDynamicLibrary(const char* path)
+    {
+        SetDllDirectoryA("C:\\Dev\\Cosmic\\bin\\Debug-windows-x86_64\\SandboxScript\\");
+
+        HINSTANCE library = LoadLibraryA(path);
+
+        return (void*)library;
+    }
+
+    void OS::FreeDynamicLibrary(void* library)
+    {
+        FreeLibrary((HINSTANCE)library);
+    }
+
+    void* OS::RetrieveFunctionFromDynamicLibrary(const char* name, void* library)
+    {
+        void* function = (void*)GetProcAddress(static_cast<HINSTANCE>(library), name);
+        
+        return function;
     }
 
 }

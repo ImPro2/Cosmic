@@ -12,6 +12,7 @@ import Cosmic.Time.DeltaTime;
 import Cosmic.Gui;
 import Cosmic.App.Events;
 import Cosmic.ECS.Scene;
+import Cosmic.App.EditorEvents;
 
 namespace Cosmic
 {
@@ -30,9 +31,13 @@ namespace Cosmic
         const OrthographicCameraController& GetCameraController() const { return mCameraController; }
 
     private:
+        bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
+
+    private:
         Ref<Framebuffer> mFramebuffer;
         Ref<Scene>       mScene;
         OrthographicCameraController mCameraController;
+        bool mSceneChanged = false;
     };
 
 }

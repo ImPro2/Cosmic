@@ -24,11 +24,17 @@ namespace Cosmic
     void ViewportPanel::OnEvent(const Event& e)
     {
         mCameraController.OnEvent(e);
+
+        EventDispatcher dispatcher(e);
+        CS_DISPATCH_EVENT(EditorSceneOpenedEvent, OnEditorSceneOpened);
     }
 
     void ViewportPanel::OnImGuiRender()
     {
         CS_PROFILE_FN();
+
+        if (!mOpen)
+            return;
 
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
         windowFlags |= ImGuiWindowFlags_NoNavInputs;
@@ -52,8 +58,10 @@ namespace Cosmic
 
             // Check if the framebuffer's size matches the window size
 
-            if (fbWidth != width || fbHeight != height && width > 0.0f && height > 0.0f)
+            if (fbWidth != width || fbHeight != height && width > 0.0f && height > 0.0f || mSceneChanged)
             {
+                mSceneChanged = false;
+
                 mFramebuffer->Resize(width, height);
                 mCameraController.OnResize(width, height);
 
@@ -68,6 +76,13 @@ namespace Cosmic
 
         ImGui::PopStyleVar(2);
         ImGui::End();
+    }
+
+    bool ViewportPanel::OnEditorSceneOpened(const EditorSceneOpenedEvent& e)
+    {
+        mScene = e.GetScene();
+        mSceneChanged = true;
+        return true;
     }
 
 }

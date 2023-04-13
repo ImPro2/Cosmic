@@ -8,10 +8,10 @@ import Cosmic.Time;
 import Cosmic.Renderer.Renderer2D;
 import Cosmic.Renderer.Camera;
 import Cosmic.Base;
-import Cosmic.ECS.Components;
-import Cosmic.ECS.Entity;
 import Cosmic.ECS.SceneCamera;
-import Cosmic.ECS.NativeScript;
+import Cosmic.ECS.Entity;
+import Cosmic.Script.NativeScript;
+import Cosmic.Renderer.OrthographicCamera;
 
 namespace Cosmic
 {
@@ -24,6 +24,7 @@ namespace Cosmic
 
     public:
         void OnUpdate(Dt dt);
+        void OnUpdateEditor(Dt dt, const OrthographicCamera& camera);
         void OnViewportResize(uint32 width, uint32 height);
 
     public:
@@ -36,6 +37,9 @@ namespace Cosmic
 
     private:
         entt::registry mRegistry;
+
+    private:
+        friend class Entity;
     };
 
 }

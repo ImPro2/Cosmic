@@ -13,6 +13,9 @@ import Cosmic.Gui;
 import Cosmic.Renderer.RenderCommand;
 import Cosmic.Time;
 import Cosmic.Renderer.Renderer2D;
+import Cosmic.Script.ScriptEngine;
+import Cosmic.App.FileSystem;
+import Cosmic.App.OS;
 
 namespace Cosmic
 {
@@ -47,6 +50,8 @@ namespace Cosmic
 
         Renderer2D::Init();
         Gui::Init();
+        FileSystem::Init("C:/Dev/Cosmic");
+        ScriptEngine::Init(mInfo.ScriptAssemblyPath);
 
         OnEvent(ApplicationInitEvent(mInfo));
 
@@ -59,6 +64,7 @@ namespace Cosmic
 
         OnEvent(ApplicationCloseEvent());
 
+        ScriptEngine::Shutdown();
         Gui::Shutdown();
         Renderer2D::Shutdown();
         RenderCommand::Shutdown();

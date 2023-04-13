@@ -1,0 +1,39 @@
+Scene: Untitled Scene
+Entities:
+  - Entity: 123456789
+    Tag Component:
+      Tag: Camera Entity
+    Transform Component:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    Camera Component:
+      Scene Camera:
+        Projection Type: Orthographic
+        Orthographic Size: 10
+        Orthographic Near: -1
+        Orthographic Far: 1
+        Perspective FOV: 0.785398185
+        Perspective Near: 0.00999999978
+        Perspective Far: 1000
+        Aspect Ratio: 1.63604856
+      Primary: true
+      Fixed Aspect Ratio: false
+  - Entity: 123456789
+    Tag Component:
+      Tag: Floor
+    Transform Component:
+      Translation: [0, -1.5, 0]
+      Rotation: [0, 0, 0]
+      Scale: [10, 1, 1]
+    Sprite Renderer Component:
+      Color: [1, 0.999989986, 0.999989986, 1]
+  - Entity: 123456789
+    Tag Component:
+      Tag: Player
+    Transform Component:
+      Translation: [-3.5, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    Sprite Renderer Component:
+      Color: [1, 0, 0, 1]

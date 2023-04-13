@@ -23,7 +23,9 @@ namespace Cosmic
     public:
         void SetPerspective(float32 fov, float32 nearClip, float32 farClip);
         void SetOrthographic(float32 size, float32 nearClip, float32 farClip);
+        void SetOrthographicAndPerspective(EProjectionType projType, float32 orthoSize, float32 orthoNear, float32 orthoFar, float32 persFOV, float32 persNear, float32 persFar);
         void SetViewportSize(uint32 width, uint32 height);
+        void SetAspectRatio(float32 aspectRatio);
 
         void SetPerspectiveVerticalFOV(float32 fov)  { mPerspectiveFOV  = fov;   RecalculateProjection(); }
         void SetPerspectiveNearClip(float32 near)    { mPerspectiveNear = near;  RecalculateProjection(); }
@@ -61,7 +63,7 @@ namespace Cosmic
         float32 mPerspectiveNear = 0.01f;
         float32 mPerspectiveFar  = 1000.0f;
 
-        float32 mAspectRatio = 0.0f;
+        float32 mAspectRatio = 1.6f;
     };
 
 }

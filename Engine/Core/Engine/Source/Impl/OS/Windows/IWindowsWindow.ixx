@@ -30,6 +30,7 @@ namespace Cosmic
         void Close()  override;
 
     public:
+        HWND GetNativeHandle() const;
         virtual WindowHandle GetHandle() const override { return mHandle; }
 
         virtual void SetSize(float2 size)          override;

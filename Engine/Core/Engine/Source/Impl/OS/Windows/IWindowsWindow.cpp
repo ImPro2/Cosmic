@@ -3,6 +3,8 @@ module;
 #include "WindowsUtils.hpp"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
 #include <functional>
 module Cosmic.Impl.OS.Windows.IWindowsWindow;
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.IWindowsWindow);
@@ -158,6 +160,11 @@ namespace Cosmic
         {
             glfwTerminate();
         }
+    }
+
+    HWND IWindowsDesktopWindow::GetNativeHandle() const
+    {
+        return glfwGetWin32Window(mHandle);
     }
 
     void IWindowsDesktopWindow::SetSize(float2 size)

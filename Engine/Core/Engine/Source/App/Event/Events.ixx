@@ -13,7 +13,9 @@ namespace Cosmic
         AppInit, AppUpdate, AppClose,
         WindowCreate, WindowClose, WindowResize, WindowMove, WindowTitle,
         KeyPress, KeyRelease, KeyType,
-        MouseMove, MouseScroll, MouseButtonClick, MouseButtonRelease
+        MouseMove, MouseScroll, MouseButtonClick, MouseButtonRelease,
+        FileAdded, FileRemoved, FileRenamed, FileModified,
+        EditorSceneSaved, EditorSceneSavedAs, EditorSceneOpened, EditorSceneNew
     };
 
     export struct Event

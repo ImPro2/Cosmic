@@ -8,6 +8,7 @@ import Editor.Panels;
 import Editor.Panels.ViewportPanel;
 
 import Cosmic.App;
+import Cosmic.Base;
 import Cosmic.Time.DeltaTime;
 import Cosmic.Time;
 import Cosmic.Renderer.RenderCommand;
@@ -17,9 +18,16 @@ import Cosmic.Renderer.Renderer2D;
 import Cosmic.Renderer.OrthographicCamera;
 import Cosmic.Renderer.Camera;
 
+import Cosmic.ECS.Entity;
 import Cosmic.ECS.Scene;
 import Cosmic.ECS.Components;
-import Cosmic.ECS.NativeScript;
+import Cosmic.Script.NativeScript;
+
+import Cosmic.App.FileSystemEvents;
+import Cosmic.App.WindowEvents;
+import Cosmic.App.EditorEvents;
+
+import Editor.TabBars;
 
 namespace Cosmic
 {
@@ -38,14 +46,25 @@ namespace Cosmic
         void SetupMenuBar();
 
     private:
+        bool OnKeyPressed(const KeyPressEvent& e);
+        bool OnFileModified(const FileModifiedEvent& e);
+
+    private:
+        void SaveScene();
+        void SaveSceneAs();
+        void OpenScene();
+        void NewScene();
+
+    private:
         Ref<Scene> mActiveScene;
+        String     mActiveScenePath;
 
         Ref<Texture2D> mCosmicLogoTexture;
         Ref<Framebuffer> mFramebuffer;
 
-        Entity mCameraEntity;
-
         Panels mPanels;
+
+        Vector<ITabBar> mTabBars;
     };
 
 }

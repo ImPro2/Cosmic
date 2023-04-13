@@ -34,9 +34,31 @@ namespace Cosmic
         RecalculateProjection();
     }
 
+    void SceneCamera::SetOrthographicAndPerspective(EProjectionType projType, float32 orthoSize, float32 orthoNear, float32 orthoFar, float32 persFOV, float32 persNear, float32 persFar)
+    {
+        mProjectionType = projType;
+
+        mOrthographicSize = orthoSize;
+        mOrthographicNear = orthoNear;
+        mOrthographicFar  = orthoFar;
+
+        mPerspectiveFOV   = persFOV;
+        mPerspectiveNear  = persNear;
+        mPerspectiveFar   = persFar;
+
+        RecalculateProjection();
+    }
+
     void SceneCamera::SetViewportSize(uint32 width, uint32 height)
     {
         mAspectRatio = (float32)width / (float32)height;
+
+        RecalculateProjection();
+    }
+
+    void SceneCamera::SetAspectRatio(float32 aspectRatio)
+    {
+        mAspectRatio = aspectRatio;
 
         RecalculateProjection();
     }

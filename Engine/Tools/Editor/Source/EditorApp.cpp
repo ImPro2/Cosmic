@@ -4,6 +4,8 @@ module;
 #include <entt/entt.hpp>
 module Editor.EditorApp;
 
+import Editor.ProjectModule;
+
 namespace Cosmic
 {
 
