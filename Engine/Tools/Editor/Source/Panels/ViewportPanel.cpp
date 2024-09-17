@@ -1,9 +1,8 @@
-module;
 #include "cspch.hpp"
+#include "ViewportPanel.hpp"
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
-module Editor.Panels.ViewportPanel;
 
 namespace Cosmic
 {

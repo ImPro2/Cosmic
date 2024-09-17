@@ -1,9 +1,8 @@
-module;
 #include "cspch.hpp"
+#include "OpenGLErrors.hpp"
 #include <glad/glad.h>
-module Cosmic.Impl.RendererAPI.OpenGL.OpenGLErrors;
 
-CS_MODULE_LOG_INFO(Cosmic, Cosmic.Impl.RendererAPI.OpenGL.OpenGLErrors);
+CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLErrors);
 
 namespace Cosmic
 {

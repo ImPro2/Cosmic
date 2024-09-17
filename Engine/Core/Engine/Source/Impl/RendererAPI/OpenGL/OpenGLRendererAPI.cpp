@@ -1,7 +1,7 @@
-module;
 #include "cspch.hpp"
+#include "OpenGLRendererAPI.hpp"
 #include <glad/glad.h>
-module Cosmic.Impl.RendererAPI.OpenGLRendererAPI;
+
 CS_MODULE_LOG_INFO(Sandbox, SandboxApp);
 
 namespace Cosmic

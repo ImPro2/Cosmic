@@ -1,24 +1,25 @@
-module;
 #include "cspch.hpp"
-module Cosmic.App.IWindow;
+#include "App/Window/IWindow.hpp"
+#include "App/Event/WindowEvents.hpp"
 
-import Cosmic.Impl.OS.Windows.IWindowsWindow;
-import Cosmic.App.WindowEvents;
+#ifdef CS_PLATFORM_WINDOWS
+#include "Impl/OS/Windows/IWindowsWindow.hpp"
+#endif
 
 namespace Cosmic
 {
 
-    Scope<IDesktopWindow> CreateDesktopWindow(const DesktopWindowInfo& info, WindowEventCallback callback)
+    Scope<IDesktopWindow> CreateDesktopWindow(const DesktopWindowInfo& info)
     {
         CS_PROFILE_FN();
 
 #ifdef CS_PLATFORM_WINDOWS
-        return CreateScope<IWindowsDesktopWindow>(info, callback);
+        return CreateScope<IWindowsDesktopWindow>(info);
 #endif
     }
 
-    IDesktopWindow::IDesktopWindow(const DesktopWindowInfo& info, WindowEventCallback callback)
-        : mData(callback, info)
+    IDesktopWindow::IDesktopWindow(const DesktopWindowInfo& info)
+        : mData(info)
     {
         CS_PROFILE_FN();
     }

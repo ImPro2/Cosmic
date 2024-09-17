@@ -1,14 +1,13 @@
-module;
 #include "cspch.hpp"
+#include "OpenGLShader.hpp"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
-module Cosmic.Impl.RendererAPI.OpenGL.OpenGLShader;
 
-CS_MODULE_LOG_INFO(Cosmic, Cosmic.Impl.RendererAPI.OpenGL.OpenGLShader);
+CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLShader);
 
-import Cosmic.App.Log;
+#include "App/Log/Log.hpp"
 
 namespace Cosmic
 {

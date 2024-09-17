@@ -1,9 +1,8 @@
-module;
 #include "cspch.hpp"
-module Cosmic.Renderer.Framebuffer;
+#include "Framebuffer.hpp"
 
-import Cosmic.Renderer.RendererAPI;
-import Cosmic.Impl.RendererAPI.OpenGL.OpenGLFramebuffer;
+#include "Renderer/RendererAPI.hpp"
+#include "Impl/RendererAPI/OpenGL/OpenGLFramebuffer.hpp"
 
 namespace Cosmic
 {

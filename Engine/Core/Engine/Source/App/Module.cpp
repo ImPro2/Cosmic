@@ -1,6 +1,5 @@
-module;
 #include "cspch.hpp"
-module Cosmic.App.Module;
+#include "App/Module.hpp"
 
 namespace Cosmic
 {

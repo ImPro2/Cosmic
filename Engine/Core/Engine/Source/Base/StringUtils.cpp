@@ -1,6 +1,6 @@
-module;
+#pragma once
 #include "cspch.hpp"
-module Cosmic.Base.StringUtils;
+#include "StringUtils.hpp"
 
 namespace Cosmic::StringUtils
 {

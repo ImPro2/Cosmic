@@ -1,9 +1,8 @@
-module;
 #include "cspch.hpp"
-module Cosmic.Renderer.RenderCommand;
+#include "RenderCommand.hpp"
 
-import Cosmic.Base;
-import Cosmic.Renderer.RendererAPI;
+#include "Base/Base.hpp"
+#include "Renderer/RendererAPI.hpp"
 
 namespace Cosmic
 {

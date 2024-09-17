@@ -10,9 +10,11 @@ project "Editor"
 	files
 	{
 		"Source/**.hpp",
-		"Source/**.cpp",
-		"Source/**.ixx"
+		"Source/**.cpp"
 	}
+
+	pchheader "cspch.hpp"
+	pchsource "cspch.cpp"
 
 	includedirs
 	{

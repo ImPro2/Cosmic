@@ -1,10 +1,9 @@
-module;
 #include "cspch.hpp"
+#include "EditorApp.hpp"
 #include "EntryPoint/EntryPoint.hpp"
 #include <entt/entt.hpp>
-module Editor.EditorApp;
 
-import Editor.ProjectModule;
+#include "ProjectModule.hpp"
 
 namespace Cosmic
 {

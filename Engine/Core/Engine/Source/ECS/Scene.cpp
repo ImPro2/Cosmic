@@ -1,14 +1,13 @@
-module;
 #include "cspch.hpp"
+#include "ECS/Scene.hpp"
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <string>
-module Cosmic.ECS.Scene;
 
 CS_MODULE_LOG_INFO(Cosmic, ECS.Scene);
 
-import Cosmic.App.Log;
-import Cosmic.ECS.Components;
+#include "App/Log/Log.hpp"
+#include "ECS/Components.hpp"
 
 namespace Cosmic
 {

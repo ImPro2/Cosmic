@@ -2,7 +2,7 @@
 #include <string>
 #include <Windows.h>
 
-import Cosmic.Base.Types;
+#include "Base/Types.hpp"
 
 namespace Cosmic::WindowsUtils
 {

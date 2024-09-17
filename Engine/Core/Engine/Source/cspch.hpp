@@ -3,7 +3,7 @@
 
 // Cosmic includes
 
-#include "Base/Macros.hpp"
+#include "Base/Base.hpp"
 #include "App/Log/Log.hpp"
 
 // Standard Library
@@ -17,5 +17,6 @@
 #include <unordered_map>
 #include <vector>
 #include <unordered_set>
+#include <functional>
 
 #endif

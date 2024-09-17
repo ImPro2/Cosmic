@@ -1,100 +1,112 @@
 #pragma once
 
-#include <string>
 #include <format>
+#include <string_view>
 
-#define CS_LOG_TRACE(msg, ...)\
-do\
-{\
-\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Trace(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+#include "Base/Base.hpp"
+#include "App/Log/ConsoleColor.hpp"
+#include "App/OS.hpp"
+#include "App/Application.hpp"
+#include "App/Event/LogEvents.hpp"
+#include "App/Event/Events.hpp"
+#include "App/Log/LogSeverity.hpp"
 
-#define CS_LOG_DEBUG(msg, ...)\
-do\
-{\
-\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Debug(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+namespace Cosmic
+{
 
-#define CS_LOG_INFO(msg, ...)\
-do\
-{\
-    std::string finalMsg = std::vformat("[{0}.{1}]: {2}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Info(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+    struct LogData
+    {
+        String Message;
+        ELogSeverity Severity;
+    };
 
-#define CS_LOG_WARN(msg, ...)\
-do\
-{\
-\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Warn(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+    class Log
+    {
+	public:
+		static const Vector<LogData>& GetLogData() { return sLogData; }
 
-#define CS_LOG_ERROR(msg, ...)\
-do\
-{\
-\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Error(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+    public:
+        template<typename ... Args>
+        static void Trace(const char* format, const Args& ... args)
+        {
+            CS_PROFILE_FN();
 
-#define CS_LOG_CRITICAL(msg, ...)\
-do\
-{\
-\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Critical(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+            LogOut(format, ELogSeverity::Trace, std::make_format_args(args...));
+        }
 
-// specify which console to log to (also logs to file)
+        template<typename ... Args>
+        static void Debug(const char* format, const Args& ... args)
+        {
+            CS_PROFILE_FN();
 
-#define CS_LOG_TRACE_CONSOLE(console, msg, ...)\
-do\
-{\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Trace(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+            LogOut(format, ELogSeverity::Debug, std::make_format_args(args...));
+        }
 
-#define CS_LOG_DEBUG_CONSOLE(console, msg, ...)\
-do\
-{\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Debug(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+        template<typename ... Args>
+        static void Info(const char* format, const Args& ... args)
+        {
+            CS_PROFILE_FN();
 
-#define CS_LOG_INFO_CONSOLE(console, msg, ...)\
-do\
-{\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Info(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+            LogOut(format, ELogSeverity::Info, std::make_format_args(args...));
+        }
 
-#define CS_LOG_WARN_CONSOLE(console, msg, ...)\
-do\
-{\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Warn(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+        template<typename ... Args>
+        static void Warn(const char* format, const Args& ... args)
+        {
+            CS_PROFILE_FN();
 
-#define CS_LOG_ERROR_CONSOLE(console, msg, ...)\
-do\
-{\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Error(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+            LogOut(format, ELogSeverity::Warn, std::make_format_args(args...));
+        }
 
-#define CS_LOG_CRITICAL_CONSOLE(console, msg, ...)\
-do\
-{\
-    std::string finalMsg = std::vformat("[{}.{}]: {}", std::make_format_args(_CosmicModuleLogInfo::ProjectLogName(), _CosmicModuleLogInfo::ModuleLogName(), msg));\
-    ::Cosmic::Log::Critical(finalMsg.c_str(), __VA_ARGS__);\
-} while (0)
+        template<typename ... Args>
+        static void Error(const char* format, const Args& ... args)
+        {
+            CS_PROFILE_FN();
 
+            LogOut(format, ELogSeverity::Error, std::make_format_args(args...));
+        }
 
+        template<typename ... Args>
+        static void Critical(const char* format, const Args& ... args)
+        {
+            CS_PROFILE_FN();
 
+            LogOut(format, ELogSeverity::Critical, std::make_format_args(args...));
+        }
 
+    private:
+        template<typename ... Args>
+        static void LogOut(const char* format, ELogSeverity severity, std::format_args args)
+        {
+            CS_PROFILE_FN();
 
+            LogData logData = { std::format("{}\n", std::vformat(format, args)), severity };
+            sLogData.push_back(logData);
+
+            LogToConsole(logData);
+            LogToFile(logData);
+
+            EventSystem::AddEvent(new LogEvent(logData.Message, logData.Severity));
+        }
+
+        static void LogToConsole(const LogData& logData)
+        {
+            CS_PROFILE_FN();
+
+            OS::SetConsoleColor(ELogSeverityToConsoleColor(logData.Severity));
+            OS::Print(logData.Message.c_str());
+            //OS::FlushConsoleLine();
+        }
+
+        static void LogToFile(const LogData& logData)
+        {
+            // TODO: Implement
+        }
+
+    private:
+        inline static Vector<LogData> sLogData;
+    };
+
+}
+
+#include "LogMacros.hpp"

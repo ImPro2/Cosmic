@@ -1,9 +1,8 @@
-module;
 #include "cspch.hpp"
-module Cosmic.Renderer.Texture;
+#include "Texture.hpp"
 
-import Cosmic.Impl.RendererAPI.OpenGL.OpenGLTexture;
-import Cosmic.Renderer.RendererAPI;
+#include "Renderer/RendererAPI.hpp"
+#include "Impl/RendererAPI/OpenGL/OpenGLTexture.hpp"
 
 namespace Cosmic
 {

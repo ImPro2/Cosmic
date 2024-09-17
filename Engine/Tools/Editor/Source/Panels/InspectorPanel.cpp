@@ -1,14 +1,13 @@
-﻿module;
-#include "cspch.hpp"
+﻿#include "cspch.hpp"
+#include "InspectorPanel.hpp"
 #include <entt/entt.hpp>
 #include <IconsFontAwesome6.h>
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
-module Editor.Panels.InspectorPanel;
 
 CS_MODULE_LOG_INFO(Editor, Panels.InspectorPanel);
 
-import Cosmic.Script.ScriptEngine;
+#include "Script/ScriptEngine.hpp"
 
 namespace Cosmic
 {

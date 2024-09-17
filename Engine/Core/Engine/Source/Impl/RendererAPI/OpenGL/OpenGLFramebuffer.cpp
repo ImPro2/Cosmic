@@ -1,11 +1,10 @@
-module;
 #include "cspch.hpp"
+#include "OpenGLFramebuffer.hpp"
 #include <glad/glad.h>
-module Cosmic.Impl.RendererAPI.OpenGL.OpenGLFramebuffer;
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLFramebuffer);
 
-import Cosmic.App.Log;
+#include "App/Log/Log.hpp"
 
 namespace Cosmic
 {

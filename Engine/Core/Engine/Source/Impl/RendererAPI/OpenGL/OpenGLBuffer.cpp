@@ -1,7 +1,6 @@
-module;
 #include "cspch.hpp"
+#include "OpenGLBuffer.hpp"
 #include <glad/glad.h>
-module Cosmic.Impl.RendererAPI.OpenGL.OpenGLBuffer;
 
 namespace Cosmic
 {

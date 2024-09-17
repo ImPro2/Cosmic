@@ -1,6 +1,5 @@
-module;
 #include "cspch.hpp"
-module Editor.Project;
+#include "Project.hpp"
 
 namespace Cosmic
 {

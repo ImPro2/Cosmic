@@ -1,8 +1,7 @@
-module;
 #include "cspch.hpp"
+#include "OrthographicCamera.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-module Cosmic.Renderer.OrthographicCamera;
 
 namespace Cosmic
 {

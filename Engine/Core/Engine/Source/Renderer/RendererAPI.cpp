@@ -1,8 +1,7 @@
-module;
 #include "cspch.hpp"
-module Cosmic.Renderer.RendererAPI;
+#include "RendererAPI.hpp"
 
-import Cosmic.Impl.RendererAPI.OpenGLRendererAPI;
+#include "Impl/RendererAPI/OpenGL/OpenGLRendererAPI.hpp"
 
 namespace Cosmic
 {

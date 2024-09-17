@@ -1,10 +1,8 @@
-module;
 #include "cspch.hpp"
-#include <GLFW/glfw3.h>
-module Cosmic.Renderer.GraphicsContext;
+#include "GraphicsContext.hpp"
 
-import Cosmic.Renderer.RendererAPI;
-import Cosmic.Impl.RendererAPI.OpenGL.OpenGLGraphicsContext;
+#include "Renderer/RendererAPI.hpp"
+#include "Impl/RendererAPI/OpenGL/OpenGLGraphicsContext.hpp"
 
 namespace Cosmic
 {

@@ -4,7 +4,6 @@ project "Engine"
 	files
 	{
 		"Source/**.cpp",
-		"Source/**.ixx",
 		"Source/**.hpp"
 	}
 
@@ -20,6 +19,14 @@ project "Engine"
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.EnTT}",
 		"%{IncludeDir.FontAwesome}"
+	}
+
+	pchheader "cspch.hpp"
+	pchsource "cspch.cpp"
+
+	libdirs
+	{
+		"%{wks.location}/bin/Debug-windows-x86_64/Optick"
 	}
 
 	links

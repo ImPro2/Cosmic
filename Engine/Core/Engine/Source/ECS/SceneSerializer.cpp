@@ -1,10 +1,9 @@
-module;
 #include "cspch.hpp"
+#include "ECS/SceneSerializer.hpp"
 #include <yaml-cpp/yaml.h>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <fstream>
-module Cosmic.ECS.SceneSerializer;
 
 namespace YAML
 {

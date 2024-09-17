@@ -1,9 +1,10 @@
-﻿module;
-#include "cspch.hpp"
+﻿#include "cspch.hpp"
+#include "SceneHierarchyPanel.hpp"
 #include <imgui.h>
 #include <entt/entt.hpp>
 #include <IconsFontAwesome6.h>
-module Editor.Panels.SceneHierarchyPanel;
+
+#include "ECS/Components.hpp"
 
 CS_MODULE_LOG_INFO(Editor, Panels.SceneHierarchyPanel);
 

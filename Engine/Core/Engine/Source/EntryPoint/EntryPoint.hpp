@@ -1,6 +1,5 @@
 #pragma once
-
-import Cosmic.Base.Types;
+#include "Base/Types.hpp"
 
 namespace Cosmic
 {

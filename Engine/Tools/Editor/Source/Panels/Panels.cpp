@@ -1,12 +1,11 @@
-module;
 #include "cspch.hpp"
+#include "Panels.hpp"
 #include <entt/entt.hpp>
-module Editor.Panels;
 
-import Editor.Panels.ViewportPanel;
-import Editor.Panels.ConsolePanel;
-import Editor.Panels.SceneHierarchyPanel;
-import Editor.Panels.InspectorPanel;
+#include "ViewportPanel.hpp"
+#include "ConsolePanel.hpp"
+#include "SceneHierarchyPanel.hpp"
+#include "InspectorPanel.hpp"
 
 namespace Cosmic
 {

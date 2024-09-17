@@ -1,8 +1,7 @@
-module;
 #include "cspch.hpp"
+#include "ProjectModule.hpp"
 #include <imgui.h>
 #include <filesystem>
-module Editor.ProjectModule;
 
 namespace Cosmic
 {

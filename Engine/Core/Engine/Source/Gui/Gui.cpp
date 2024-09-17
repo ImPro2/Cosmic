@@ -1,17 +1,17 @@
-module;
 #include "cspch.hpp"
+#include "Gui/Gui.hpp"
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <IconsFontAwesome6.h>
-module Cosmic.Gui;
+
 CS_MODULE_LOG_INFO(Cosmic, Gui);
 
-import Cosmic.App.Application;
-import Cosmic.App.IWindow;
-import Cosmic.App.Events;
+#include "App/Application.hpp"
+#include "App/Window/IWindow.hpp"
+#include "App/Event/Events.hpp"
 
 namespace Cosmic
 {

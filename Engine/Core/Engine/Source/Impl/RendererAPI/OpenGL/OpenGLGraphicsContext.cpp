@@ -1,14 +1,14 @@
-module;
 #include "cspch.hpp"
-#include <glad/glad.h>
+#include "OpenGLGraphicsContext.hpp"
+#include "glad/glad.h"
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-module Cosmic.Impl.RendererAPI.OpenGL.OpenGLGraphicsContext;
-CS_MODULE_LOG_INFO(Cosmic, Cosmic.Impl.RendererAPI.OpenGL.OpenGLGraphicsContext);
 
-import Cosmic.Base;
-import Cosmic.App.Log;
-import Cosmic.App.Module;
-import Cosmic.Impl.RendererAPI.OpenGL.OpenGLTestModule;
+CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLGraphicsContext);
+
+#include "Base/Base.hpp"
+#include "App/Log/Log.hpp"
+#include "App/Module.hpp"
 
 namespace Cosmic
 {

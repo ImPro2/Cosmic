@@ -35,20 +35,7 @@ workspace "Cosmic"
 		runtime "Release"
 		optimize "On"
 
-	filter 'files:**.ixx'
-		compileas 'Module'
-
-
 include "Dependencies.lua"
-
-group "Dependencies"
-    include "Dependencies/GLFW"
-    include "Dependencies/Glad"
-    include "Dependencies/Yaml-CPP"
-    include "Dependencies/ImGui"
-    include "Dependencies/stb_image"
-    include "Dependencies/Optick"
-group ""
 
 group "Engine"
 	group "Engine/Core"
@@ -59,4 +46,13 @@ group "Engine"
 	
 	group "Engine/Test"
 		include "Engine/Test/Sandbox"
+group ""
+
+group "Dependencies"
+    include "Dependencies/GLFW"
+    include "Dependencies/Glad"
+    include "Dependencies/Yaml-CPP"
+    include "Dependencies/ImGui"
+    include "Dependencies/stb_image"
+    include "Dependencies/Optick"
 group ""

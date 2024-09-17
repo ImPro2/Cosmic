@@ -16,33 +16,6 @@ using namespace Cosmic;
 
 CS_MODULE_LOG_INFO(Sandbox, SandboxApp);
 
-import Cosmic.App;
-import Cosmic.App.Application;
-import Cosmic.Gui;
-import Cosmic.Base;
-import Cosmic.App.IWindow;
-import Cosmic.App.WindowInfo;
-import Cosmic.App.Events;
-import Cosmic.App.KeyAndMouseCodes;
-import Cosmic.App.Module;
-import Cosmic.Renderer.Buffer;
-import Cosmic.Renderer.Shader;
-import Cosmic.Renderer.Texture;
-import Cosmic.Renderer.RenderCommand;
-import Cosmic.Time;
-import Cosmic.App.Input;
-import Cosmic.Renderer.OrthographicCamera;
-import Cosmic.Renderer.OrthographicCameraController;
-import Cosmic.Time.DeltaTime;
-import Cosmic.Renderer.Renderer2D;
-import Cosmic.Renderer.Framebuffer;
-import Cosmic.App.FileSystem;
-import Cosmic.App.File;
-import Cosmic.App.FileSystemEvents;
-import Cosmic.ECS.Scene;
-import Cosmic.ECS.Entity;
-import Cosmic.ECS.Components;
-
 namespace Cosmic
 {
 
@@ -77,6 +50,12 @@ namespace Cosmic
             auto& tc2 = entity.GetComponent<TransformComponent>();
             tc1.Translation = { 5.0f, 0.0f, 0.0f };
             mMassMap["Circle2"] = 1.0f;
+
+            const auto& logs = Log::GetLogData();
+            for (const auto& [msg, severity] : logs)
+            {
+
+            }
         }
 
         void OnUpdate(Dt dt) override

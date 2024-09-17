@@ -1,29 +1,30 @@
-module;
 #include "cspch.hpp"
+#include "IWindowsWindow.hpp"
 #include "WindowsUtils.hpp"
-#include "glad/glad.h"
+//#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include <functional>
-module Cosmic.Impl.OS.Windows.IWindowsWindow;
+
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.IWindowsWindow);
 
-import Cosmic.App.Log;
-import Cosmic.Base.Types;
-import Cosmic.Base.Tuples;
-import Cosmic.App.IWindow;
-import Cosmic.App.WindowInfo;
-import Cosmic.App.WindowEvents;
-import Cosmic.App.KeyAndMouseCodes;
+#include "App/Log/Log.hpp"
+#include "Base/Types.hpp"
+#include "Base/Tuples.hpp"
+#include "App/Window/IWindow.hpp"
+#include "App/Window/WindowInfo.hpp"
+#include "App/Event/WindowEvents.hpp"
+#include "App/KeyAndMouseCodes.hpp"
+#include "App/Event/Events.hpp"
 
 namespace Cosmic
 {
 
     static uint32 sGLFWWindowCount = 0;
 
-    IWindowsDesktopWindow::IWindowsDesktopWindow(const DesktopWindowInfo& info, WindowEventCallback callback)
-        : IDesktopWindow(info, callback)
+    IWindowsDesktopWindow::IWindowsDesktopWindow(const DesktopWindowInfo& info)
+        : IDesktopWindow(info)
     {
         CS_PROFILE_FN();
 
@@ -56,7 +57,7 @@ namespace Cosmic
 
         SetupCallbacks();
 
-        mData(WindowCreateEvent(mData.Info, true));
+        EventSystem::AddEvent(new WindowCreateEvent(mData, true));
     }
 
     void IWindowsDesktopWindow::SetupCallbacks()
@@ -66,21 +67,23 @@ namespace Cosmic
         glfwSetWindowUserPointer(mHandle, &mData);
 
         glfwSetWindowCloseCallback(mHandle, [](GLFWwindow* window) {
-            DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
+            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
 
-            data(WindowCloseEvent(data.Info, true));
+            //data(WindowCloseEvent(data.Info, true));
+            EventSystem::AddEvent(new WindowCloseEvent(data, true));
         });
 
         glfwSetWindowSizeCallback(mHandle, [](GLFWwindow* window, int width, int height) {
-            DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
+            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
             data.Size.width  = (uint32)width;
             data.Size.height = (uint32)height;
 
-            data(WindowResizeEvent(data.Size, data.Info, true));
+            //data(WindowResizeEvent(data.Size, data.Info, true));
+            EventSystem::AddEvent(new WindowResizeEvent(data.Size, data, true));
         });
 
         glfwSetKeyCallback(mHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-            DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
+            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
             static int repeatCount  = 0;
 
             switch (action)
@@ -88,17 +91,20 @@ namespace Cosmic
                 case GLFW_REPEAT:
                 {
                     repeatCount++;
-                    data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
+                    //data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
+                    EventSystem::AddEvent(new KeyPressEvent((EKeyCode)key, repeatCount, data, true));
                     break;
                 }
                 case GLFW_PRESS:
                 {
-                    data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
+                    //data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
+                    EventSystem::AddEvent(new KeyPressEvent((EKeyCode)key, repeatCount, data, true));
                     break;
                 }
                 case GLFW_RELEASE:
                 {
-                    data(KeyReleaseEvent((EKeyCode)key, data.Info, true));
+                    //data(KeyReleaseEvent((EKeyCode)key, data.Info, true));
+                    EventSystem::AddEvent(new KeyReleaseEvent((EKeyCode)key, data, true));
                     repeatCount = 0;
                     break;
                 }
@@ -106,29 +112,34 @@ namespace Cosmic
         });
 
         glfwSetCharCallback(mHandle, [](GLFWwindow* window, unsigned int keycode) {
-            DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
-            data(KeyTypeEvent((char)keycode, data.Info, true));
+            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
+            //data(KeyTypeEvent((char)keycode, data.Info, true));
+            EventSystem::AddEvent(new KeyTypeEvent((char)keycode, data, true));
         });
 
         glfwSetCursorPosCallback(mHandle, [](GLFWwindow* window, double xpos, double ypos) {
-            DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
-            data(MouseMoveEvent({ (float32)xpos, (float32)ypos }, data.Info, true));
+            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
+            //data(MouseMoveEvent({ (float32)xpos, (float32)ypos }, data.Info, true));
+            EventSystem::AddEvent(new MouseMoveEvent({ (float32)xpos, (float32)ypos }, data, true));
         });
 
         glfwSetScrollCallback(mHandle, [](GLFWwindow* window, double xoffset, double yoffset) {
-            DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
-            data(MouseScrollEvent((float32)yoffset, data.Info, true));
+            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
+            //data(MouseScrollEvent((float32)yoffset, data.Info, true));
+            EventSystem::AddEvent(new MouseScrollEvent((float32)yoffset, data, true));
         });
 
         glfwSetMouseButtonCallback(mHandle, [](GLFWwindow* window, int button, int action, int mods) {
-            DesktopWindowData& data = *(DesktopWindowData*)glfwGetWindowUserPointer(window);
+            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
 
             switch (action)
             {
                 case GLFW_PRESS:
-                    data(MouseButtonClickEvent((EMouseCode)button, data.Info, true)); break;
+                    //data(MouseButtonClickEvent((EMouseCode)button, data.Info, true)); break;
+                    EventSystem::AddEvent(new MouseButtonClickEvent((EMouseCode)button, data, true));
                 case GLFW_RELEASE:
-                    data(MouseButtonReleaseEvent((EMouseCode)button, data.Info, true)); break;
+                    //data(MouseButtonReleaseEvent((EMouseCode)button, data.Info, true)); break;
+                    EventSystem::AddEvent(new MouseButtonReleaseEvent((EMouseCode)button, data, true));
             }
         });
     }
@@ -171,24 +182,23 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        // TODO:
+        glfwSetWindowSize(mHandle, size.x, size.y);
     }
 
     void IWindowsDesktopWindow::SetPosition(float2 pos)
     {
         CS_PROFILE_FN();
 
-        // TODO:
+        glfwSetWindowPos(mHandle, pos.x, pos.y);
     }
 
     void IWindowsDesktopWindow::SetTitle(const String& title)
     {
         CS_PROFILE_FN();
 
-        // TODO:
+        glfwSetWindowTitle(mHandle, title.c_str());
 
-        mData(WindowTitleEvent(title, mData.Info, true));
-        //xEventSystem::Submit<WindowTitleEvent>(WindowTitleEvent(title, mData, true));
+        EventSystem::AddEvent(new WindowTitleEvent(title, mData, true));
     }
 
     void IWindowsDesktopWindow::SetVSync(bool vsync)

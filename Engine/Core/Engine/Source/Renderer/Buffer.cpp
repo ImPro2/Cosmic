@@ -1,10 +1,9 @@
-module;
 #include "cspch.hpp"
+#include "Buffer.hpp"
 #include <initializer_list>
-module Cosmic.Renderer.Buffer;
 
-import Cosmic.Renderer.RendererAPI;
-import Cosmic.Impl.RendererAPI.OpenGL.OpenGLBuffer;
+#include "Renderer/RendererAPI.hpp"
+#include "Impl/RendererAPI/OpenGL/OpenGLBuffer.hpp"
 
 namespace Cosmic
 {

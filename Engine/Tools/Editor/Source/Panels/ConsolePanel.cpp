@@ -1,8 +1,8 @@
-module;
 #include "cspch.hpp"
+#include "ConsolePanel.hpp"
+
 #include <imgui.h>
 #include <algorithm>
-module Editor.Panels.ConsolePanel;
 
 CS_MODULE_LOG_INFO(Editor, Panels.ConsolePanel);
 

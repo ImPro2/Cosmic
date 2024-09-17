@@ -1,9 +1,7 @@
-module;
 #include "cspch.hpp"
+#include "Time/Time.hpp"
+#include "App/OS.hpp"
 #include <GLFW/glfw3.h>
-module Cosmic.Time;
-
-import Cosmic.App.Application;
 
 namespace Cosmic
 {

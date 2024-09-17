@@ -1,8 +1,10 @@
-module;
 #include "cspch.hpp"
-module Cosmic.Script.ScriptEngine;
+#include "ScriptEngine.hpp"
 
-import Cosmic.App.Application;
+CS_MODULE_LOG_INFO(Cosmic, Script.ScriptEngine);
+
+#include "App/Application.hpp"
+#include "App/App.hpp"
 
 namespace Cosmic
 {
@@ -20,6 +22,7 @@ namespace Cosmic
 		sScriptingData = new ScriptEngineData();
 
 		sScriptingData->ScriptAssemblyPath = scriptAssemblyPath;
+		
 		sScriptingData->ScriptAssembly = OS::LoadDynamicLibrary(sScriptingData->ScriptAssemblyPath.c_str());
 
 		const char* scriptInitFnName = "CSInit";
@@ -32,6 +35,7 @@ namespace Cosmic
 
 	void ScriptEngine::Shutdown()
 	{
+		CS_ASSERT(sScriptingData->ScriptAssembly, "Invalid scripting assembly.");
 		OS::FreeDynamicLibrary(sScriptingData->ScriptAssembly);
 
 		delete sScriptingData;

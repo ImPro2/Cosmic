@@ -1,8 +1,8 @@
 #include "cspch.hpp"
 #include "WindowsUtils.hpp"
 
-import Cosmic.App.Log;
-import Cosmic.Base.Types;
+#include "App/Log/Log.hpp"
+#include "Base/Types.hpp"
 
 namespace Cosmic::WindowsUtils
 {

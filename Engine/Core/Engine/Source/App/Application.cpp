@@ -1,21 +1,21 @@
-module;
 #include "cspch.hpp"
+#include "App/Application.hpp"
 #include <functional>
 #include <optick.h>
-module Cosmic.App.Application;
+
 CS_MODULE_LOG_INFO(Cosmic, App.Application);
 
-import Cosmic.App.Log;
-import Cosmic.App.AppEvents;
-import Cosmic.App.Module;
-import Cosmic.App.AppEvents;
-import Cosmic.Gui;
-import Cosmic.Renderer.RenderCommand;
-import Cosmic.Time;
-import Cosmic.Renderer.Renderer2D;
-import Cosmic.Script.ScriptEngine;
-import Cosmic.App.FileSystem;
-import Cosmic.App.OS;
+#include "App/Log/Log.hpp"
+#include "App/Event/AppEvents.hpp"
+#include "App/Module.hpp"
+#include "App/Event/AppEvents.hpp"
+#include "Gui/Gui.hpp"
+#include "Renderer/RenderCommand.hpp"
+#include "Time/Time.hpp"
+#include "Renderer/Renderer2D.hpp"
+#include "Script/ScriptEngine.hpp"
+#include "App/FileSystem.hpp"
+#include "App/OS.hpp"
 
 namespace Cosmic
 {
@@ -46,14 +46,15 @@ namespace Cosmic
 
         ModuleSystem::Init();
 
-        mWindow = CreateDesktopWindow(mInfo.WindowInfo, [this](const WindowEvent& e) { return this->OnEvent(e); });
+        mWindow = CreateDesktopWindow(mInfo.WindowInfo);
 
         Renderer2D::Init();
         Gui::Init();
         FileSystem::Init("C:/Dev/Cosmic");
-        ScriptEngine::Init(mInfo.ScriptAssemblyPath);
+        //ScriptEngine::Init(mInfo.ScriptAssemblyPath);
 
         OnEvent(ApplicationInitEvent(mInfo));
+        //EventSystem::AddEvent(new ApplicationInitEvent(mInfo));
 
         Run();
     }
@@ -92,7 +93,8 @@ namespace Cosmic
             if (!mMinimized)
             {
                 ModuleSystem::OnUpdate();
-                OnEvent(ApplicationUpdateEvent());
+                EventSystem::AddEvent(new ApplicationUpdateEvent());
+                EventSystem::DispatchEvents();
             }
             
             if (mInfo.EnableImGui)

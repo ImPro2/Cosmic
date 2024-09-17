@@ -1,8 +1,7 @@
-module;
 #include "cspch.hpp"
+#include "ECS/SceneCamera.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-module Cosmic.ECS.SceneCamera;
 
 namespace Cosmic
 {

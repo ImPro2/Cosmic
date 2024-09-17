@@ -1,16 +1,15 @@
-module;
 #include "cspch.hpp"
+#include "Renderer.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <array>
-module Cosmic.Renderer.Renderer2D;
 
 CS_MODULE_LOG_INFO(Cosmic, Renderer.Renderer2D);
 
-import Cosmic.Renderer.Buffer;
-import Cosmic.Renderer.Shader;
-import Cosmic.Renderer.RenderCommand;
+#include "Renderer/Buffer.hpp"
+#include "Renderer/Shader.hpp"
+#include "Renderer/Shader.hpp"
 
 namespace Cosmic
 {

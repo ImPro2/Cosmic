@@ -1,15 +1,14 @@
-module;
 #include "cspch.hpp"
+#include "EditorModule.hpp"
 #include <imgui.h>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-module Editor.EditorModule;
 
 CS_MODULE_LOG_INFO(Editor, EditorModule);
 
-import Cosmic.ECS.Entity;
-import Cosmic.ECS.SceneSerializer;
+#include "ECS/Entity.hpp"
+#include "ECS/SceneSerializer.hpp"
 
 namespace Cosmic
 {
@@ -79,7 +78,7 @@ namespace Cosmic
 
     void EditorModule::SetupDockSpace()
     {
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        ImGuiWindowFlags windowFlags = 0;// = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
@@ -95,18 +94,9 @@ namespace Cosmic
         ImGui::Begin("Editor Dockspace", &open, windowFlags);
 
         ImGui::PopStyleVar(3);
-
-        ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyDefault_;
-        if (ImGui::BeginTabBar("##MainTabBar", tabBarFlags))
-        {
-
-
-            ImGui::EndTabBar();
-        }
-
-        //ImGuiIO& io = ImGui::GetIO();
-        //ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
-        //ImGui::DockSpace(dockspaceID);
+        ImGuiIO& io = ImGui::GetIO();
+        ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
+        ImGui::DockSpace(dockspaceID);
 
         ImGui::End();
     }
@@ -234,7 +224,8 @@ namespace Cosmic
             SceneSerializer serializer(mActiveScene);
             serializer.Serialize(mActiveScenePath);
 
-            Application::Get()->OnEvent(EditorSceneSavedEvent(mActiveScene));
+            //Application::Get()->OnEvent(EditorSceneSavedEvent(mActiveScene));
+            EventSystem::AddEvent(new EditorSceneSavedEvent(mActiveScene));
         }
     }
 
@@ -248,7 +239,8 @@ namespace Cosmic
             SceneSerializer serializer(mActiveScene);
             serializer.Serialize(mActiveScenePath);
 
-            Application::Get()->OnEvent(EditorSceneSavedAsEvent(mActiveScene));
+            //Application::Get()->OnEvent(EditorSceneSavedAsEvent(mActiveScene));
+            EventSystem::AddEvent(new EditorSceneSavedAsEvent(mActiveScene));
         }
     }
 
@@ -269,7 +261,8 @@ namespace Cosmic
             SceneSerializer serializer(mActiveScene);
             serializer.Deserialize(mActiveScenePath);
 
-            Application::Get()->OnEvent(EditorSceneOpenedEvent(mActiveScene));
+            //Application::Get()->OnEvent(EditorSceneOpenedEvent(mActiveScene));
+            EventSystem::AddEvent(new EditorSceneOpenedEvent(mActiveScene));
         }
     }
 

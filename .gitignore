@@ -5,6 +5,7 @@
 **.vcxproj
 **.vcxproj.user
 **.vcxproj.filters
+**.pch
 
 # Binaries
 

@@ -1,8 +1,7 @@
-module;
 #include "cspch.hpp"
+#include "OpenGLTexture.hpp"
 #include <glad/glad.h>
 #include <stb_image.h>
-module Cosmic.Impl.RendererAPI.OpenGL.OpenGLTexture;
 
 namespace Cosmic
 {
