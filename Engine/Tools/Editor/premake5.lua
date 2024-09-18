@@ -1,5 +1,7 @@
 project "Editor"
 	kind "ConsoleApp"
+
+	flags { "MultiProcessorCompile" }
 	
 	links
 	{
@@ -12,9 +14,6 @@ project "Editor"
 		"Source/**.hpp",
 		"Source/**.cpp"
 	}
-
-	pchheader "cspch.hpp"
-	pchsource "cspch.cpp"
 
 	includedirs
 	{

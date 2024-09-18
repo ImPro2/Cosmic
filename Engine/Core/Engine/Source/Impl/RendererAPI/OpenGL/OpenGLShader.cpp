@@ -162,10 +162,9 @@ namespace Cosmic
             glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &length);
 
             char* message = (char*)alloca(length * sizeof(char*));
-            glGetProgramInfoLog(programID, length, &length, message);
+            glGetProgramInfoLog(programID, length, &length, message); 
 
             CS_LOG_ERROR("Failed to link shader {}:\n{}", GetFilePath(), message);
-
             glDeleteProgram(programID);
         }
 

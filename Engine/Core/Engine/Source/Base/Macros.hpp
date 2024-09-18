@@ -1,5 +1,5 @@
 #pragma once
-#include <optick.h>
+//#include <optick.h>
 
 // Identify the compiler
 
@@ -86,12 +86,12 @@
 #define CS_MODULE_LOG_INFO(prj, mod)                                \
 namespace _CosmicModuleLogInfo                                      \
 {                                                                   \
-    static std::string ProjectLogName()                             \
+    static const std::string& ProjectLogName()                             \
     {                                                               \
         return #prj;                                                \
     }                                                               \
                                                                     \
-    static std::string ModuleLogName()                              \
+    static const std::string& ModuleLogName()                              \
     {                                                               \
         return #mod;                                                \
     }                                                               \
@@ -103,5 +103,7 @@ namespace _CosmicModuleLogInfo                                      \
 
 // Profiling
 
-#define CS_PROFILE_RUN_LOOP(name) OPTICK_FRAME(name)
-#define CS_PROFILE_FN() OPTICK_EVENT()
+//#define CS_PROFILE_RUN_LOOP(name) OPTICK_FRAME(name)
+//#define CS_PROFILE_FN() OPTICK_EVENT()
+#define CS_PROFILE_RUN_LOOP(name)
+#define CS_PROFILE_FN()

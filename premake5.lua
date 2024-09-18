@@ -35,6 +35,7 @@ workspace "Cosmic"
 		runtime "Release"
 		optimize "On"
 
+
 include "Dependencies.lua"
 
 group "Engine"
@@ -54,5 +55,4 @@ group "Dependencies"
     include "Dependencies/Yaml-CPP"
     include "Dependencies/ImGui"
     include "Dependencies/stb_image"
-    include "Dependencies/Optick"
 group ""

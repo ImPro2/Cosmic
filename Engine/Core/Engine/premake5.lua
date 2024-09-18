@@ -1,6 +1,11 @@
 project "Engine"
 	kind "StaticLib"
 
+	pchheader "cspch.hpp"
+	pchsource "Source/cspch.cpp"
+
+	flags { "MultiProcessorCompile" }
+
 	files
 	{
 		"Source/**.cpp",
@@ -21,12 +26,9 @@ project "Engine"
 		"%{IncludeDir.FontAwesome}"
 	}
 
-	pchheader "cspch.hpp"
-	pchsource "cspch.cpp"
-
 	libdirs
 	{
-		"%{wks.location}/bin/Debug-windows-x86_64/Optick"
+		"%{wks.location}\\Dependencies\\Optick\\bin\\vs2022\\x64\\Debug"
 	}
 
 	links

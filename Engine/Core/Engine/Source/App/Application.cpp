@@ -1,7 +1,7 @@
 #include "cspch.hpp"
 #include "App/Application.hpp"
 #include <functional>
-#include <optick.h>
+//#include <optick.h>
 
 CS_MODULE_LOG_INFO(Cosmic, App.Application);
 

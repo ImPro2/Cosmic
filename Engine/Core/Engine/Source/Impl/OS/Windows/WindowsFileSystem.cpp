@@ -13,6 +13,8 @@
 #include "Base/Types.hpp"
 #include "App/Application.hpp"
 
+#include <format>
+
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsFileSystem);
 
 #undef MoveFile
@@ -262,7 +264,8 @@ namespace Cosmic
 
     void FileSystem::RenameFile(const File& file, const StringView newName)
     {
-        std::string newFileName = std::vformat("{}/{}", std::make_format_args(((File)file).GetParentDirectory().data(), newName.data()));
+        std::string newFileName = std::string(((File)file).GetParentDirectory()) + (std::string("/") + std::string(newName));
+        //std::string newFileName = std::vformat("{}/{}", std::make_format_args(((File)file).GetParentDirectory().data(), newName.data()));
         ((File)file).SetAbsolutePath(std::string_view(newFileName));
 
         CS_WINDOWS_CALL(::MoveFileA(
@@ -273,13 +276,15 @@ namespace Cosmic
 
     void FileSystem::RenameFileExtension(const File& file, const StringView ext)
     {
-        std::string newName = std::vformat("{}{}", std::make_format_args(((File)file).GetName().data(), ext.data()));
+        std::string newName = std::string(((File)file).GetName()) + std::string(ext);
+        //std::string newName = std::vformat("{}{}", std::make_format_args(((File)file).GetName().data(), ext.data()));
         RenameFile(file, std::string_view(newName));
     }
 
     void FileSystem::RenameFileName(const File& file, const StringView name)
     {
-        std::string newName = std::vformat("{}{}", std::make_format_args(name.data(), ((File)file).GetExtension()));
+        std::string newName = newName = std::string(name) + std::string(((File)file).GetExtension());
+        //std::string newName = std::vformat("{}{}", std::make_format_args(name.data(), ((File)file).GetExtension()));
         RenameFile(file, std::string_view(newName));
     }
 
