@@ -20,6 +20,11 @@ namespace Cosmic
 		}
 	}
 
+    void ProjectModule::OnUpdate(Dt dt)
+    {
+
+    }
+
 	void ProjectModule::OnImGuiRender()
 	{
 		ImGui::Begin("");

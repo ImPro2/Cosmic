@@ -2,6 +2,33 @@ Scene: Untitled Scene
 Entities:
   - Entity: 123456789
     Tag Component:
+      Tag: Player 2
+    Transform Component:
+      Translation: [2, 3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    Sprite Renderer Component:
+      Color: [0, 0.619607866, 1, 1]
+  - Entity: 123456789
+    Tag Component:
+      Tag: Player
+    Transform Component:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    Sprite Renderer Component:
+      Color: [0.598493338, 0.0889968872, 0.768339753, 1]
+  - Entity: 123456789
+    Tag Component:
+      Tag: Floor
+    Transform Component:
+      Translation: [0, -1.5, 0]
+      Rotation: [0, 0, 0]
+      Scale: [11.8000002, 1, 1]
+    Sprite Renderer Component:
+      Color: [1, 0.999989986, 0.999989986, 1]
+  - Entity: 123456789
+    Tag Component:
       Tag: Camera Entity
     Transform Component:
       Translation: [0, 0, 0]
@@ -16,33 +43,6 @@ Entities:
         Perspective FOV: 0.785398185
         Perspective Near: 0.00999999978
         Perspective Far: 1000
-        Aspect Ratio: 1.14348459
+        Aspect Ratio: 1.85265696
       Primary: true
       Fixed Aspect Ratio: false
-  - Entity: 123456789
-    Tag Component:
-      Tag: Floor
-    Transform Component:
-      Translation: [0, -1.5, 0]
-      Rotation: [0, 0, 0]
-      Scale: [11.8000002, 1, 1]
-    Sprite Renderer Component:
-      Color: [1, 0.999989986, 0.999989986, 1]
-  - Entity: 123456789
-    Tag Component:
-      Tag: Player
-    Transform Component:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    Sprite Renderer Component:
-      Color: [1, 0, 0, 1]
-  - Entity: 123456789
-    Tag Component:
-      Tag: Player 2
-    Transform Component:
-      Translation: [2, 3, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    Sprite Renderer Component:
-      Color: [0, 0.619607866, 1, 1]

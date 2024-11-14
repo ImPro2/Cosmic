@@ -34,7 +34,7 @@ namespace Cosmic
     }
 
     ConsolePanel::ConsolePanel()
-        : Panel("Console Panel")
+        : Panel("Console")
     {
     }
 
@@ -62,7 +62,7 @@ namespace Cosmic
         if (!mOpen)
             return;
 
-        if (ImGui::Begin("Console", &mOpen))
+        if (ImGui::Begin(mPanelName.c_str(), &mOpen))
         {
             static bool showTraceLogs    = true;
             static bool showInfoLogs     = true;

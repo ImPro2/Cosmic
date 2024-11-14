@@ -5,6 +5,7 @@
 #include "Panels/Panels.hpp"
 #include "Panels/ViewportPanel.hpp"
 #include "TabBars/TabBars.hpp"
+#include "Gui/FileDialog.hpp"
 
 #include "App/App.hpp"
 #include "App/Event/FileSystemEvents.hpp"
@@ -32,6 +33,7 @@ namespace Cosmic
 
     private:
         void SetupDockSpace();
+        void SetupDefaultDockLayout();
         void SetupMenuBar();
 
     private:
@@ -54,6 +56,8 @@ namespace Cosmic
         Panels mPanels;
 
         Vector<ITabBar> mTabBars;
+
+        bool mSetupDefaultLayout = true;
     };
 
 }

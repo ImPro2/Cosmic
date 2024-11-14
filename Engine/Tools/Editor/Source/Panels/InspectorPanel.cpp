@@ -13,7 +13,7 @@ namespace Cosmic
 {
 
     InspectorPanel::InspectorPanel()
-        : Panel("Inspector Panel")
+        : Panel("Inspector")
     {
     }
 
@@ -22,7 +22,7 @@ namespace Cosmic
         if (!mOpen)
             return;
 
-        if (ImGui::Begin("Inspector", &mOpen))
+        if (ImGui::Begin(mPanelName.c_str(), &mOpen))
         {
             SceneHierarchyPanel* panel = ModuleSystem::Get<SceneHierarchyPanel>();
             Entity selectedEntity = panel->GetSelectedEntity();

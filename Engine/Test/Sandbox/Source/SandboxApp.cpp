@@ -2,7 +2,6 @@
 #include "EntryPoint/EntryPoint.hpp"
 #include "App/Log/Log.hpp"
 
-#include <Windows.h>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

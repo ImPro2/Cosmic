@@ -12,7 +12,7 @@ namespace Cosmic
 {
 
     SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene)
-        : Panel("Scene Hierarchy Panel")
+        : Panel("Scene Hierarchy")
     {
         mScene = scene;
     }
@@ -35,7 +35,7 @@ namespace Cosmic
         if (!mOpen)
             return;
 
-        if (ImGui::Begin("Scene Hierarchy"), &mOpen)
+        if (ImGui::Begin(mPanelName.c_str(), &mOpen))
         {
             char tag[128] = "";
 

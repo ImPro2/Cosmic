@@ -8,7 +8,7 @@ namespace Cosmic
 {
 
     ViewportPanel::ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene)
-        : mFramebuffer(framebuffer), mScene(scene), Panel("Viewport Panel")
+        : mFramebuffer(framebuffer), mScene(scene), Panel("Viewport")
     {
         CS_PROFILE_FN();
 
@@ -42,7 +42,7 @@ namespace Cosmic
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-        ImGui::Begin("Viewport", &mOpen, windowFlags);
+        ImGui::Begin(mPanelName.c_str(), &mOpen, windowFlags);
         {
             // BLock events if the panel is selected or hovered.
             bool hovered = ImGui::IsWindowHovered();

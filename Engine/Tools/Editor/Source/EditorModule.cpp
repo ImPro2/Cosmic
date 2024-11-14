@@ -1,6 +1,8 @@
 #include "cspch.hpp"
 #include "EditorModule.hpp"
+#include "App/Event/Events.hpp"
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,6 +11,11 @@ CS_MODULE_LOG_INFO(Editor, EditorModule);
 
 #include "ECS/Entity.hpp"
 #include "ECS/SceneSerializer.hpp"
+
+#include "Panels/ConsolePanel.hpp"
+#include "Panels/ViewportPanel.hpp"
+#include "Panels/InspectorPanel.hpp"
+#include "Panels/SceneHierarchyPanel.hpp"
 
 namespace Cosmic
 {
@@ -78,6 +85,7 @@ namespace Cosmic
 
     void EditorModule::SetupDockSpace()
     {
+        ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGuiWindowFlags windowFlags = 0;// = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
         windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
@@ -96,9 +104,42 @@ namespace Cosmic
         ImGui::PopStyleVar(3);
         ImGuiIO& io = ImGui::GetIO();
         ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
-        ImGui::DockSpace(dockspaceID);
+        ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);
+        
+        if (mSetupDefaultLayout)
+        {
+            mSetupDefaultLayout = false;
+            SetupDefaultDockLayout();
+        }
 
         ImGui::End();
+    }
+
+    void EditorModule::SetupDefaultDockLayout()
+    {
+        ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        
+        ImGui::DockBuilderRemoveNode(dockspaceID);
+        ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
+
+        ConsolePanel*        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
+        ViewportPanel*       viewportPanel       = mPanels.GetPanel<ViewportPanel>();
+        InspectorPanel*      inspectorPanel      = mPanels.GetPanel<InspectorPanel>();
+        SceneHierarchyPanel* sceneHierarchyPanel = mPanels.GetPanel<SceneHierarchyPanel>();
+
+        ImGuiID dockIdSceneHierarchy = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left,  0.2f, nullptr, &dockspaceID);
+        ImGuiID dockIdInspector      = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
+        ImGuiID dockIdConsole        = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down,  0.3f, nullptr, &dockspaceID);
+        ImGuiID dockIdViewport       = dockspaceID;
+
+        ImGui::DockBuilderDockWindow(consolePanel->GetPanelName().c_str(),        dockIdConsole);
+        ImGui::DockBuilderDockWindow(viewportPanel->GetPanelName().c_str(),       dockIdViewport);
+        ImGui::DockBuilderDockWindow(inspectorPanel->GetPanelName().c_str(),      dockIdInspector);
+        ImGui::DockBuilderDockWindow(sceneHierarchyPanel->GetPanelName().c_str(), dockIdSceneHierarchy);
+    
+        ImGui::DockBuilderFinish(dockspaceID);
     }
 
     void EditorModule::SetupMenuBar()
@@ -224,24 +265,21 @@ namespace Cosmic
             SceneSerializer serializer(mActiveScene);
             serializer.Serialize(mActiveScenePath);
 
-            //Application::Get()->OnEvent(EditorSceneSavedEvent(mActiveScene));
             EventSystem::AddEvent(new EditorSceneSavedEvent(mActiveScene));
         }
     }
 
     void EditorModule::SaveSceneAs()
     {
-        String newPath = OS::SaveFileDialog("");
-
-        if (!newPath.empty())
-        {
-            mActiveScenePath = newPath;
+        FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(".");
+        
+        fileDialogModule->SetSaveFileCallback("Scene.cscene", { "Cosmic Scene (*.cscene)" }, [this](File file) {
+            mActiveScenePath = file.GetAbsolutePath();
             SceneSerializer serializer(mActiveScene);
             serializer.Serialize(mActiveScenePath);
 
-            //Application::Get()->OnEvent(EditorSceneSavedAsEvent(mActiveScene));
             EventSystem::AddEvent(new EditorSceneSavedAsEvent(mActiveScene));
-        }
+        });
     }
 
     void EditorModule::OpenScene()
@@ -251,19 +289,17 @@ namespace Cosmic
             serializer.Serialize(mActiveScenePath);
         }
 
-        String newPath = OS::OpenFileDialog("Cosmic Scene (*.cscene)\0*.cscene\0");
-        
-        if (!newPath.empty())
-        {
-            mActiveScenePath = newPath;
+        FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>("Engine/Tools/Editor");
+
+        fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { 
+            mActiveScenePath = file.GetAbsolutePath();
             mActiveScene = CreateRef<Scene>();
-            
+
             SceneSerializer serializer(mActiveScene);
             serializer.Deserialize(mActiveScenePath);
 
-            //Application::Get()->OnEvent(EditorSceneOpenedEvent(mActiveScene));
             EventSystem::AddEvent(new EditorSceneOpenedEvent(mActiveScene));
-        }
+        });
     }
 
     void EditorModule::NewScene()

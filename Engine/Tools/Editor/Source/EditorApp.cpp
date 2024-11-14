@@ -1,9 +1,12 @@
+#include "Base/Macros.hpp"
 #include "cspch.hpp"
 #include "EditorApp.hpp"
 #include "EntryPoint/EntryPoint.hpp"
 #include <entt/entt.hpp>
 
 #include "ProjectModule.hpp"
+
+CS_MODULE_LOG_INFO(Editor, EditorApp)
 
 namespace Cosmic
 {
