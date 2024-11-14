@@ -27,7 +27,7 @@ namespace Cosmic
         //xreturn ERendererAPI::DirectX;
         return ERendererAPI::OpenGL;
 #elif defined(CS_PLATFORM_LINUX) || defined(CS_PLATFORM_ANDROID)
-        return ERendererAPI::Vulkan;
+        return ERendererAPI::OpenGL;
 #elif defined(CS_PLATFORM_MACOS) || defined(CS_PLATFORM_IOS)
         return ERendererAPI::Metal;
 #endif

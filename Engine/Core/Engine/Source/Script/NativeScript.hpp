@@ -15,7 +15,7 @@ namespace Cosmic
         template<typename T, typename ... Args>
         void AddComponent(Args&& ... args)
         {
-            mEntity.AddComponent<T, Args...>(args);
+            mEntity.AddComponent<T, Args...>(args...);
         }
 
         template<typename T>

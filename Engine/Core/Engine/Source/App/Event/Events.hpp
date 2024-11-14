@@ -14,6 +14,7 @@ namespace Cosmic
         WindowCreate, WindowClose, WindowResize, WindowMove, WindowTitle,
         KeyPress, KeyRelease, KeyType,
         MouseMove, MouseScroll, MouseButtonClick, MouseButtonRelease,
+        DirectoryAdded, DirectoryRemoved, DirectoryRenamed, DirectoryModified,
         FileAdded, FileRemoved, FileRenamed, FileModified,
         EditorSceneSaved, EditorSceneSavedAs, EditorSceneOpened, EditorSceneNew
     };

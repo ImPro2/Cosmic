@@ -20,8 +20,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        for (Module* module : sFrontModules)
-            module->OnUpdate(float32(Time::GetDeltaTime()));
+        AddDeferredModules();
 
         for (Module* module : sModules)
             module->OnUpdate(float32(Time::GetDeltaTime()));
@@ -31,9 +30,6 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        for (Module* module : sFrontModules)
-            module->OnEvent(e);
-
         for (Module* module : sModules)
             module->OnEvent(e);
     }
@@ -42,11 +38,26 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        for (Module* module : sFrontModules)
-            module->OnImGuiRender();
-
         for (Module* module : sModules)
             module->OnImGuiRender();
+    }
+
+    void ModuleSystem::AddDeferredModules()
+    {
+        while (!sDeferredModules.empty())
+        {
+            auto [module, insertMode] = sDeferredModules.front();
+            
+            module->OnInit();
+            
+            switch (insertMode)
+            {
+                case EDeferredInsertMode::Front: sModules.insert(sModules.begin(), module); break;
+                case EDeferredInsertMode::Back:  sModules.push_back(module);                break;
+            }
+
+            sDeferredModules.pop();
+        }
     }
 
 }

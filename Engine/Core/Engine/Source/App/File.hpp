@@ -9,21 +9,20 @@ namespace Cosmic
     class File
     {
     public:
-        const StringView GetName();
-        const StringView GetExtension();
-        const String     GetNameAndExtension();
+        const String GetName();
+        const String GetExtension();
+        const String GetNameAndExtension();
 
+        const String GetAbsolutePath();
+        const String GetParentDirectory();
 
-        const StringView GetAbsolutePath();
-        const StringView GetParentDirectory();
+        const size_t GetSize();
 
-        const size_t     GetSize();
-
-        const String     Read();
+        const String Read();
         const uint8* ReadBinary();
 
-        void             Write(const StringView text);
-        void             WriteBinary(const unsigned char* text);
+        void Write(const StringView text);
+        void WriteBinary(const unsigned char* text);
 
         File(const std::string_view absolutePath)
             : mAbsolutePath(absolutePath)

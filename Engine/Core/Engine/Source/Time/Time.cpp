@@ -5,6 +5,12 @@
 
 namespace Cosmic
 {
+    
+    TimeUnit Time::GetCurrentTime()
+    {
+        return TimeUnit((float32)glfwGetTime()); 
+    }
+    
 
     void Time::Update()
     {

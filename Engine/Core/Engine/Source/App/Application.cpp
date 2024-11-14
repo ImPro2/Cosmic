@@ -1,27 +1,25 @@
-#include "cspch.hpp"
 #include "App/Application.hpp"
+#include "cspch.hpp"
 #include <functional>
-//#include <optick.h>
+// #include <optick.h>
 
 CS_MODULE_LOG_INFO(Cosmic, App.Application);
 
-#include "App/Log/Log.hpp"
 #include "App/Event/AppEvents.hpp"
+#include "App/FileSystem.hpp"
 #include "App/Module.hpp"
-#include "App/Event/AppEvents.hpp"
+#include "App/OS.hpp"
 #include "Gui/Gui.hpp"
 #include "Renderer/RenderCommand.hpp"
-#include "Time/Time.hpp"
 #include "Renderer/Renderer2D.hpp"
 #include "Script/ScriptEngine.hpp"
-#include "App/FileSystem.hpp"
-#include "App/OS.hpp"
+#include "Time/Time.hpp"
 
 namespace Cosmic
 {
 
     Application* Application::sInstance = nullptr;
-
+    
     Application::Application()
     {
         CS_PROFILE_FN();
@@ -29,12 +27,11 @@ namespace Cosmic
         CS_ASSERT(!sInstance, "Already initialized the `Application` class.");
         sInstance = this;
     }
-
+    
     Application::~Application()
     {
-
     }
-
+    
     void Application::Init(ApplicationInfo&& info)
     {
         CS_PROFILE_FN();
@@ -50,15 +47,15 @@ namespace Cosmic
 
         Renderer2D::Init();
         Gui::Init();
-        FileSystem::Init("C:/Dev/Cosmic");
-        //ScriptEngine::Init(mInfo.ScriptAssemblyPath);
+        FileSystem::Init("./");
+        // ScriptEngine::Init(mInfo.ScriptAssemblyPath);
 
         OnEvent(ApplicationInitEvent(mInfo));
-        //EventSystem::AddEvent(new ApplicationInitEvent(mInfo));
+        // EventSystem::AddEvent(new ApplicationInitEvent(mInfo));
 
         Run();
     }
-
+    
     void Application::Shutdown()
     {
         CS_PROFILE_FN();
@@ -72,14 +69,14 @@ namespace Cosmic
         mWindow->Close();
         ModuleSystem::Shutdown();
     }
-
+    
     void Application::Close()
     {
         CS_PROFILE_FN();
 
         mRunning = false;
     }
-
+    
     void Application::Run()
     {
         CS_PROFILE_FN();
@@ -96,7 +93,7 @@ namespace Cosmic
                 EventSystem::AddEvent(new ApplicationUpdateEvent());
                 EventSystem::DispatchEvents();
             }
-            
+
             if (mInfo.EnableImGui)
             {
                 Gui::Begin();
@@ -109,8 +106,8 @@ namespace Cosmic
 
         Shutdown();
     }
-
-    void Application::OnEvent(const Event& e)
+    
+    void Application::OnEvent(const Event &e)
     {
         CS_PROFILE_FN();
 
@@ -118,12 +115,12 @@ namespace Cosmic
 
         CS_DISPATCH_EVENT(WindowCloseEvent, OnWindowClose);
         CS_DISPATCH_EVENT(WindowResizeEvent, OnWindowResize);
-        Gui::OnEvent((Event*)std::addressof(e));
+        Gui::OnEvent((Event *)std::addressof(e));
 
         ModuleSystem::OnEvent(e);
     }
-
-    bool Application::OnWindowResize(const WindowResizeEvent& e)
+    
+    bool Application::OnWindowResize(const WindowResizeEvent &e)
     {
         CS_PROFILE_FN();
 
@@ -136,8 +133,8 @@ namespace Cosmic
 
         return false;
     }
-
-    bool Application::OnWindowClose(const WindowCloseEvent& e)
+    
+    bool Application::OnWindowClose(const WindowCloseEvent &e)
     {
         CS_PROFILE_FN();
 
@@ -147,4 +144,4 @@ namespace Cosmic
         return true;
     }
 
-}
+} // namespace Cosmic

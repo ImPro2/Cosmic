@@ -19,6 +19,12 @@ bin-int/
 # Optick profiling sessions
 Profiling/
 
+<<<<<<< Updated upstream
 .cache/
 Makefile
 compile_commands.json
+=======
+Makefile
+compile_commands.json
+.cache/
+>>>>>>> Stashed changes

@@ -12,6 +12,7 @@ namespace Cosmic
     class Time
     {
     public:
+        static TimeUnit  GetCurrentTime();
         static DeltaTime GetDeltaTime()     { return sCurrentDeltaTime;              }
         static TimeUnit  GetLastFrameTime() { return sLastFrameTime;                 }
         static TimeUnit  GetTime()          { return TimeUnit(OS::GetCurrentTime()); }

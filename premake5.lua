@@ -35,19 +35,22 @@ workspace "Cosmic"
 		runtime "Release"
 		optimize "On"
 
+    filter { "system:linux" }
+        buildoptions { "-Wno-return-type" }
+
 
 include "Dependencies.lua"
 
-group "Engine"
-	group "Engine/Core"
-		include "Engine/Core/Engine"
+--group "Engine"
+	--group "Engine/Core"
+		--include "Engine/Core/Engine"
 
-	group "Engine/Tools"
-		include "Engine/Tools/Editor"
+	--group "Engine/Tools"
+		--include "Engine/Tools/Editor"
 	
-	group "Engine/Test"
-		include "Engine/Test/Sandbox"
-group ""
+	--group "Engine/Test"
+	--	include "Engine/Test/Sandbox"
+--group ""
 
 group "Dependencies"
     include "Dependencies/GLFW"
@@ -56,3 +59,6 @@ group "Dependencies"
     include "Dependencies/ImGui"
     include "Dependencies/stb_image"
 group ""
+
+include "Engine/Core/Engine"
+include "Engine/Tools/Editor"

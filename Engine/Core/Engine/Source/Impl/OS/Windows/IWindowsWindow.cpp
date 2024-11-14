@@ -1,4 +1,7 @@
 #include "cspch.hpp"
+
+#ifdef CS_PLATFORM_WINDOWS
+
 #include "IWindowsWindow.hpp"
 #include "WindowsUtils.hpp"
 //#include "glad/glad.h"
@@ -214,3 +217,5 @@ namespace Cosmic
     }
 
 }
+
+#endif

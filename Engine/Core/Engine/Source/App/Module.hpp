@@ -1,4 +1,5 @@
 #pragma once
+#include <queue>
 #include <vector>
 #include <typeinfo>
 #include <algorithm>
@@ -8,7 +9,6 @@
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"
 
-#include "Base/Base.hpp"
 #include "App/Event/WindowEvents.hpp"
 #include "App/Event/Events.hpp"
 
@@ -40,23 +40,65 @@ namespace Cosmic
 
     class ModuleSystem
     {
+    private:
+        enum class EDeferredInsertMode
+        {
+            Front, Back
+        };
+
     public:
         template<typename T, typename ... Args>
-        static void Add(Args&& ... args)
+        static T* Add(Args&& ... args)
         {
+            if (Get<T>())
+                return Get<T>();
+
             Module* module = new T(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             module->OnInit();
             sModules.push_back(module);
+
+            return static_cast<T*>(module);
         }
 
         template<typename T, typename ... Args>
-        static void AddFront(Args&& ... args)
+        static T* AddFront(Args&& ... args)
         {
+            if (Get<T>())
+                return Get<T>();
+
             Module* module = new T(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             module->OnInit();
-            sFrontModules.push_back(module);
+            sModules.insert(sModules.begin(), module);
+
+            return static_cast<T*>(module);
+        }
+
+        template<typename T, typename ... Args>
+        static T* AddDeferred(Args&& ... args)
+        {
+            if (Get<T>())
+                return Get<T>();
+
+            Module* module = new T(std::forward<Args>(args)...);
+            module->mName = typeid(T).name();
+            sDeferredModules.push({ module, EDeferredInsertMode::Back });
+
+            return static_cast<T*>(module);
+        }
+
+        template<typename T, typename ... Args>
+        static T* AddFrontDeferred(Args&& ... args)
+        {
+            if (Get<T>())
+                return Get<T>();
+
+            Module* module = new T(std::forward<Args>(args)...);
+            module->mName = typeid(T).name();
+            sDeferredModules.push({ module, EDeferredInsertMode::Front });
+
+            return static_cast<T*>(module);
         }
 
         template<typename T>
@@ -74,7 +116,7 @@ namespace Cosmic
                 return false;
             };
 
-            std::erase_if(sFrontModules, eraseFunction);
+            //std::erase_if(sFrontModules, eraseFunction);
             std::erase_if(sModules, eraseFunction);
         }
 
@@ -82,16 +124,17 @@ namespace Cosmic
         static T* Get()
         {
             const char* name = typeid(T).name();
-            for (Module* module : sFrontModules)
+            /*for (Module* module : sFrontModules)
             {
                 if (module->GetName() == name)
                     return static_cast<T*>(module);
-            }
+            }*/
             for (Module* module : sModules)
             {
                 if (module->GetName() == name)
                     return static_cast<T*>(module);
             }
+            return nullptr;
         }
 
     private:
@@ -102,9 +145,11 @@ namespace Cosmic
         static void OnEvent(const Event& e);
         static void OnImGuiRender();
 
+        static void AddDeferredModules();
+
     private:
-        inline static std::vector<Module*> sModules;
-        inline static std::vector<Module*> sFrontModules;
+        inline static Vector<Module*> sModules;
+        inline static std::queue<Pair<Module*, EDeferredInsertMode>> sDeferredModules;
         friend class Application;
     };
 

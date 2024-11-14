@@ -38,8 +38,8 @@ namespace Cosmic
         }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();                }
-        static  EEventType GetStaticType()    { return EEventType::WindowCreate; }
+        virtual EEventType GetType() const override { return GetStaticType();          }
+        static  EEventType GetStaticType()          { return EEventType::WindowCreate; }
     };
     struct WindowCloseEvent : public WindowEvent
     {
@@ -50,8 +50,8 @@ namespace Cosmic
         }
 
     public:
-        virtual EEventType GetType() const  const  override { return GetStaticType();               }
-        static  EEventType GetStaticType()    { return EEventType::WindowClose; }
+        virtual EEventType GetType() const override { return GetStaticType();         }
+        static  EEventType GetStaticType()          { return EEventType::WindowClose; }
     };
     struct WindowResizeEvent : public WindowEvent
     {
@@ -66,10 +66,9 @@ namespace Cosmic
         inline uint32 GetWidth()  const { return mSize.width;  }
         inline uint32 GetHeight() const { return mSize.height; }
 
-
     public:
-        virtual EEventType GetType() const override { return GetStaticType();                }
-        static  EEventType GetStaticType()    { return EEventType::WindowResize; }
+        virtual EEventType GetType() const override { return GetStaticType();          }
+        static  EEventType GetStaticType()          { return EEventType::WindowResize; }
 
     private:
         uint2 mSize;
@@ -88,8 +87,8 @@ namespace Cosmic
         inline int32 GetYPosition() const { return mPos.y; }
 
     public:
-        virtual EEventType GetType() const override { return GetStaticType();              }
-        static  EEventType GetStaticType()    { return EEventType::WindowMove; }
+        virtual EEventType GetType() const override { return GetStaticType();        }
+        static  EEventType GetStaticType()          { return EEventType::WindowMove; }
 
     private:
        int2 mPos;
@@ -106,8 +105,8 @@ namespace Cosmic
         inline const String& GetTitle()  const { return mTitle; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();               }
-        static  EEventType GetStaticType()    { return EEventType::WindowTitle; }
+        virtual EEventType GetType() const override { return GetStaticType();         }
+        static  EEventType GetStaticType()          { return EEventType::WindowTitle; }
 
     public:
         String mTitle;
@@ -125,8 +124,8 @@ namespace Cosmic
         inline uint8    GetRepeatCount() const { return mRepeatCount; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();            }
-        static  EEventType GetStaticType()    { return EEventType::KeyPress; }
+        virtual EEventType GetType() const override { return GetStaticType();      }
+        static  EEventType GetStaticType()          { return EEventType::KeyPress; }
 
     private:
         EKeyCode mKey;
@@ -144,8 +143,8 @@ namespace Cosmic
         inline EKeyCode GetKeyCode() const { return mKey; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();              }
-        static  EEventType GetStaticType()    { return EEventType::KeyRelease; }
+        virtual EEventType GetType() const override { return GetStaticType();        }
+        static  EEventType GetStaticType()          { return EEventType::KeyRelease; }
 
     private:
         EKeyCode mKey;
@@ -162,8 +161,8 @@ namespace Cosmic
         inline char GetChar() const { return mChar; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();           }
-        static  EEventType GetStaticType()    { return EEventType::KeyType; }
+        virtual EEventType GetType() const override { return GetStaticType();     }
+        static  EEventType GetStaticType()          { return EEventType::KeyType; }
 
     private:
         char mChar;
@@ -180,8 +179,8 @@ namespace Cosmic
         inline float2 GetPosition() const { return mPos; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();             }
-        static  EEventType GetStaticType()    { return EEventType::MouseMove; }
+        virtual EEventType GetType() const override { return GetStaticType();       }
+        static  EEventType GetStaticType()          { return EEventType::MouseMove; }
 
     private:
         float2 mPos;
@@ -198,8 +197,8 @@ namespace Cosmic
         inline float32 GetOffset() const { return mOffset; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();               }
-        static  EEventType GetStaticType()    { return EEventType::MouseScroll; }
+        virtual EEventType GetType() const override { return GetStaticType();         }
+        static  EEventType GetStaticType()          { return EEventType::MouseScroll; }
 
     private:
         float32 mOffset;
@@ -216,8 +215,8 @@ namespace Cosmic
         inline EMouseCode GetButton() const { return mButton; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();                    }
-        static  EEventType GetStaticType()           { return EEventType::MouseButtonClick;       }
+        virtual EEventType GetType() const override { return GetStaticType();                    }
+        static  EEventType GetStaticType()          { return EEventType::MouseButtonClick;       }
 
     private:
         EMouseCode mButton;
@@ -234,8 +233,8 @@ namespace Cosmic
         inline EMouseCode GetButton() const { return mButton; }
 
     public:
-        virtual EEventType GetType() const  override { return GetStaticType();                      }
-        static  EEventType GetStaticType()    { return EEventType::MouseButtonRelease; }
+        virtual EEventType GetType() const override { return GetStaticType();                }
+        static  EEventType GetStaticType()          { return EEventType::MouseButtonRelease; }
 
     private:
         EMouseCode mButton;

@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.hpp"
+#include <cstring>
 
 namespace Cosmic::StringUtils
 {

@@ -9,7 +9,7 @@ project "Engine"
 	files
 	{
 		"Source/**.cpp",
-		"Source/**.hpp"
+		"Source/**.hpp",
 	}
 
 	includedirs
@@ -26,10 +26,10 @@ project "Engine"
 		"%{IncludeDir.FontAwesome}"
 	}
 
-	libdirs
-	{
-		"%{wks.location}\\Dependencies\\Optick\\bin\\vs2022\\x64\\Debug"
-	}
+	--libdirs
+	--{
+	--	"%{wks.location}\\Dependencies\\Optick\\bin\\vs2022\\x64\\Debug"
+	--}
 
 	links
 	{
@@ -38,5 +38,5 @@ project "Engine"
 		"ImGui",
 		"Yaml-CPP",
 		"stb_image",
-		"OptickCore"
+		--"OptickCore"
 	}

@@ -1,4 +1,7 @@
 #include "cspch.hpp"
+
+#ifdef CS_PLATFORM_WINDOWS
+
 #include "WindowsUtils.hpp"
 
 #include "App/Log/Log.hpp"
@@ -35,3 +38,5 @@ namespace Cosmic::WindowsUtils
 
     }
 }
+
+#endif

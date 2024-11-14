@@ -1,4 +1,7 @@
 #include "cspch.hpp"
+
+#ifdef CS_PLATFORM_WINDOWS
+
 #include "App/FileSystem.hpp"
 #include "WindowsUtils.hpp"
 
@@ -190,6 +193,37 @@ namespace Cosmic
         return result;
     }
 
+    Vector<String> FileSystem::ListDirectoryContents(const Directory& parentDir)
+    {
+        HANDLE            hFind;
+        WIN32_FIND_DATAA  ffd;
+        std::string       parentDirAsString = (std::string)parentDir;
+        Vector<String>    result;
+
+        Utils::ReplaceAll(parentDirAsString, "/", "\\");
+        parentDirAsString += "\\*";
+
+        CS_WINDOWS_CALL(hFind = ::FindFirstFileA(
+            parentDirAsString.c_str(),
+            &ffd
+        ), "First file could not be found in directory.");
+
+        std::string finalParentDir = (std::string)(parentDir + '/');
+
+        do 
+        {
+            std::string name = ffd.cFileName;
+            std::string absolutePath = finalParentDir + '/' + name;
+
+            if (name == "." || name == "..")
+                continue;
+
+            result.emplace_back(absolutePath);
+        } while (::FindNextFileA(hFind, &ffd));
+
+        return result;
+    }
+
     bool FileSystem::IsFileOrDirectory(const String& path)
     {
         if (path.find('.') != std::string_view::npos)
@@ -289,3 +323,5 @@ namespace Cosmic
     }
 
 }
+
+#endif

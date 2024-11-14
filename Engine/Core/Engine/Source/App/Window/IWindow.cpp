@@ -1,9 +1,10 @@
 #include "cspch.hpp"
 #include "App/Window/IWindow.hpp"
-#include "App/Event/WindowEvents.hpp"
 
 #ifdef CS_PLATFORM_WINDOWS
 #include "Impl/OS/Windows/IWindowsWindow.hpp"
+#else if defined(CS_PLATFORM_LINUX)
+#include "Impl/OS/Linux/ILinuxWindow.hpp"
 #endif
 
 namespace Cosmic
@@ -15,6 +16,8 @@ namespace Cosmic
 
 #ifdef CS_PLATFORM_WINDOWS
         return CreateScope<IWindowsDesktopWindow>(info);
+#else if defined(CS_PLATFORM_LINUX)
+        return CreateScope<ILinuxDesktopWindow>(info);
 #endif
     }
 

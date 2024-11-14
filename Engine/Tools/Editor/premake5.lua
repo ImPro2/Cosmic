@@ -2,11 +2,15 @@ project "Editor"
 	kind "ConsoleApp"
 
 	flags { "MultiProcessorCompile" }
-	
+
 	links
 	{
-		"Engine",
-		"ImGui"
+	    "Engine",
+        "ImGui",
+        "GLFW",
+        "Glad",
+        "Yaml-CPP",
+        "stb_image"
 	}
 
 	files

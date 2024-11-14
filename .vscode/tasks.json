@@ -1,0 +1,71 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "make clean"
+        },
+        {
+            "label": "Build All (Debug)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=debug"
+        },
+        {
+            "label": "Build All (Release)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=release"
+        },
+        {
+            "label": "Build All (Dist)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=dist"
+        },
+        {
+            "label": "Build Dependencies (Debug)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=debug Glad GLFW ImGui Yaml-CPP stb_image"
+        },
+        {
+            "label": "Build Dependencies (Release)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=release Glad GLFW ImGui Yaml-CPP stb_image"
+        },
+        {
+            "label": "Build Dependencies (Dist)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=release Glad GLFW ImGui Yaml-CPP stb_image"
+        },
+        {
+            "label": "Build Engine (Debug)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=debug Engine"
+        },
+        {
+            "label": "Build Engine (Release)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=release Engine"
+        },
+        {
+            "label": "Build Engine (Dist)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=dist Engine"
+        },
+        {
+            "label": "Build Editor (Debug)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=debug Editor"
+        },
+        {
+            "label": "Build Editor (Release)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=release Editor"
+        },
+        {
+            "label": "Build Editor (Dist)",
+            "type": "shell",
+            "command": "premake5 gmake2 && bear -- make -j 4 config=dist Editor"
+        }
+
+    ]
+}

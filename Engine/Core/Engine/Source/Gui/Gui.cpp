@@ -89,8 +89,8 @@ namespace Cosmic
         ImFontConfig config;
         config.MergeMode = true;
         static const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("C:/dev/Cosmic/Engine/Core/Engine/Assets/Fonts/Ruda-Bold.ttf", 18.0f);
-        io.Fonts->AddFontFromFileTTF("C:/dev/Cosmic/Engine/Core/Engine/Assets/Fonts/fontawesome-webfont.ttf", 18.0f, &config, iconRanges);
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Engine/Core/Engine/Assets/Fonts/Ruda-Bold.ttf", 18.0f);
+        io.Fonts->AddFontFromFileTTF("Engine/Core/Engine/Assets/Fonts/fontawesome-webfont.ttf", 18.0f, &config, iconRanges);
 
         ImGui::StyleColorsDark();
 
@@ -151,7 +151,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        ImGuiIO&        io         = ImGui::GetIO();
+        ImGuiIO& io = ImGui::GetIO();
         //Application& app = Application::Get();
         //IDesktopWindow* window = app.GetWindow();
         //io.DisplaySize = ImVec2((float32)window->GetSize().x, (float32)window->GetSize().y);

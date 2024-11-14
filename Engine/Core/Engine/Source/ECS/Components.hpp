@@ -117,7 +117,7 @@ namespace Cosmic
         void Reset()
         {
             Instance = nullptr;
- 
+            
             ScriptCallbacks.InstantiateScript = []() -> NativeScript* { return nullptr; };
             ScriptCallbacks.DestroyScript     = [](NativeScript* instance) { };
 

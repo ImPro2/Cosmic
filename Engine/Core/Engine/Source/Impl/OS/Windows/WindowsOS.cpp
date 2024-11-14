@@ -1,4 +1,7 @@
 #include "cspch.hpp"
+
+#ifdef CS_PLATFORM_WINDOWS
+
 #include "App/OS.hpp"
 #include "WindowsUtils.hpp"
 
@@ -552,3 +555,5 @@ namespace Cosmic
     }
 
 }
+
+#endif

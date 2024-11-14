@@ -1,7 +1,8 @@
 #pragma once
-#include "Base/Macros.hpp"
-#include "Base/Singleton.hpp"
+#include "Macros.hpp"
+#include "Types.hpp"
+#include "Tuples.hpp"
+#include "Singleton.hpp"
 #include "StringUtils.hpp"
-#include "Base/Cast.hpp"
-#include "Base/Types.hpp"
-#include "Base/Tuples.hpp"
+#include "Cast.hpp"
+

@@ -92,7 +92,7 @@ namespace Cosmic
         sData->WhiteTexture = CreateTexture2D(1, 1);
         sData->WhiteTexture->SetData(&whiteTextureData, sizeof(uint32));
 
-        sData->Standard2DShader = CreateShader("C:/dev/Cosmic/Engine/Core/Engine/Assets/Shaders/Standard2D.glsl");
+        sData->Standard2DShader = CreateShader("Engine/Core/Engine/Assets/Shaders/Standard2D.glsl");
         sData->Standard2DShader->Bind();
 
         for (int32 i = 0; i < sData->MaxTextureSlots; i++)

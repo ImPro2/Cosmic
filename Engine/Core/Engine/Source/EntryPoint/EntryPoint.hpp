@@ -10,3 +10,4 @@ namespace Cosmic
 }
 
 Cosmic::int32 main(Cosmic::int32 argc, char* argv[]);
+

@@ -1,9 +1,72 @@
 #pragma once
 #include "App/Event/Events.hpp"
 #include "App/File.hpp"
+#include "App/FileSystem.hpp"
 
 namespace Cosmic
 {
+
+    struct DirectoryEvent : public Event
+    {
+    public:
+        DirectoryEvent(const Directory& dir)
+            : mDirectory(dir)
+        {
+        }
+
+        Directory GetDirectory() const { return mDirectory; }
+
+    private:
+        Directory mDirectory;
+    };
+
+	struct DirectoryAddedEvent : public DirectoryEvent
+	{
+	public:
+		DirectoryAddedEvent(const Directory& dir)
+			: DirectoryEvent(dir)
+		{
+		}
+
+		       EEventType GetType() const { return EEventType::DirectoryAdded; }
+		static EEventType GetStaticType() { return EEventType::DirectoryAdded; }
+	};
+
+	struct DirectoryRemovedEvent : public DirectoryEvent
+	{
+	public:
+		DirectoryRemovedEvent(const Directory& dir)
+			: DirectoryEvent(dir)
+		{
+		}
+
+		       EEventType GetType() const { return EEventType::DirectoryRemoved; }
+		static EEventType GetStaticType() { return EEventType::DirectoryRemoved; }
+	};
+
+	struct DirectoryRenamedEvent : public DirectoryEvent
+	{
+	public:
+		DirectoryRenamedEvent(const Directory& dir)
+			: DirectoryEvent(dir)
+		{
+		}
+
+		       EEventType GetType() const { return EEventType::DirectoryRenamed; }
+		static EEventType GetStaticType() { return EEventType::DirectoryRenamed; }
+	};
+
+	struct DirectoryModifiedEvent : public DirectoryEvent
+	{
+	public:
+		DirectoryModifiedEvent(const Directory& dir)
+			: DirectoryEvent(dir)
+		{
+		}
+
+		       EEventType GetType() const { return EEventType::DirectoryModified; }
+		static EEventType GetStaticType() { return EEventType::DirectoryModified; }
+	};
 
 	struct FileEvent : public Event
 	{

@@ -23,6 +23,7 @@ namespace Cosmic
 
     public:
         static FilesAndDirectoriesInDirectory GetAllFilesAndDirectoriesInDirectory(const Directory& parentDir);
+        static Vector<String>                 ListDirectoryContents(const Directory& parentDir);
         static bool                           IsFileOrDirectory(const String& path); // returns true for a file, false for directory
 
         static void CreateDirectory(const Directory& dir);

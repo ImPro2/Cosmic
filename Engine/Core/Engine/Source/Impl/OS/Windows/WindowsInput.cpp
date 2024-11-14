@@ -1,4 +1,7 @@
 #include "cspch.hpp"
+
+#ifdef CS_PLATFORM_WINDOWS
+
 #include "WindowsUtils.hpp"
 #include "App/Input.hpp"
 #include "App/KeyAndMouseCodes.hpp"
@@ -348,3 +351,5 @@ namespace Cosmic
     }
 
 }
+
+#endif
