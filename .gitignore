@@ -18,3 +18,7 @@ bin-int/
 
 # Optick profiling sessions
 Profiling/
+
+.cache/
+Makefile
+compile_commands.json
