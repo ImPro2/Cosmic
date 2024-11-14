@@ -46,22 +46,15 @@ namespace Cosmic
         return std::filesystem::path(mAbsolutePath).root_name();
     }
     
-    const String File::GetAbsolutePath()
+    const Path File::GetAbsolutePath() const
     {
         return mAbsolutePath;
-    }
-
-    const String File::GetParentDirectory()
-    {
-        //String sv(mAbsolutePath.c_str(), mAbsolutePath.find_last_of('/'));
-
-        return std::filesystem::path(mAbsolutePath).parent_path();
     }
     
     const size_t File::GetSize()
     {
         struct stat f_stat;
-        stat(mAbsolutePath.c_str(), &f_stat);
+        stat(mAbsolutePath.GetString().c_str(), &f_stat);
         size_t size = f_stat.st_size;
 
         return size;
@@ -69,7 +62,7 @@ namespace Cosmic
     
     const String File::Read()
     {
-        FILE* f = fopen(mAbsolutePath.c_str(), "r");
+        FILE* f = fopen(mAbsolutePath.GetString().c_str(), "r");
 
         fseek(f, 0, SEEK_END);
         size_t size = (size_t)ftell(f);
@@ -84,7 +77,7 @@ namespace Cosmic
 
     const uint8* File::ReadBinary()
     {
-        FILE* f = fopen(mAbsolutePath.c_str(), "rb");
+        FILE* f = fopen(mAbsolutePath.GetString().c_str(), "rb");
 
         fseek(f, 0, SEEK_END);
         size_t size = (size_t)ftell(f);
@@ -100,15 +93,24 @@ namespace Cosmic
 
     void File::Write(const StringView text)
     {
-        CS_NOT_IMPLEMENTED();
+        FILE* f = fopen(mAbsolutePath.GetString().c_str(), "w");
+    
+        CS_ASSERT(f, "Invalid file path");
+
+        fwrite(text.data(), sizeof(char), text.size(), f);
+        fclose(f); 
     }
 
-    void File::WriteBinary(const unsigned char* text)
+    void File::WriteBinary(const uint8* data, size_t size)
     {
-        CS_NOT_IMPLEMENTED();
+        FILE* f = fopen(mAbsolutePath.GetString().c_str(), "wb");
+    
+        CS_ASSERT(f, "Invalid file path");
+
+        fwrite(data, sizeof(uint8), size, f);
+        fclose(f);
     }
 
 }
-
 
 #endif

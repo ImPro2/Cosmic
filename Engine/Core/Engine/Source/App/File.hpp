@@ -1,5 +1,5 @@
 #pragma once
-#include "Base/Base.hpp"
+#include "App/Path.hpp"
 
 namespace Cosmic
 {
@@ -9,34 +9,34 @@ namespace Cosmic
     class File
     {
     public:
+        File(const Path& absolutePath)
+            : mAbsolutePath(absolutePath)
+        {
+        }
+
+        File(const StringView absolutePath)
+            : mAbsolutePath(absolutePath)
+        {
+        }
+
+    public:
         const String GetName();
         const String GetExtension();
         const String GetNameAndExtension();
 
-        const String GetAbsolutePath();
-        const String GetParentDirectory();
+        const Path GetAbsolutePath() const;
 
+    public:
         const size_t GetSize();
 
         const String Read();
         const uint8* ReadBinary();
 
         void Write(const StringView text);
-        void WriteBinary(const unsigned char* text);
-
-        File(const std::string_view absolutePath)
-            : mAbsolutePath(absolutePath)
-        {
-        }
+        void WriteBinary(const uint8* data, size_t size);
 
     private:
-        void SetAbsolutePath(const StringView absolutePath)
-        {
-            mAbsolutePath = absolutePath;
-        }
-
-    private:
-        String mAbsolutePath;
+        Path mAbsolutePath;
 
     private:
         friend class FileSystem;

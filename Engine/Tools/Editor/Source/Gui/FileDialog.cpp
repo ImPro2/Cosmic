@@ -19,22 +19,25 @@ namespace Cosmic
     namespace Utils
     {
 
-        static void SortAlphabetically(Vector<String>& strings)
+        static void SortAlphabetically(Vector<Path>& strings)
         {
-            std::sort(strings.begin(), strings.end(), [](const String& first, const String& second)
+            std::sort(strings.begin(), strings.end(), [](const Path& first, const Path& second)
             {
-                if (first[0] == '.' && second[0] != '.')
+                const String& s1 = first.GetString();
+                const String& s2 = second.GetString();
+
+                if (s1[0] == '.' && s2[0] != '.')
                     return true;
-                else if (first[0] != '.' && second[0] == '.')
+                else if (s1[0] != '.' && s2[0] == '.')
                     return false;
 
-                return first > second;
+                return s1 > s2;
             });
         }
 
     }
 
-    FileDialogModule::FileDialogModule(const String& dir)
+    FileDialogModule::FileDialogModule(const Path& dir)
         : mDirectory(dir)
     {
         memset(mFileInputBuffer, 0, 256);
@@ -43,7 +46,7 @@ namespace Cosmic
 
         mSelectedItemIndex = -1;
 
-        mSelectedPath = "";
+        mSelectedPath = String("");
     }
 
     void FileDialogModule::OnInit()
@@ -82,18 +85,15 @@ namespace Cosmic
     void FileDialogModule::RenderTop()
     {
         if (ImGui::Button(ICON_FA_ARROW_UP))
-            SetDirectory(std::filesystem::path(mDirectory).parent_path());
+            SetDirectory(FileSystem::GetParentDirectory(mDirectory));
 
         ImGui::SameLine();
         if (ImGui::InputText("|", mDirectoryInputBuffer, 256, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
         {
-            if (!std::filesystem::exists(mDirectoryInputBuffer)) 
-            {
-                if (!FileSystem::IsFileOrDirectory(mDirectoryInputBuffer))
-                    strcpy(mDirectoryInputBuffer, mDirectory.c_str());
-            }
-            else
+            if (FileSystem::Exists(mDirectoryInputBuffer)) 
                 SetDirectory(String(mDirectoryInputBuffer));
+            else
+                strcpy(mDirectoryInputBuffer, mDirectory.GetString().c_str());
         }
 
         ImGui::SameLine();
@@ -136,16 +136,16 @@ namespace Cosmic
 
             for (int32 i = 0; i < mDirectoryContents.size(); i++)
             { 
-                const String& path = mDirectoryContents[i];
+                const Path& path = mDirectoryContents[i];
 
-                if (path.find(mSearchInputBuffer))
+                if (path.GetBase().find(mSearchInputBuffer))
                     continue;
 
-                bool isFile = FileSystem::IsFileOrDirectory(mDirectory + '/' + path);
+                bool isFile = FileSystem::IsFile(path);
 
                 if (mDialogMode == EDialogMode::Open && isFile)
                 {
-                    File file = File(mDirectory + '/' + path);    
+                    File file = File(path);    
 
                     if (!mOpenFileFilters.empty())
                     {
@@ -166,13 +166,13 @@ namespace Cosmic
                 }
 
                 ImGui::TableNextColumn();
-                if (ImGui::Selectable(path.c_str(), mSelectedItemIndex == i, ImGuiSelectableFlags_SpanAllColumns))
+                if (ImGui::Selectable(path.GetBase().c_str(), mSelectedItemIndex == i, ImGuiSelectableFlags_SpanAllColumns))
                 {
                     mSelectedItemIndex = i;
                     if (mDialogMode == EDialogMode::Open && isFile)
                     {
-                        strncpy(mFileInputBuffer, mDirectoryContents[mSelectedItemIndex].c_str(), 256);
-                        mSelectedPath = mDirectory + '/' + String(mFileInputBuffer);
+                        strncpy(mFileInputBuffer, path.GetBase().c_str(), 256);
+                        mSelectedPath = path;
                     }
                 }
 
@@ -180,19 +180,19 @@ namespace Cosmic
                 {
                     if (isFile && mDialogMode == EDialogMode::Open)
                     {
-                        mSelectedPath = mDirectory + '/' + path;
+                        mSelectedPath = path;
                         mClosedDialog = true;
                         ImGui::CloseCurrentPopup();
                     }
                     else
-                        SetDirectory(std::filesystem::path(mDirectory) / path);
+                        SetDirectory(path);
 
                     break;
                 }
 
                 if (isFile)
                 {
-                    File file = File(mDirectory + '/' + path);    
+                    File file = File(path);    
 
                     ImGui::TableNextColumn();
                     ImGui::Text("%i bytes", (int32)file.GetSize());
@@ -202,7 +202,7 @@ namespace Cosmic
                 }
                 else
                 {
-                    int32 items = FileSystem::ListDirectoryContents(mDirectory + '/' + path).size();
+                    int32 items = FileSystem::ListDirectoryContents(path).size();
 
                     ImGui::TableNextColumn();
                     ImGui::Text("%i items", items);
@@ -288,7 +288,7 @@ namespace Cosmic
         if (ImGui::Button("Save"))
         {
             mClosedDialog = true;
-            mSelectedPath = mDirectory + '/' + String(mFileInputBuffer);
+            mSelectedPath = mDirectory / String(mFileInputBuffer);
         }
 
     }
@@ -302,7 +302,7 @@ namespace Cosmic
         mDialogMode = EDialogMode::Open;
 
         SetDirectory(mDirectory);
-        strcpy(mDirectoryInputBuffer, mDirectory.c_str());
+        strcpy(mDirectoryInputBuffer, mDirectory.GetString().c_str());
     }
 
     void FileDialogModule::SetSaveFileCallback(const String& defaultSaveFilename, const Vector<String>& filetypes, FileDialogCallback callback)
@@ -315,22 +315,22 @@ namespace Cosmic
         mSelectedPath = mDirectory;
 
         SetDirectory(mDirectory);
-        strcpy(mDirectoryInputBuffer, mDirectory.c_str());
+        strcpy(mDirectoryInputBuffer, mDirectory.GetString().c_str());
         strcpy(mFileInputBuffer, mDefaultSaveFilename.c_str());
     }
 
-    void FileDialogModule::SetDirectory(const String& newDir)
+    void FileDialogModule::SetDirectory(const Path& newDir)
     {
         mDirectory = newDir;
         mDirectoryContents = FileSystem::ListDirectoryContents(mDirectory);
         Utils::SortAlphabetically(mDirectoryContents);
 
-        strcpy(mDirectoryInputBuffer, mDirectory.c_str());
+        strcpy(mDirectoryInputBuffer, mDirectory.GetString().c_str());
     }
 
     void FileDialogModule::CloseDialog(bool cancelled)
     {
-        if (!mSelectedPath.empty() && !cancelled)
+        if (!mSelectedPath.GetString().empty() && !cancelled)
         {
             mCallback(File(mSelectedPath));
         }

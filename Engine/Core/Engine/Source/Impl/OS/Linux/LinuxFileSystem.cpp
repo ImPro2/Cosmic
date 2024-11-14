@@ -2,12 +2,18 @@
 #include "App/Event/FileSystemEvents.hpp"
 #include "Base/Macros.hpp"
 #include "cspch.hpp"
+#include <climits>
+#include <filesystem>
 
 #ifdef CS_PLATFORM_LINUX
 
 #include "App/FileSystem.hpp"
 #include "LinuxUtils.hpp"
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <limits.h>
+#include <sys/sendfile.h>
 #include <sys/inotify.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -18,7 +24,7 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Linux.LinuxFileSystem)
 namespace Cosmic
 {
 
-    void FileSystem::Init(const Directory& fileSystemWatcherPath)
+    void FileSystem::Init(const Path& fileSystemWatcherPath)
     {
         mFileSystemWatcherDirectory = fileSystemWatcherPath;
         mFileSystemWatcherThread = std::thread(&FileSystem::FileSystemWatcherThread);
@@ -31,7 +37,7 @@ namespace Cosmic
     void FileSystem::FileSystemWatcherThread()
     {
         int32 fd = inotify_init();
-        int32 wd = inotify_add_watch(fd, mFileSystemWatcherDirectory.c_str(), IN_MODIFY | IN_CREATE | IN_DELETE);
+        int32 wd = inotify_add_watch(fd, mFileSystemWatcherDirectory.GetString().c_str(), IN_MODIFY | IN_CREATE | IN_DELETE);
 
         constexpr size_t bufferLength = 1024 * (sizeof(struct inotify_event) + 16);
         uint8 buffer[bufferLength];
@@ -50,23 +56,23 @@ namespace Cosmic
                     if (e->mask & IN_CREATE)
                     {
                         if (e->mask & IN_ISDIR)
-                            EventSystem::AddEvent(new DirectoryAddedEvent(e->name));
+                            EventSystem::AddEvent(new DirectoryAddedEvent(String(e->name)));
                         else
-                            EventSystem::AddEvent(new FileAddedEvent(File(e->name)));
+                            EventSystem::AddEvent(new FileAddedEvent(File(Path(e->name))));
                     }
                     else if (e->mask & IN_DELETE)
                     {
                         if (e->mask & IN_ISDIR)
-                            EventSystem::AddEvent(new DirectoryRemovedEvent(e->name));
+                            EventSystem::AddEvent(new DirectoryRemovedEvent(String(e->name)));
                         else
-                            EventSystem::AddEvent(new FileRemovedEvent(File(e->name)));
+                            EventSystem::AddEvent(new FileRemovedEvent(File(Path(e->name))));
                     }
                     else if (e->mask & IN_MODIFY)
                     {
                         if (e->mask & IN_ISDIR)
-                            EventSystem::AddEvent(new DirectoryModifiedEvent(e->name));
+                            EventSystem::AddEvent(new DirectoryModifiedEvent(String(e->name)));
                         else
-                            EventSystem::AddEvent(new FileModifiedEvent(File(e->name)));
+                            EventSystem::AddEvent(new FileModifiedEvent(File(Path(e->name))));
                     }
                 }
 
@@ -77,18 +83,11 @@ namespace Cosmic
         inotify_rm_watch(fd, wd);
     }
 
-    FilesAndDirectoriesInDirectory FileSystem::GetAllFilesAndDirectoriesInDirectory(const Directory& parentDir)
+    Vector<Path> FileSystem::ListDirectoryContents(const Path& parentDir)
     {
-        CS_NOT_IMPLEMENTED();
+        Vector<Path> result = {};
 
-        return {};
-    }
-
-    Vector<String> FileSystem::ListDirectoryContents(const Directory& parentDir)
-    {
-        Vector<String> result = {};
-
-        DIR* dir = opendir(parentDir.c_str());
+        DIR* dir = opendir(parentDir.GetString().c_str());
         dirent* ent;
         
         if (dir != NULL)
@@ -98,7 +97,7 @@ namespace Cosmic
                 if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name ,"..") == 0)
                     continue;
 
-                result.emplace_back(ent->d_name);
+                result.emplace_back(parentDir / String(ent->d_name));
             }
         }
 
@@ -107,63 +106,107 @@ namespace Cosmic
         return result;
     }
 
-    bool FileSystem::IsFileOrDirectory(const String& path)
+    bool FileSystem::IsFile(const Path& path)
     {
         struct stat path_stat;
-        stat(path.c_str(), &path_stat);
+        stat(path.GetString().c_str(), &path_stat);
         
         return S_ISREG(path_stat.st_mode);
     }
 
-    void FileSystem::CreateDirectory(const Directory& dir)
+    bool FileSystem::IsDirectory(const Path& path)
+    {
+        struct stat path_stat;
+        stat(path.GetString().c_str(), &path_stat);
+        return S_ISDIR(path_stat.st_mode);
+    }
+
+    bool FileSystem::Exists(const Path& path)
+    {
+        struct stat path_stat;
+        return (stat(path.GetString().c_str(), &path_stat) == 0);
+    }
+
+    Path FileSystem::GetParentDirectory(const Path& path)
+    {
+        return std::filesystem::path(path.GetString()).parent_path().string();
+    }
+
+    void FileSystem::CreateDirectory(const Path& dir)
+    {
+        struct stat path_stat = { 0 };
+
+        // If the dir does not exist yet, create it.
+        if (stat(dir.GetString().c_str(), &path_stat) == -1)
+            CS_ASSERT(mkdir(dir.GetString().c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != -1, "Failed to create directory");
+    }
+
+    void FileSystem::RemoveDirectory(const Path& dir)
+    {
+        CS_ASSERT(rmdir(dir.GetString().c_str()) == 0, "Failed to remove directory");
+    }
+
+    void FileSystem::RenameDirectory(const Path& dir, const Path& newDir)
     {
         CS_NOT_IMPLEMENTED();
     }
 
-    void FileSystem::RemoveDirectory(const Directory& dir)
+    File FileSystem::CreateFile(const Path& absolutePath)
     {
-        CS_NOT_IMPLEMENTED();
-    }
+        CS_ASSERT(open(absolutePath.GetString().c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IRGRP | S_IROTH), "Failed to create file.");
 
-    void FileSystem::RenameDirectory(const Directory& dir, const Directory& newDir)
-    {
-        CS_NOT_IMPLEMENTED();
-    }
-
-    File FileSystem::CreateFile(const std::string_view absolutePath)
-    {
-        CS_NOT_IMPLEMENTED();
-        return File(""); 
+        return File(absolutePath);
     }
 
     void FileSystem::RemoveFile(const File& file)
     {
-        CS_NOT_IMPLEMENTED();
+        CS_ASSERT(remove(file.GetAbsolutePath().GetString().c_str()) == 0, "Failed to remove file.");
     }
 
-    void FileSystem::CopyFile(const File& file, const StringView path)
+    void FileSystem::CopyFile(const File& file, const Path& path)
     {
-        CS_NOT_IMPLEMENTED();
+        const String& srcStr = file.GetAbsolutePath().GetString();
+        const String  dstStr = path / file;
+
+        // https://stackoverflow.com/questions/2180079/how-can-i-copy-a-file-on-unix-using-c
+
+        int input, output;
+
+        CS_ASSERT(open(srcStr.c_str(), O_RDONLY) == 0, "Failed to open src file.");
+        CS_ASSERT(creat(dstStr.c_str(), 0660) == 0, "Failed to open dst file.");
+
+        struct stat file_stat = { 0 };
+        int result = fstat(input, &file_stat);
+        
+        off_t copied = 0;
+
+        while (result == 0 && copied < file_stat.st_size)
+        {
+            ssize_t written = sendfile(output, input, &copied, SSIZE_MAX);
+            copied += written;
+
+            if (written == -1)
+                result = -1;
+        }
+
+        close(input);
+        close(output);
     }
 
-    void FileSystem::MoveFile(const File& file, const Directory& path)
+    void FileSystem::MoveFile(const File& file, const Path& path)
     {
-        CS_NOT_IMPLEMENTED();
+        const String& srcStr = file.GetAbsolutePath().GetString();
+        const String& dstStr = path.GetString();
+        
+        CS_ASSERT(rename(srcStr.c_str(), dstStr.c_str()) == 0, "Failed to move file.");
     }
 
-    void FileSystem::RenameFile(const File& file, const StringView nameAndExt)
+    void FileSystem::RenameFile(const File& file, const String& nameAndExt)
     {
-        CS_NOT_IMPLEMENTED();
-    }
-
-    void FileSystem::RenameFileExtension(const File& file, const StringView ext)
-    {
-        CS_NOT_IMPLEMENTED();
-    }
-
-    void FileSystem::RenameFileName(const File& file, const StringView name)
-    {
-        CS_NOT_IMPLEMENTED();
+        const String& srcStr = file.GetAbsolutePath().GetString();
+        const String  dstStr = GetParentDirectory(file.GetAbsolutePath()) / nameAndExt;
+        
+        CS_ASSERT(rename(srcStr.c_str(), dstStr.c_str()) == 0, "Failed to rename file.");
     }
 
 }

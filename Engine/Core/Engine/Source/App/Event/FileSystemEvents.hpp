@@ -1,7 +1,7 @@
 #pragma once
 #include "App/Event/Events.hpp"
+#include "App/Path.hpp"
 #include "App/File.hpp"
-#include "App/FileSystem.hpp"
 
 namespace Cosmic
 {
@@ -9,21 +9,21 @@ namespace Cosmic
     struct DirectoryEvent : public Event
     {
     public:
-        DirectoryEvent(const Directory& dir)
+        DirectoryEvent(const Path& dir)
             : mDirectory(dir)
         {
         }
 
-        Directory GetDirectory() const { return mDirectory; }
+        Path GetDirectory() const { return mDirectory; }
 
     private:
-        Directory mDirectory;
+        Path mDirectory;
     };
 
 	struct DirectoryAddedEvent : public DirectoryEvent
 	{
 	public:
-		DirectoryAddedEvent(const Directory& dir)
+		DirectoryAddedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}
@@ -35,7 +35,7 @@ namespace Cosmic
 	struct DirectoryRemovedEvent : public DirectoryEvent
 	{
 	public:
-		DirectoryRemovedEvent(const Directory& dir)
+		DirectoryRemovedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}
@@ -47,7 +47,7 @@ namespace Cosmic
 	struct DirectoryRenamedEvent : public DirectoryEvent
 	{
 	public:
-		DirectoryRenamedEvent(const Directory& dir)
+		DirectoryRenamedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}
@@ -59,7 +59,7 @@ namespace Cosmic
 	struct DirectoryModifiedEvent : public DirectoryEvent
 	{
 	public:
-		DirectoryModifiedEvent(const Directory& dir)
+		DirectoryModifiedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}

@@ -42,10 +42,10 @@ namespace Cosmic {
         bool OnWindowClose(const WindowCloseEvent &e);
     
     public:
-        static Application *Get()              { return sInstance;  }
-        const ApplicationInfo &GetInfo() const { return mInfo;     }
-        static void Set(Application *instance) { sInstance = instance; }
-        IDesktopWindow *GetWindow()            { return mWindow.get(); }
+        static Application* Get()              { return sInstance;     }
+        const ApplicationInfo& GetInfo() const { return mInfo;         }
+        static void Set(Application* instance) { sInstance = instance; }
+        IDesktopWindow* GetWindow()            { return mWindow.get(); }
     
     private:
         static Application *sInstance;
@@ -55,4 +55,4 @@ namespace Cosmic {
         Scope<IDesktopWindow> mWindow;
     };
 
-} // namespace Cosmic
+}

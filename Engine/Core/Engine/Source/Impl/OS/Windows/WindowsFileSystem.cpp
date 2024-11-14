@@ -159,12 +159,12 @@ namespace Cosmic
     }
 
 
-    FilesAndDirectoriesInDirectory FileSystem::GetAllFilesAndDirectoriesInDirectory(const Directory& parentDir)
+    Vector<String> FileSystem::ListDirectoryContents(const Path& parentDir)
     {
-        HANDLE                           hFind;
-        WIN32_FIND_DATAA                 ffd;
-        std::string                      parentDirAsString = (std::string)parentDir;
-        FilesAndDirectoriesInDirectory   result;
+        HANDLE           hFind;
+        WIN32_FIND_DATAA ffd;
+        String           parentDirAsString = (String)parentDir;
+        Vector<String>   result;
 
         Utils::ReplaceAll(parentDirAsString, "/", "\\");
         parentDirAsString += "\\*";
@@ -174,61 +174,37 @@ namespace Cosmic
             &ffd
         ), "First file could not be found in directory.");
 
-        std::string finalParentDir = (std::string)(parentDir + '/');
+        String finalParentDir = String(parentDir.GetString() + '/');
 
         do 
         {
-            std::string name = ffd.cFileName;
-            std::string absolutePath = finalParentDir + '/' + name;
+            String name = ffd.cFileName;
+            String absolutePath = finalParentDir + '/' + name;
 
             if (name == "." || name == "..")
                 continue;
 
-            if (IsFileOrDirectory(ffd.cFileName))
-                result.files.emplace_back(ffd.cFileName);
-            else
-                result.dirctories.emplace_back(ffd.cFileName);
+            result.emplace_back(name);
         } while (::FindNextFileA(hFind, &ffd));
 
         return result;
     }
 
-    Vector<String> FileSystem::ListDirectoryContents(const Directory& parentDir)
-    {
-        HANDLE            hFind;
-        WIN32_FIND_DATAA  ffd;
-        std::string       parentDirAsString = (std::string)parentDir;
-        Vector<String>    result;
-
-        Utils::ReplaceAll(parentDirAsString, "/", "\\");
-        parentDirAsString += "\\*";
-
-        CS_WINDOWS_CALL(hFind = ::FindFirstFileA(
-            parentDirAsString.c_str(),
-            &ffd
-        ), "First file could not be found in directory.");
-
-        std::string finalParentDir = (std::string)(parentDir + '/');
-
-        do 
-        {
-            std::string name = ffd.cFileName;
-            std::string absolutePath = finalParentDir + '/' + name;
-
-            if (name == "." || name == "..")
-                continue;
-
-            result.emplace_back(absolutePath);
-        } while (::FindNextFileA(hFind, &ffd));
-
-        return result;
-    }
-
-    bool FileSystem::IsFileOrDirectory(const String& path)
+    bool FileSystem::IsFile(const Path& path)
     {
         if (path.find('.') != std::string_view::npos)
             return true;
         return false;
+    }
+
+    bool FileSystem::IsDirectory(const Path& path)
+    {
+        return !IsFile(path);
+    }
+
+    bool FileSystem::Exists(const Path& path)
+    {
+        return (GetFileAttributes(path.GetString().c_str()) != INVALID_FILE_ATTRIBUTES);
     }
 
     void FileSystem::CreateDirectory(const Directory& dir)

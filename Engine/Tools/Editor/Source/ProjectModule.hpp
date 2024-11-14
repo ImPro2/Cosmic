@@ -19,7 +19,7 @@ namespace Cosmic
 
 	private:
 		Vector<Ref<Project>> mProjects;
-		Directory mProjectsDirectory = "C:\\Dev\\Cosmic\\Engine\\Test\\Projects";
+		Path mProjectsDirectory = "C:\\Dev\\Cosmic\\Engine\\Test\\Projects";
 	};
 
 }

@@ -8,14 +8,12 @@ namespace Cosmic
 
 	void ProjectModule::OnInit()
 	{
-		auto dirs = FileSystem::GetAllFilesAndDirectoriesInDirectory(mProjectsDirectory).dirctories;
+		auto dirs = FileSystem::ListDirectoryContents(mProjectsDirectory);
 		for (auto& dir : dirs)
 		{
-			if (!dir.empty())
+			if (!dir.GetString().empty())
 			{
-				if (std::filesystem::exists(std::filesystem::path(mProjectsDirectory) / dir / (dir + ".cproj")))
-				{
-				}
+				//if (std::filesystem::exists(std::filesystem::path(mProjectsDirectory) / dir / (dir + ".cproj")))
 			}
 		}
 	}
@@ -41,7 +39,6 @@ namespace Cosmic
 			ImGui::InputText("Project Name", buf, sizeof(buf));
 
 			ProjectInfo info = {};
-			info.RootDirectory = directory;
 			info.ProjectFilePath = directory + '/' + String(buf);
 
 			//mProjects.emplace_back(info);

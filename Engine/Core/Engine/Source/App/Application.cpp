@@ -47,7 +47,7 @@ namespace Cosmic
 
         Renderer2D::Init();
         Gui::Init();
-        FileSystem::Init("./");
+        FileSystem::Init(String("./"));
         // ScriptEngine::Init(mInfo.ScriptAssemblyPath);
 
         OnEvent(ApplicationInitEvent(mInfo));

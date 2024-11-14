@@ -24,8 +24,6 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        mCosmicLogoTexture = CreateTexture2D("C:/dev/Cosmic/Branding/Logos/Logo.png");
-
         FramebufferInfo fbInfo = {};
         fbInfo.Width = 1280;
         fbInfo.Height = 720;
@@ -79,8 +77,6 @@ namespace Cosmic
 
         SetupMenuBar();
         SetupDockSpace();
-
-        ImGui::ShowDemoWindow();
     }
 
     void EditorModule::SetupDockSpace()
@@ -289,7 +285,7 @@ namespace Cosmic
             serializer.Serialize(mActiveScenePath);
         }
 
-        FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>("Engine/Tools/Editor");
+        FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(Path("Engine/Tools/Editor"));
 
         fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { 
             mActiveScenePath = file.GetAbsolutePath();

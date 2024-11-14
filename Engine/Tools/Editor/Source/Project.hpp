@@ -1,6 +1,7 @@
 #pragma once
 #include "Base/Base.hpp"
 #include "App/FileSystem.hpp"
+#include "App/Path.hpp"
 #include "App/File.hpp"
 
 namespace Cosmic
@@ -8,10 +9,9 @@ namespace Cosmic
 
 	struct ProjectInfo
 	{
-		Directory      RootDirectory;
-		String         ProjectFilePath;
-		Directory      AssetsDirectory;
-		Vector<String> ScenePaths;
+		Path ProjectFilePath;
+		Path AssetsDirectory;
+		Vector<File> ScenePaths;
 	};
 
 	class Project
@@ -38,19 +38,19 @@ namespace Cosmic
 		void Deserialize();
 
 	private:
-		Ref<Project> mProject;
+		Ref<Project>& mProject;
 	};
 
 	class ProjectManager
 	{
 	public:
 		static void SetActive(const Ref<Project>& project);
-		static void SetProjectsDirectory(const Directory& dir) { sProjectsDirectory = dir; }
+		static void SetProjectsDirectory(const Path& dir) { sProjectsDirectory = dir; }
 		static Ref<Project>& GetActive() { return sActiveProject; }
 
 	private:
 		inline static Ref<Project> sActiveProject;
-		inline static Directory sProjectsDirectory;
+		inline static Path sProjectsDirectory;
 	};
 
 }

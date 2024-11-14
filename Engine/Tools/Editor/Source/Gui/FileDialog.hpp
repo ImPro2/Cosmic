@@ -15,7 +15,7 @@ namespace Cosmic
     class FileDialogModule : public Module
     {
     public:
-        FileDialogModule(const String& dir);
+        FileDialogModule(const Path& dir);
     
     public:
         void OnInit() override;
@@ -32,7 +32,7 @@ namespace Cosmic
         void RenderSaveFileWidgets();
         
     private:
-        void SetDirectory(const String& newDir);
+        void SetDirectory(const Path& newDir);
         void CloseDialog(bool cancelled = false);
 
     private:
@@ -42,7 +42,7 @@ namespace Cosmic
         };
 
     private:
-        String mDirectory;
+        Path mDirectory;
         FileDialogCallback mCallback;
         EDialogMode mDialogMode;
 
@@ -54,11 +54,11 @@ namespace Cosmic
 
         String mWindowName = "";
 
-        String mSelectedPath;
+        Path mSelectedPath;
         bool mClosedDialog = false;
 
         char mDirectoryInputBuffer[256], mFileInputBuffer[256], mSearchInputBuffer[256];
-        Vector<String> mDirectoryContents;
+        Vector<Path> mDirectoryContents;
         int32 mSelectedItemIndex;
     };
     

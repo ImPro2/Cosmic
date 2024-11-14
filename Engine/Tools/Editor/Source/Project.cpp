@@ -8,7 +8,7 @@ namespace Cosmic
 	{
 		sActiveProject = project;
 
-		if (!sActiveProject->GetInfo().RootDirectory.empty())
+		if (!sActiveProject->GetInfo().ProjectFilePath.GetString().empty())
 		{
 			// TODO:
 			FileSystem::CreateDirectory(sActiveProject->GetInfo().AssetsDirectory);

@@ -201,7 +201,7 @@ namespace Cosmic
         ::CloseHandle(hFile);
     }
 
-    void File::WriteBinary(const unsigned char* text)
+    void File::WriteBinary(const uint8* data, size_t size
     {
         // TODO: Implement
     }
