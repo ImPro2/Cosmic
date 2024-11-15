@@ -1,7 +1,8 @@
 #pragma once
-#include "EditorModule.hpp"
+#include "Editor/EditorModule.hpp"
 
 #include "App/App.hpp"
+#include "EntryPoint/EntryPoint.hpp"
 
 namespace Cosmic
 {
@@ -9,7 +10,7 @@ namespace Cosmic
     class EditorApp : public Application
     {
     public:
-        EditorApp();
+        EditorApp(const StartupArguments& args);
 
         bool OnInit(const ApplicationInitEvent& e);
         void OnEvent(const Event& e) override;

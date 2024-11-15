@@ -39,7 +39,7 @@ namespace Cosmic
 			ImGui::InputText("Project Name", buf, sizeof(buf));
 
 			ProjectInfo info = {};
-			info.ProjectFilePath = directory + '/' + String(buf);
+			//info.ProjectFilePath = directory + '/' + String(buf);
 
 			//mProjects.emplace_back(info);
 

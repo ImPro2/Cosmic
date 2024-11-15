@@ -11,6 +11,8 @@ namespace Cosmic
         static void Init();
         static void Shutdown();
 
+        static String GetWorkingDirectory();
+
         static void FlushConsole();
         static void FlushConsoleLine();
         static void SetConsoleColor(ConsoleColorPair color);

@@ -24,11 +24,10 @@ namespace Cosmic
 
         if (ImGui::Begin(mPanelName.c_str(), &mOpen))
         {
-            SceneHierarchyPanel* panel = ModuleSystem::Get<SceneHierarchyPanel>();
-            Entity selectedEntity = panel->GetSelectedEntity();
-
-            if (selectedEntity)
-                RenderComponents(selectedEntity);
+            const Vector<Entity>& selectedEntities = ModuleSystem::Get<SceneHierarchyPanel>()->GetSelectedEntities();
+            
+            if (selectedEntities.size() == 1)
+                RenderComponents(selectedEntities[0]);
             else
                 ImGui::Text("No entity selected.");
 

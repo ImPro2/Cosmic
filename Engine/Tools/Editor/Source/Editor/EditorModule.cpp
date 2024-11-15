@@ -17,6 +17,8 @@ CS_MODULE_LOG_INFO(Editor, EditorModule);
 #include "Panels/InspectorPanel.hpp"
 #include "Panels/SceneHierarchyPanel.hpp"
 
+#include "UI/FileDialog.hpp"
+
 namespace Cosmic
 {
 
@@ -77,6 +79,9 @@ namespace Cosmic
 
         SetupMenuBar();
         SetupDockSpace();
+
+        if (mShowDemoWindow)
+            ImGui::ShowDemoWindow(&mShowDemoWindow);
     }
 
     void EditorModule::SetupDockSpace()
@@ -120,17 +125,21 @@ namespace Cosmic
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
-        ConsolePanel*        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
+        //ConsolePanel*        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
         ViewportPanel*       viewportPanel       = mPanels.GetPanel<ViewportPanel>();
         InspectorPanel*      inspectorPanel      = mPanels.GetPanel<InspectorPanel>();
         SceneHierarchyPanel* sceneHierarchyPanel = mPanels.GetPanel<SceneHierarchyPanel>();
 
-        ImGuiID dockIdSceneHierarchy = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left,  0.2f, nullptr, &dockspaceID);
-        ImGuiID dockIdInspector      = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
-        ImGuiID dockIdConsole        = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down,  0.3f, nullptr, &dockspaceID);
-        ImGuiID dockIdViewport       = dockspaceID;
+        //ImGuiID dockIdSceneHierarchy = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left,  0.2f, nullptr, &dockspaceID);
+        //ImGuiID dockIdInspector      = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
+        //ImGuiID dockIdConsole        = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down,  0.3f, nullptr, &dockspaceID);
 
-        ImGui::DockBuilderDockWindow(consolePanel->GetPanelName().c_str(),        dockIdConsole);
+        ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
+        ImGuiID dockIdViewport = dockspaceID;
+        ImGuiID dockIdSceneHierarchy = ImGui::DockBuilderSplitNode(dockIdLeft, ImGuiDir_Up, 0.5f, nullptr, &dockIdLeft);
+        ImGuiID dockIdInspector = dockIdLeft;
+
+        //ImGui::DockBuilderDockWindow(consolePanel->GetPanelName().c_str(),        dockIdConsole);
         ImGui::DockBuilderDockWindow(viewportPanel->GetPanelName().c_str(),       dockIdViewport);
         ImGui::DockBuilderDockWindow(inspectorPanel->GetPanelName().c_str(),      dockIdInspector);
         ImGui::DockBuilderDockWindow(sceneHierarchyPanel->GetPanelName().c_str(), dockIdSceneHierarchy);
@@ -164,15 +173,22 @@ namespace Cosmic
             }
             if (ImGui::BeginMenu("View"))
             {
-                if (ImGui::MenuItem("Show All", ""))
+                if (ImGui::BeginMenu("Panels"))
                 {
-                    mPanels.ShowAll();
+                    if (ImGui::MenuItem("Show All", ""))
+                    {
+                        mPanels.ShowAll();
+                    }
+
+                    for (Panel* panel : mPanels.GetPanels())
+                    {
+                        ImGui::MenuItem(panel->GetPanelName().c_str(), "", panel->IsOpenPtr());
+                    }
+
+                    ImGui::EndMenu();
                 }
 
-                for (Panel* panel : mPanels.GetPanels())
-                {
-                    ImGui::MenuItem(panel->GetPanelName().c_str(), "", panel->IsOpenPtr());
-                }
+                ImGui::MenuItem("Show ImGui Demo Window", "", &mShowDemoWindow);
 
                 ImGui::EndMenu();
             }

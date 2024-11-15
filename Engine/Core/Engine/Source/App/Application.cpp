@@ -36,7 +36,14 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        mInfo = std::move(info);
+        Init(std::move(info));
+    }
+
+    void Application::Init(const ApplicationInfo& info)
+    {
+        CS_PROFILE_FN();
+
+        mInfo = info;
 
         OS::Init();
         RenderCommand::Init(mInfo.RendererBackend);
@@ -54,8 +61,8 @@ namespace Cosmic
         // EventSystem::AddEvent(new ApplicationInitEvent(mInfo));
 
         Run();
-    }
-    
+    }   
+
     void Application::Shutdown()
     {
         CS_PROFILE_FN();

@@ -9,6 +9,7 @@ namespace Cosmic
     class File
     {
     public:
+        File() = default;
         File(const Path& absolutePath)
             : mAbsolutePath(absolutePath)
         {

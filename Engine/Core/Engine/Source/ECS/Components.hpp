@@ -1,4 +1,5 @@
 #pragma once
+#include "ECS/Entity.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -33,6 +34,23 @@ namespace Cosmic
 
         operator String& ()             { return Tag; }
         operator const String& () const { return Tag; }
+    };
+
+    struct EntityMetadataComponent
+    {
+        bool IsVisible = true;
+    
+        EntityMetadataComponent() = default;
+        EntityMetadataComponent(const EntityMetadataComponent&) = default;
+        EntityMetadataComponent(bool isVisible)
+            : IsVisible(isVisible)
+        {
+        }
+
+        void Reset()
+        {
+            IsVisible = true;
+        }
     };
 
     struct TransformComponent

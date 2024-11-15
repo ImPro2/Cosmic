@@ -32,6 +32,9 @@ namespace Cosmic
         Entity FindEntityByTag(const String& tag);
 
         void ForEachEntity(std::function<void(Entity)> fn);
+        void ForEachEntityIndexed(std::function<void(Entity, int32)> fn);
+
+        size_t GetEntityCount() const;
 
     private:
         entt::registry mRegistry;

@@ -62,13 +62,19 @@ namespace Cosmic
         {
             Renderer2D::BeginScene(*mainCamera, mainCameraTransform);
 
-            auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+            /*auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
             for (auto entity : group)
             {
                 auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
                 Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
-            }
+            }*/
+
+            mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](auto entity, auto& metadata, auto& transform, auto& sprite)
+            {
+                if (metadata.IsVisible)
+                    Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
+            });
 
             Renderer2D::EndScene();
         }
@@ -94,13 +100,19 @@ namespace Cosmic
 
         Renderer2D::BeginScene(camera);
 
-        auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+        /*auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
         for (auto entity : group)
         {
             auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
             Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
-        }
+        }*/
+
+        mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](auto entity, auto& metadata, auto& transform, auto& sprite)
+        {
+            if (metadata.IsVisible)
+                Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
+        });
 
         Renderer2D::EndScene();
     }
@@ -137,9 +149,13 @@ namespace Cosmic
             index++;
         }
 
+        EntityMetadataComponent metadata;
+        metadata.IsVisible = true;
+
         Entity entity = { mRegistry.create(), &mRegistry };
         entity.AddComponent<TransformComponent>();
         entity.AddComponent<TagComponent>(tag);
+        entity.AddComponent<EntityMetadataComponent>(metadata);
 
         return entity;
     }
@@ -172,6 +188,22 @@ namespace Cosmic
         auto view = mRegistry.view<TagComponent>();
         for (auto entity : view)
             fn({ entity, &mRegistry });
+    }
+
+    void Scene::ForEachEntityIndexed(std::function<void(Entity, int32)> fn)
+    {
+        auto view = mRegistry.view<TagComponent>();
+        int32 i = 0;
+        for (auto entity : view)
+        {
+            fn({ entity, &mRegistry }, i);
+            i++;
+        }
+    }
+
+    size_t Scene::GetEntityCount() const
+    {
+        return mRegistry.view<entt::entity>().size();
     }
 
 }

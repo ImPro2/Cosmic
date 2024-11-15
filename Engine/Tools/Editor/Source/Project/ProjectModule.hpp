@@ -1,5 +1,5 @@
 #pragma once
-#include "Project.hpp"
+#include "Project/Project.hpp"
 
 #include "App/Module.hpp"
 #include "Base/Base.hpp"
@@ -18,8 +18,7 @@ namespace Cosmic
 		void OnImGuiRender() override;
 
 	private:
-		Vector<Ref<Project>> mProjects;
-		Path mProjectsDirectory = "C:\\Dev\\Cosmic\\Engine\\Test\\Projects";
+		Path mProjectsDirectory;
 	};
 
 }

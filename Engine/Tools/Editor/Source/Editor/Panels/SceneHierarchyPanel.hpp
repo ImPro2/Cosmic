@@ -30,14 +30,23 @@ namespace Cosmic
         void OnImGuiRender() override;
 
     public:
-        Entity GetSelectedEntity() { return mSelectedEntity; }
+        const Vector<Entity>& GetSelectedEntities() const { return mSelectedEntities; }
+        Vector<Entity>        GetSelectedEntities()       { return mSelectedEntities; }
 
     private:
         bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
 
     private:
+        void RenderEntities();
+        void RenderEntity(Entity entity, int32 index);
+
+    private:
         Ref<Scene> mScene;
-        Entity mSelectedEntity;
+
+        Entity mLastSelectedEntity;
+        int32 mLastSelectedEntityIndex;
+        Vector<Entity> mSelectedEntities;
+
         bool mClicked = false;
     };
 

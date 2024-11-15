@@ -5,7 +5,14 @@ namespace Cosmic
 {
 
     class Application;
-    extern Application* CreateApplication();
+
+    struct StartupArguments
+    {
+        int32 ArgumentCount;
+        char** Arguments;
+    };
+
+    extern Application* CreateApplication(StartupArguments&& args);
 
 }
 

@@ -1,19 +1,22 @@
 #include "Base/Macros.hpp"
+#include "EntryPoint/EntryPoint.hpp"
 #include "cspch.hpp"
 #include "EditorApp.hpp"
-#include "EntryPoint/EntryPoint.hpp"
 #include <entt/entt.hpp>
 
-#include "ProjectModule.hpp"
+//#include "Project/ProjectModule.hpp"
 
 CS_MODULE_LOG_INFO(Editor, EditorApp)
 
 namespace Cosmic
 {
 
-    EditorApp::EditorApp()
+    EditorApp::EditorApp(const StartupArguments& args)
     {
-        Init({});
+        ApplicationInfo info = {};
+        info.StartupArgs = args;
+
+        Init(info);
     }
 
     bool EditorApp::OnInit(const ApplicationInitEvent& e)
@@ -35,9 +38,9 @@ namespace Cosmic
         CS_DISPATCH_EVENT(ApplicationInitEvent, OnInit);
     }
 
-    Application* CreateApplication()
+    Application* CreateApplication(StartupArguments&& args)
     {
-        return new EditorApp();
+        return new EditorApp(args);
     }
 
 }

@@ -411,6 +411,15 @@ namespace Cosmic
         CS_PROFILE_FN();
     }
 
+    String OS::GetWorkingDirectory()
+    {
+        char buf[256];
+        ::GetModuleFileName(NULL, buf, 256);
+        PathRemoveFileSpec(buf);
+
+        return String(buf);
+    }
+
     void OS::FlushConsole()
     {
         CS_PROFILE_FN();

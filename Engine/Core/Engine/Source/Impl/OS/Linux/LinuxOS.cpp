@@ -74,6 +74,14 @@ namespace Cosmic {
 
     void OS::Shutdown() {}
 
+    String OS::GetWorkingDirectory()
+    {
+        char buf[256];
+        getcwd(buf, 256);
+
+        return String(buf);
+    }
+
     void OS::FlushConsole() {}
 
     void OS::FlushConsoleLine() {}

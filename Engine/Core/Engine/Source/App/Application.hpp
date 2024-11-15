@@ -3,6 +3,7 @@
 // #include "Base/Tuples.hpp"
 #include "App/Window/IWindow.hpp"
 #include "App/Window/WindowInfo.hpp"
+#include "EntryPoint/EntryPoint.hpp"
 #include "Renderer/RendererAPI.hpp"
 // #include "Renderer/RenderCommand.hpp"
 #include "App/Event/Events.hpp"
@@ -12,6 +13,7 @@ namespace Cosmic {
 
     struct ApplicationInfo
     {
+        StartupArguments  StartupArgs        = { };
         const char*       Name               = "Cosmic Engine";
         DesktopWindowInfo WindowInfo         = DesktopWindowInfo();
         ERendererAPI      RendererBackend    = PlatformNativeRendererAPI();
@@ -28,7 +30,8 @@ namespace Cosmic {
         void Close();
     
     protected:
-        void Init(ApplicationInfo &&info);
+        void Init(ApplicationInfo&& info);
+        void Init(const ApplicationInfo& info);
         void Shutdown();
     
     private:

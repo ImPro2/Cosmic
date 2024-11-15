@@ -21,6 +21,7 @@ project "Editor"
 
 	includedirs
 	{
+        "Source",
 		"../../Core/Engine/Source",
 		"%{IncludeDir.GLFW}", -- temporary
 		"%{IncludeDir.Glad}", -- temporary
