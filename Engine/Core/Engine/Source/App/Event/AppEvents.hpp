@@ -19,9 +19,9 @@ namespace Cosmic
         }
 
     public:
-        const  ApplicationInfo& GetInfo() const { return mInfo;               }
-               EEventType       GetType() const { return EEventType::AppInit; }
-        static EEventType       GetStaticType() { return EEventType::AppInit; }
+        const ApplicationInfo& GetInfo() const { return mInfo; }
+
+        CS_EVENT_TYPE(EEventType::AppInit);
 
     private:
         ApplicationInfo mInfo;
@@ -29,16 +29,12 @@ namespace Cosmic
 
     struct ApplicationUpdateEvent : public ApplicationEvent
     {
-    public:
-               EEventType GetType() const { return EEventType::AppUpdate; }
-        static EEventType GetStaticType() { return EEventType::AppUpdate; }
+        CS_EVENT_TYPE(EEventType::AppUpdate);
     };
 
     struct ApplicationCloseEvent : public ApplicationEvent
     {
-    public:
-               EEventType GetType() const { return EEventType::AppClose; }
-        static EEventType GetStaticType() { return EEventType::AppClose; }
+        CS_EVENT_TYPE(EEventType::AppClose);
     };
 
 }

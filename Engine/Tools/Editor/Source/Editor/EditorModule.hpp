@@ -1,13 +1,6 @@
 #pragma once
-#include <glm/glm.hpp>
-#include <entt/entt.hpp>
-
-#include "Panels/Panels.hpp"
-#include "Panels/ViewportPanel.hpp"
-
 #include "App/App.hpp"
 #include "App/Event/FileSystemEvents.hpp"
-#include "App/Event/EditorEvents.hpp"
 #include "Base/Base.hpp"
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"
@@ -16,6 +9,14 @@
 #include "ECS/Scene.hpp"
 #include "ECS/Components.hpp"
 #include "Script/NativeScript.hpp"
+
+#include "Panels/Panels.hpp"
+#include "Panels/ViewportPanel.hpp"
+#include "Event/EditorEvents.hpp"
+#include "Event/EditorSceneEvents.hpp"
+
+#include <glm/glm.hpp>
+#include <entt/entt.hpp>
 
 namespace Cosmic
 {

@@ -28,7 +28,6 @@ namespace Cosmic
     public:
         Entity CreateEntity(const String& name = "");
         void   RemoveEntity(Entity entity);
-        void   DuplicateEntity(Entity entity);
         Entity FindEntityByTag(const String& tag);
 
         void ForEachEntity(std::function<void(Entity)> fn);

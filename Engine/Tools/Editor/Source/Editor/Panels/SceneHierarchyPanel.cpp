@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <entt/entt.hpp>
 #include <IconsFontAwesome6.h>
+#include "Editor/Event/EditorSceneEvents.hpp"
 
 #include "ECS/Components.hpp"
 #include "imgui_internal.h"
@@ -22,14 +23,53 @@ namespace Cosmic
     void SceneHierarchyPanel::OnEvent(const Event& e)
     {
         EventDispatcher dispatcher(e);
-        CS_DISPATCH_EVENT(MouseButtonClickEvent, OnMouseButtonClick);
+        CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(EditorSceneOpenedEvent, OnEditorSceneOpened);
     }
 
-    bool SceneHierarchyPanel::OnMouseButtonClick(const MouseButtonClickEvent& e)
+    bool SceneHierarchyPanel::OnKeyPressed(const KeyPressEvent& e)
     {
-        mClicked = true;
+        bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
+
+        switch (e.GetKeyCode())
+        {
+            case EKeyCode::A:
+            {
+                if (control)
+                    SelectAllEntities();
+                break;
+            }
+            case EKeyCode::N:
+            {
+                if (control)
+                    AddNewEntity();
+                break;
+            }
+            case EKeyCode::X:
+            {
+                if (control)
+                    DeleteSelectedEntities();
+                break;
+            }
+            case EKeyCode::D:
+            {
+                if (control)
+                    DuplicateSelectedEntities();
+                break;
+            }
+        }
+        
         return false;
+    }
+
+    bool SceneHierarchyPanel::OnEditorSceneOpened(const EditorSceneOpenedEvent& e)
+    {
+        mScene = e.GetScene();
+        mSelectedEntities.clear();
+        mLastSelectedEntity = {};
+        mLastSelectedEntityIndex = -1;
+
+        return true;
     }
 
     void SceneHierarchyPanel::OnImGuiRender()
@@ -51,107 +91,8 @@ namespace Cosmic
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5.0f, 5.0f));
             ImGui::BeginChild("Entities", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), true);
 
-#if 0
-            ImGuiTreeNodeFlags treeNodeFlags =
-                ImGuiTreeNodeFlags_OpenOnArrow |
-                ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                ImGuiTreeNodeFlags_SpanAvailWidth |
-                ImGuiTreeNodeFlags_SpanFullWidth;
-
-            ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
-
-            int index                  = 0;
-            int selectedEntityIndex    = -1;
-            static int32 selectionMask = (1 << 2);
-            static bool b = false;
-            static bool openContextMenu = false;
-
-            mScene->ForEachEntity([&](Entity entity)
-            {
-                bool        hasChildren = false;
-                bool        isSelected  = (selectionMask & (1 << index)) != 0;
-                auto        flags       = treeNodeFlags;
-                const char* text        = entity.GetComponent<TagComponent>().Tag.c_str();
-
-                if (!hasChildren)
-                    flags |= ImGuiTreeNodeFlags_NoTreePushOnOpen;
-                else
-                    flags |= ImGuiTreeNodeFlags_OpenOnDoubleClick;
-                if (isSelected)
-                    flags |= ImGuiTreeNodeFlags_Selected;
-
-                bool duplicateEntity = Input::IsKeyPressed(EKeyCode::LeftControl) && Input::IsKeyPressed(EKeyCode::D) && isSelected;
-                bool deleteEntity    = Input::IsKeyPressed(EKeyCode::LeftControl) && Input::IsKeyPressed(EKeyCode::X) && isSelected;
-
-                ImGui::TreeNodeEx((void*)(intptr_t)index, flags, text, index);
-
-                if (openContextMenu && ImGui::BeginPopupContextItem())
-                {
-                    if (ImGui::Selectable("Duplicate          ", false))
-                    {
-                        duplicateEntity |= true;
-                        ImGui::CloseCurrentPopup();
-                        openContextMenu = false;
-                    }
-                    ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.3f, 1.0f), "CTRL+D");
-                    if (ImGui::Selectable("Delete          ", false))
-                    {
-                        deleteEntity |= true;
-                        CS_LOG_INFO("Delete");
-                        ImGui::CloseCurrentPopup();
-                        openContextMenu = false;
-                    }
-                    ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.3f, 1.0f), "CTRL+X");
-
-                    ImGui::EndPopup();
-                }
-
-                if (ImGui::IsItemHovered(ImGuiHoveredFlags_None) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                {
-                    CS_LOG_INFO("Entity {} is selected.", text);
-                    mSelectedEntity     = entity;
-                    selectedEntityIndex = index;
-                    b |= true;
-                }
-
-                if (ImGui::IsItemHovered(ImGuiHoveredFlags_None) && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-                    openContextMenu = true;
-
-                if (duplicateEntity)
-                {
-                    // TODO
-                    CS_LOG_INFO("Duplicated Entity {}", text);
-                }
-
-                if (deleteEntity)
-                {
-                    mScene->RemoveEntity(entity);
-                    mSelectedEntity = Entity();
-                    CS_LOG_INFO("Deleted Entity {}", text);
-                }
-
-                index++;
-            });
-
-            if (selectedEntityIndex != -1)
-            {
-                if (ImGui::GetIO().KeyCtrl)
-                    selectionMask ^= (1 << selectedEntityIndex);
-                else
-                    selectionMask = (1 << selectedEntityIndex);
-            }
-            if (!b && mClicked)
-            {
-                selectionMask = (1 << 2);
-            }
-            else
-                b = false;
-
-#endif
-
             RenderEntities();
+            RenderRightClickMenu();
 
             ImGui::PopStyleVar(2);
             ImGui::EndChild();
@@ -224,7 +165,7 @@ namespace Cosmic
 
             // Entity Selection
 
-            if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsItemHovered())
+            if ((ImGui::IsMouseDown(ImGuiMouseButton_Left) || ImGui::IsMouseDown(ImGuiMouseButton_Right)) && ImGui::IsItemHovered())
             {
                 mLastSelectedEntity = entity;
 
@@ -286,10 +227,88 @@ namespace Cosmic
         }
     }
 
-    bool SceneHierarchyPanel::OnEditorSceneOpened(const EditorSceneOpenedEvent& e)
+    void SceneHierarchyPanel::RenderRightClickMenu()
     {
-        mScene = e.GetScene();
-        return true;
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+            ImGui::OpenPopup(sPopupID);
+
+        if (ImGui::BeginPopup(sPopupID))
+        {
+            bool entitiesSelected = !mSelectedEntities.empty();
+
+            if (ImGui::MenuItem("Select All", "CTRL+A"))
+            {
+                SelectAllEntities();
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::MenuItem("Add Entity", "CTRL+N"))
+            {
+                AddNewEntity();
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::MenuItem("Duplicate", "CTRL+D", false, entitiesSelected))
+            {
+                DuplicateSelectedEntities();
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::MenuItem("Delete", "CTRL+X", false, entitiesSelected))
+            {
+                DeleteSelectedEntities();
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void SceneHierarchyPanel::SelectAllEntities()
+    {
+        mSelectedEntities.clear();
+
+        mScene->ForEachEntity([this](Entity entity)
+        {
+            mSelectedEntities.push_back(entity);
+        });
+
+        if (!mSelectedEntities.empty())
+        {
+            mLastSelectedEntityIndex = mSelectedEntities.size() - 1;
+            mLastSelectedEntity = mSelectedEntities[mLastSelectedEntityIndex];
+        }
+    }
+
+    void SceneHierarchyPanel::AddNewEntity()
+    {
+        mLastSelectedEntity = mScene->CreateEntity("New Entity");
+
+        mSelectedEntities = { mLastSelectedEntity };
+        mLastSelectedEntityIndex = 0;
+    }
+
+    void SceneHierarchyPanel::DeleteSelectedEntities()
+    {
+        for (Entity entity : mSelectedEntities)
+        {
+            mScene->RemoveEntity(entity);
+            EventSystem::AddEvent(new EditorEntityRemovedEvent(entity, mScene));
+        }
+
+        mSelectedEntities.clear();
+        mLastSelectedEntity = {};
+        mLastSelectedEntityIndex = -1;
+    }
+
+    void SceneHierarchyPanel::DuplicateSelectedEntities()
+    {
+        int32 count = mSelectedEntities.size();
+        for (int32 i = 0; i < count; i++)
+        {
+            mSelectedEntities.emplace_back(mScene->CreateEntity(mSelectedEntities[i].GetComponent<TagComponent>().Tag));
+            EventSystem::AddEvent(new EditorEntityAddedEvent(mSelectedEntities[count + i], mScene));
+        }
     }
 
 }

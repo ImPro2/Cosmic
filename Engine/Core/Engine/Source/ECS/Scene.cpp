@@ -143,7 +143,7 @@ namespace Cosmic
 
             if (tag == otherTag)
             {
-                tag = std::format("{}{}", tag, index);
+                tag = std::format("{} {}", tag, index);
             }
 
             index++;
@@ -163,13 +163,6 @@ namespace Cosmic
     void Scene::RemoveEntity(Entity entity)
     {
         mRegistry.destroy((entt::entity)entity);
-    }
-
-    void Scene::DuplicateEntity(Entity entity)
-    {
-        Entity newEntity = CreateEntity(entity.GetComponent<TagComponent>().Tag);
-
-        // TODO
     }
 
     Entity Scene::FindEntityByTag(const String& tag)

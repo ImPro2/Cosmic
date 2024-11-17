@@ -1,12 +1,17 @@
 #pragma once
+#include "Base/Base.hpp"
 
 #include <functional>
 #include <queue>
 
+#define CS_EVENT_TYPE(type)                                       \
+           int16 GetType() const override { return (int16)type; } \
+    static int16 GetStaticType()          { return (int16)type; }
+
 namespace Cosmic
 {
 
-    enum class EEventType
+    enum class EEventType : int16
     {
         None = -1,
         LogEvent,
@@ -16,12 +21,12 @@ namespace Cosmic
         MouseMove, MouseScroll, MouseButtonClick, MouseButtonRelease,
         DirectoryAdded, DirectoryRemoved, DirectoryRenamed, DirectoryModified,
         FileAdded, FileRemoved, FileRenamed, FileModified,
-        EditorSceneSaved, EditorSceneSavedAs, EditorSceneOpened, EditorSceneNew
+        Last
     };
 
     struct Event
     {
-        virtual EEventType GetType() const = 0;
+        virtual int16 GetType() const = 0;
         bool Block = false;
     };
 

@@ -9,6 +9,7 @@
 
 CS_MODULE_LOG_INFO(Cosmic, Gui);
 
+#include "Base/Types.hpp"
 #include "App/Application.hpp"
 #include "App/Window/IWindow.hpp"
 #include "App/Event/Events.hpp"
@@ -130,8 +131,8 @@ namespace Cosmic
         {
             ImGuiIO& io = ImGui::GetIO();
 
-            bool mouse = (e->GetType() == EEventType::MouseMove) || (e->GetType() == EEventType::MouseScroll) || (e->GetType() == EEventType::MouseButtonClick);
-            bool keyboard = (e->GetType() == EEventType::KeyPress) || (e->GetType() == EEventType::KeyRelease) || (e->GetType() == EEventType::KeyType);
+            bool mouse = (e->GetType() == (int16)EEventType::MouseMove) || (e->GetType() == (int16)EEventType::MouseScroll) || (e->GetType() == (int16)EEventType::MouseButtonClick);
+            bool keyboard = (e->GetType() == (int16)EEventType::KeyPress) || (e->GetType() == (int16)EEventType::KeyRelease) || (e->GetType() == (int16)EEventType::KeyType);
 
             e->Block |= mouse & io.WantCaptureMouse;
             e->Block |= keyboard & io.WantCaptureKeyboard;

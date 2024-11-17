@@ -60,8 +60,6 @@ namespace Cosmic
         mActiveScene->OnUpdate(dt);
 
         mFramebuffer->Unbind();
-
-        //CS_LOG_INFO("FPS: {}s, Delta Time: {}ms, Current Time: {}s", Time::GetFPS().InSeconds(), Time::GetDeltaTime().InMilliSeconds(), Time::GetTime().InSeconds());
     }
 
     void EditorModule::OnEvent(const Event& e)
@@ -125,21 +123,19 @@ namespace Cosmic
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
-        //ConsolePanel*        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
+        ConsolePanel*        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
         ViewportPanel*       viewportPanel       = mPanels.GetPanel<ViewportPanel>();
         InspectorPanel*      inspectorPanel      = mPanels.GetPanel<InspectorPanel>();
         SceneHierarchyPanel* sceneHierarchyPanel = mPanels.GetPanel<SceneHierarchyPanel>();
 
-        //ImGuiID dockIdSceneHierarchy = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left,  0.2f, nullptr, &dockspaceID);
-        //ImGuiID dockIdInspector      = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Right, 0.4f, nullptr, &dockspaceID);
-        //ImGuiID dockIdConsole        = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Down,  0.3f, nullptr, &dockspaceID);
-
         ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
-        ImGuiID dockIdViewport = dockspaceID;
+        ImGuiID dockIdRight = dockspaceID;
         ImGuiID dockIdSceneHierarchy = ImGui::DockBuilderSplitNode(dockIdLeft, ImGuiDir_Up, 0.5f, nullptr, &dockIdLeft);
         ImGuiID dockIdInspector = dockIdLeft;
+        ImGuiID dockIdViewport = ImGui::DockBuilderSplitNode(dockIdRight, ImGuiDir_Up, 0.7f, nullptr, &dockIdRight);
+        ImGuiID dockIdConsole = dockIdRight;
 
-        //ImGui::DockBuilderDockWindow(consolePanel->GetPanelName().c_str(),        dockIdConsole);
+        ImGui::DockBuilderDockWindow(consolePanel->GetPanelName().c_str(),        dockIdConsole);
         ImGui::DockBuilderDockWindow(viewportPanel->GetPanelName().c_str(),       dockIdViewport);
         ImGui::DockBuilderDockWindow(inspectorPanel->GetPanelName().c_str(),      dockIdInspector);
         ImGui::DockBuilderDockWindow(sceneHierarchyPanel->GetPanelName().c_str(), dockIdSceneHierarchy);
@@ -227,28 +223,6 @@ namespace Cosmic
                 }
                 break;
             }
-            case EKeyCode::N:
-            {
-                if (control)
-                {
-                    NewScene();
-                }
-                break;
-            }
-            case EKeyCode::D:
-            {
-                if (control)
-                {
-                    // Duplicate entity
-                }
-            }
-            case EKeyCode::X:
-            {
-                if (control)
-                {
-                    // Remove entity
-                }
-            }
             case EKeyCode::Q: break;
             case EKeyCode::W: break;
             case EKeyCode::E: break;
@@ -316,7 +290,7 @@ namespace Cosmic
 
     void EditorModule::NewScene()
     {
-    
+        CS_NOT_IMPLEMENTED();    
     }
 
 }

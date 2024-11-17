@@ -8,7 +8,6 @@ namespace Cosmic
 
     struct DirectoryEvent : public Event
     {
-    public:
         DirectoryEvent(const Path& dir)
             : mDirectory(dir)
         {
@@ -22,55 +21,46 @@ namespace Cosmic
 
 	struct DirectoryAddedEvent : public DirectoryEvent
 	{
-	public:
 		DirectoryAddedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}
 
-		       EEventType GetType() const { return EEventType::DirectoryAdded; }
-		static EEventType GetStaticType() { return EEventType::DirectoryAdded; }
+        CS_EVENT_TYPE(EEventType::DirectoryAdded);
 	};
 
 	struct DirectoryRemovedEvent : public DirectoryEvent
 	{
-	public:
 		DirectoryRemovedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}
 
-		       EEventType GetType() const { return EEventType::DirectoryRemoved; }
-		static EEventType GetStaticType() { return EEventType::DirectoryRemoved; }
+        CS_EVENT_TYPE(EEventType::DirectoryRemoved);
 	};
 
 	struct DirectoryRenamedEvent : public DirectoryEvent
 	{
-	public:
 		DirectoryRenamedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}
 
-		       EEventType GetType() const { return EEventType::DirectoryRenamed; }
-		static EEventType GetStaticType() { return EEventType::DirectoryRenamed; }
+        CS_EVENT_TYPE(EEventType::DirectoryRenamed);
 	};
 
 	struct DirectoryModifiedEvent : public DirectoryEvent
 	{
-	public:
 		DirectoryModifiedEvent(const Path& dir)
 			: DirectoryEvent(dir)
 		{
 		}
 
-		       EEventType GetType() const { return EEventType::DirectoryModified; }
-		static EEventType GetStaticType() { return EEventType::DirectoryModified; }
+        CS_EVENT_TYPE(EEventType::DirectoryModified);
 	};
 
 	struct FileEvent : public Event
 	{
-	public:
 		FileEvent(const File& file)
 			: mFile(file)
 		{
@@ -84,38 +74,32 @@ namespace Cosmic
 
 	struct FileAddedEvent : public FileEvent
 	{
-	public:
 		FileAddedEvent(const File& file)
 			: FileEvent(file)
 		{
 		}
 
-		       EEventType GetType() const { return EEventType::FileAdded; }
-		static EEventType GetStaticType() { return EEventType::FileAdded; }
+        CS_EVENT_TYPE(EEventType::FileAdded);
 	};
 
 	struct FileRemovedEvent : public FileEvent
 	{
-	public:
 		FileRemovedEvent(const File& file)
 			: FileEvent(file)
 		{
 		}
 
-		       EEventType GetType() const { return EEventType::FileRemoved; }
-		static EEventType GetStaticType() { return EEventType::FileRemoved; }
+        CS_EVENT_TYPE(EEventType::FileRemoved);
 	};
 
 	struct FileRenamedEvent : public FileEvent
 	{
-	public:
 		FileRenamedEvent(const File& file)
 			: FileEvent(file)
 		{
 		}
-
-		       EEventType GetType() const { return EEventType::FileRenamed; }
-		static EEventType GetStaticType() { return EEventType::FileRenamed; }
+        
+        CS_EVENT_TYPE(EEventType::FileRenamed);
 	};
 
 	struct FileModifiedEvent : public FileEvent
@@ -126,8 +110,7 @@ namespace Cosmic
 		{
 		}
 
-		       EEventType GetType() const { return EEventType::FileModified; }
-		static EEventType GetStaticType() { return EEventType::FileModified; }
+        CS_EVENT_TYPE(EEventType::FileModified);
 	};
 
 }

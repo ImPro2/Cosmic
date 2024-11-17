@@ -2,6 +2,7 @@
 #include <imgui.h>
 #include <entt/entt.hpp>
 
+#include "Editor/Event/EditorSceneEvents.hpp"
 #include "Panels.hpp"
 
 #include "Base/Base.hpp"
@@ -14,7 +15,8 @@
 #include "ECS/Entity.hpp"
 #include "App/Event/Events.hpp"
 #include "App/Event/WindowEvents.hpp"
-#include "App/Event/EditorEvents.hpp"
+
+#include "Editor/Event/EditorEvents.hpp"
 
 namespace Cosmic
 {
@@ -26,7 +28,6 @@ namespace Cosmic
 
     public:
         void OnEvent(const Event& e) override;
-        bool OnMouseButtonClick(const MouseButtonClickEvent& e);
         void OnImGuiRender() override;
 
     public:
@@ -34,11 +35,19 @@ namespace Cosmic
         Vector<Entity>        GetSelectedEntities()       { return mSelectedEntities; }
 
     private:
+        bool OnKeyPressed(const KeyPressEvent& e);
         bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
 
     private:
         void RenderEntities();
         void RenderEntity(Entity entity, int32 index);
+        void RenderRightClickMenu();
+
+    private:
+        void SelectAllEntities();
+        void AddNewEntity();
+        void DeleteSelectedEntities();
+        void DuplicateSelectedEntities();
 
     private:
         Ref<Scene> mScene;
@@ -48,6 +57,8 @@ namespace Cosmic
         Vector<Entity> mSelectedEntities;
 
         bool mClicked = false;
+
+        static constexpr const char* sPopupID = "Scene Hierarchy Panel Right Click";
     };
 
 }

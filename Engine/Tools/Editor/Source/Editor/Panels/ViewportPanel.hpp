@@ -11,7 +11,8 @@
 #include "Gui/Gui.hpp"
 #include "App/Event/Events.hpp"
 #include "ECS/Scene.hpp"
-#include "App/Event/EditorEvents.hpp"
+
+#include "Editor/Event/EditorSceneEvents.hpp"
 
 namespace Cosmic
 {
