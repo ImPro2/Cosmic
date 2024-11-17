@@ -92,6 +92,7 @@ namespace Cosmic
         static const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Engine/Core/Engine/Assets/Fonts/Ruda-Bold.ttf", 18.0f);
         io.Fonts->AddFontFromFileTTF("Engine/Core/Engine/Assets/Fonts/fontawesome-webfont.ttf", 18.0f, &config, iconRanges);
+        io.Fonts->AddFontFromFileTTF("Engine/Core/Engine/Assets/Fonts/fontawesome-webfont.ttf", 55.0f, nullptr, iconRanges);
 
         ImGui::StyleColorsDark();
 

@@ -6,6 +6,7 @@
 #include "ConsolePanel.hpp"
 #include "SceneHierarchyPanel.hpp"
 #include "InspectorPanel.hpp"
+#include "ContentBrowserPanel.hpp"
 
 namespace Cosmic
 {
@@ -14,17 +15,11 @@ namespace Cosmic
     {
         mPanels.reserve(10);
 
-        ModuleSystem::Add<ViewportPanel>(framebuffer, scene);
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<ViewportPanel>()));
- 
-        ModuleSystem::Add<ConsolePanel>();
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<ConsolePanel>()));
-        
-        ModuleSystem::Add<SceneHierarchyPanel>(scene);
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<SceneHierarchyPanel>()));
-
-        ModuleSystem::Add<InspectorPanel>();
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Get<InspectorPanel>()));
+        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<ViewportPanel>(framebuffer, scene)));
+        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<ConsolePanel>()));
+        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<SceneHierarchyPanel>(scene)));
+        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<InspectorPanel>()));
+        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<ContentBrowserPanel>()));
     }
 
     void Panels::ShowAll()
