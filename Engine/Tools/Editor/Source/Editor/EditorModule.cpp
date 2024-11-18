@@ -1,4 +1,5 @@
 #include "cspch.hpp"
+#include "Editor/Event/EditorSceneEvents.hpp"
 #include "EditorModule.hpp"
 #include "App/Event/Events.hpp"
 #include <imgui.h>
@@ -268,6 +269,17 @@ namespace Cosmic
         });
     }
 
+    void EditorModule::OpenScene(File file)
+    {
+        mActiveScenePath = file.GetAbsolutePath();
+        mActiveScene = CreateRef<Scene>();
+
+        SceneSerializer serializer(mActiveScene);
+        serializer.Deserialize(mActiveScenePath);
+
+        EventSystem::AddEvent(new EditorSceneOpenedEvent(mActiveScene));
+    }
+
     void EditorModule::OpenScene()
     {
         {
@@ -276,16 +288,17 @@ namespace Cosmic
         }
 
         FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(Path("Engine/Tools/Editor"));
+        fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { OpenScene(file); });
 
-        fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { 
-            mActiveScenePath = file.GetAbsolutePath();
-            mActiveScene = CreateRef<Scene>();
+        //fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { 
+        //    mActiveScenePath = file.GetAbsolutePath();
+        //    mActiveScene = CreateRef<Scene>();
 
-            SceneSerializer serializer(mActiveScene);
-            serializer.Deserialize(mActiveScenePath);
+        //    SceneSerializer serializer(mActiveScene);
+        //    serializer.Deserialize(mActiveScenePath);
 
-            EventSystem::AddEvent(new EditorSceneOpenedEvent(mActiveScene));
-        });
+        //    EventSystem::AddEvent(new EditorSceneOpenedEvent(mActiveScene));
+        //});
     }
 
     void EditorModule::NewScene()

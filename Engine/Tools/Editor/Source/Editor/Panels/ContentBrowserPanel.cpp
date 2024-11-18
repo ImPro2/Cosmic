@@ -216,6 +216,8 @@ namespace Cosmic
             }
         }
 
+        
+
         if (!contentsChanged)
         {
             // Thumbnail
@@ -223,17 +225,20 @@ namespace Cosmic
             ImGui::PushID(path.GetBase().c_str());
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
-            ImGuiStyle& style = ImGui::GetStyle();
-            float32 disabledAlpha = style.DisabledAlpha;
-            style.DisabledAlpha = 1.0f;
-
-            ImGui::BeginDisabled();
-
             bool open = ImGui::Button(icon, ImVec2(mContentItemSize, mContentItemSize));
 
-            ImGui::EndDisabled();
+            // Drag&Drop
 
-            style.DisabledAlpha = disabledAlpha;
+            if (FileSystem::IsFile(path))
+            {
+                File file(path);
+
+                if (file.GetExtension() == ".cscene" && ImGui::BeginDragDropSource())
+                {
+                    ImGui::SetDragDropPayload(mContentItemDragDropString.c_str(), path.GetString().c_str(), path.GetString().size());
+                    ImGui::EndDragDropSource();
+                }
+            }
 
             ImGui::PopFont();
             ImGui::PopID();

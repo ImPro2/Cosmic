@@ -18,6 +18,7 @@ namespace Cosmic
         void OnImGuiRender() override;
 
         Vector<Path> GetSelectedContentItems();
+        const String& GetContentItemDragDropString() { return mContentItemDragDropString; }
 
     private:
         void UpdateContents();
@@ -53,6 +54,8 @@ namespace Cosmic
         float32 mContentItemSize = 80.0f;
 
         char mDirectoryInputBuffer[256];
+
+        String mContentItemDragDropString = "Content Browser Item Drag Drop";
     };
 
 }

@@ -14,13 +14,15 @@
 
 #include "Editor/Event/EditorSceneEvents.hpp"
 
+#include "ContentBrowserPanel.hpp"
+
 namespace Cosmic
 {
 
     class ViewportPanel : public Panel
     {
     public:
-        ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene);
+        ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene, ContentBrowserPanel* contentBrowserPanel);
 
     public:
         void OnUpdate(Dt dt) override;
@@ -38,6 +40,8 @@ namespace Cosmic
         Ref<Scene>       mScene;
         OrthographicCameraController mCameraController;
         bool mSceneChanged = false;
+
+        ContentBrowserPanel* mContentBrowserPanel;
     };
 
 }

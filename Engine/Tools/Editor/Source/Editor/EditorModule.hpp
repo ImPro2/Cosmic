@@ -1,6 +1,8 @@
 #pragma once
 #include "App/App.hpp"
 #include "App/Event/FileSystemEvents.hpp"
+#include "App/File.hpp"
+#include "App/Path.hpp"
 #include "Base/Base.hpp"
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"
@@ -29,6 +31,9 @@ namespace Cosmic
         void OnUpdate(Dt dt)         override;
         void OnEvent(const Event& e) override;
         void OnImGuiRender()         override;
+
+    public:
+        void OpenScene(File file);
 
     private:
         void SetupDockSpace();

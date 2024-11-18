@@ -1,5 +1,10 @@
 #include "cspch.hpp"
+#include "App/Module.hpp"
 #include "ViewportPanel.hpp"
+#include "ContentBrowserPanel.hpp"
+#include "App/File.hpp"
+#include "Editor/EditorModule.hpp"
+
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
@@ -7,8 +12,8 @@
 namespace Cosmic
 {
 
-    ViewportPanel::ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene)
-        : mFramebuffer(framebuffer), mScene(scene), Panel("Viewport")
+    ViewportPanel::ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene, ContentBrowserPanel* contentBrowserPanel)
+        : mFramebuffer(framebuffer), mScene(scene), mContentBrowserPanel(contentBrowserPanel), Panel("Viewport")
     {
         CS_PROFILE_FN();
 
@@ -71,6 +76,23 @@ namespace Cosmic
 
             uint32 textureID = mFramebuffer->GetColorAttachmentRendererID();
             ImGui::Image((void*)textureID, ImVec2((float32)width, (float32)height), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+
+            const String& contentItemDragDropStr = mContentBrowserPanel->GetContentItemDragDropString();
+            
+            if (ImGui::BeginDragDropTarget())
+            {
+                const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(contentItemDragDropStr.c_str());
+
+                if (payload)
+                {
+                    File sceneFile(Path((char*)payload->Data));
+                    
+                    EditorModule* editorModule = ModuleSystem::Get<EditorModule>();
+                    editorModule->OpenScene(sceneFile);
+                }
+                
+                ImGui::EndDragDropTarget();
+            }
         }
 
         ImGui::PopStyleVar(2);
