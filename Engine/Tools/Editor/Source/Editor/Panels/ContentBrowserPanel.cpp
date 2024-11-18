@@ -66,11 +66,43 @@ namespace Cosmic
         mDirectoryContents = FileSystem::ListDirectoryContents(mCurrentDirectory);
         mContentItemHoveredIndex = -1;
         mSelectedContentItemIndices.clear();
+
+        memset(mDirectoryInputBuffer, 0, 256);
+        strcpy(mDirectoryInputBuffer, mCurrentDirectory.GetString().c_str());
     }
     
     void ContentBrowserPanel::RenderTop()
     {
+        ImGui::PushID("Content Browser Panel Goto Parent Directory Button");
+        bool gotoParentDir = ImGui::Button(ICON_FA_ARROW_UP);
+        ImGui::PopID();
 
+        if (gotoParentDir)
+        {
+            mCurrentDirectory = FileSystem::GetParentDirectory(mCurrentDirectory);
+            UpdateContents();
+        }
+
+        ImGui::SameLine();
+
+        ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue;
+
+        ImGui::PushID("Content Browser Panel Directory Input Text");
+        bool entered = ImGui::InputText("", mDirectoryInputBuffer, 256, inputTextFlags);
+        ImGui::PopID();
+
+        if (entered)
+        {
+            Path inputPath = Path(mDirectoryInputBuffer);
+
+            if (FileSystem::Exists(inputPath))
+            {
+                mCurrentDirectory = inputPath;
+                UpdateContents();
+            }
+            else
+                strcpy(mDirectoryInputBuffer, mCurrentDirectory.GetString().c_str());
+        }
     }
 
     void ContentBrowserPanel::RenderContents()
@@ -84,7 +116,10 @@ namespace Cosmic
         for (int32 i = 0; i < mDirectoryContents.size(); i++)
         {
             const Path& path = mDirectoryContents[i];
-            RenderContentItem(path, i);
+            bool contentsChanged = RenderContentItem(path, i);
+
+            if (contentsChanged)
+                break;
 
             float32 contentRegionAvail = childWidth - ImGui::GetItemRectMax().x - mContentItemSize - mContentItemSize * 0.5f;
 
@@ -99,7 +134,7 @@ namespace Cosmic
         ImGui::PopStyleVar(2);
     }
     
-    void ContentBrowserPanel::RenderContentItem(const Path& path, int32 index)
+    bool ContentBrowserPanel::RenderContentItem(const Path& path, int32 index)
     {
         const char* icon = FileSystem::IsFile(path) ? ICON_FA_FILE : ICON_FA_FOLDER_OPEN;
 
@@ -125,11 +160,21 @@ namespace Cosmic
         
         ImGui::BeginChild(path.GetString().c_str(), childSize, true);
 
+        // Selection & clicking
+        
+        bool contentsChanged = false;
+
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows))
         {
             mContentItemHoveredIndex = index;
-            
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+
+            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && FileSystem::IsDirectory(path))
+            {
+                mCurrentDirectory /= path.GetBase();
+                UpdateContents();
+                contentsChanged = true;
+            }
+            else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
             {
                 bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
                 bool shift   = Input::IsKeyPressed(EKeyCode::LeftShift)   || Input::IsKeyPressed(EKeyCode::RightShift);
@@ -169,13 +214,9 @@ namespace Cosmic
                     mSelectedContentItemIndices.push_back(index);
                 }
             }
-            else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-            {
-                if (FileSystem::IsDirectory(path))
-                    mCurrentDirectory /= path;
-            }
         }
 
+        if (!contentsChanged)
         {
             // Thumbnail
 
@@ -196,9 +237,7 @@ namespace Cosmic
 
             ImGui::PopFont();
             ImGui::PopID();
-        }
 
-        {
             // Filename
 
             char* base = (char*)alloca(path.GetBase().size());
@@ -227,6 +266,8 @@ namespace Cosmic
         
         ImGui::EndChild();
         ImGui::PopStyleVar();
+
+        return contentsChanged;
     }
 
     bool ContentBrowserPanel::OnMouseScrolled(const MouseScrollEvent& e)

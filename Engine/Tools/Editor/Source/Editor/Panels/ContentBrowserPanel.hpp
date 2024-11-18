@@ -25,7 +25,7 @@ namespace Cosmic
     private:
         void RenderTop();
         void RenderContents();
-        void RenderContentItem(const Path& path, int32 index);
+        bool RenderContentItem(const Path& path, int32 index);
 
     private:
         bool OnMouseScrolled(const MouseScrollEvent& e);
@@ -51,6 +51,8 @@ namespace Cosmic
         int32 mContentItemHoveredIndex;
 
         float32 mContentItemSize = 80.0f;
+
+        char mDirectoryInputBuffer[256];
     };
 
 }
