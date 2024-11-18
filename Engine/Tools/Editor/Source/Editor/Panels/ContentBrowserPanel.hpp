@@ -17,6 +17,8 @@ namespace Cosmic
         void OnEvent(const Event& e) override;
         void OnImGuiRender() override;
 
+        Vector<Path> GetSelectedContentItems();
+
     private:
         void UpdateContents();
 
@@ -45,7 +47,9 @@ namespace Cosmic
         //int32 mContentTableColumnCount;
 
         Vector<Path> mDirectoryContents;
+        Vector<int32> mSelectedContentItemIndices;
         int32 mContentItemHoveredIndex;
+
         float32 mContentItemSize = 80.0f;
     };
 

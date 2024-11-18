@@ -65,6 +65,7 @@ namespace Cosmic
     {
         mDirectoryContents = FileSystem::ListDirectoryContents(mCurrentDirectory);
         mContentItemHoveredIndex = -1;
+        mSelectedContentItemIndices.clear();
     }
     
     void ContentBrowserPanel::RenderTop()
@@ -100,76 +101,126 @@ namespace Cosmic
     
     void ContentBrowserPanel::RenderContentItem(const Path& path, int32 index)
     {
-        const char* icon = "";
-
-        if (FileSystem::IsFile(path))
-        {
-            icon = ICON_FA_FILE;
-        }
-        else if (FileSystem::IsDirectory(path))
-        {
-            icon = ICON_FA_FOLDER_OPEN;
-        }
+        const char* icon = FileSystem::IsFile(path) ? ICON_FA_FILE : ICON_FA_FOLDER_OPEN;
 
         float32 itemSpacing = ImGui::GetStyle().ItemSpacing.y;
         
         ImVec2 padding = ImVec2(5.0f, 5.0f);
-
         // this line is _absolutely perfect_. This single line took half an hour
         ImVec2 childSize = ImVec2(mContentItemSize + 2.0f * padding.x, mContentItemSize + ImGui::GetTextLineHeight() + 2.0f * padding.y + itemSpacing);
         
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, padding);
+
+        bool isSelected = std::find(mSelectedContentItemIndices.begin(), mSelectedContentItemIndices.end(), index) != mSelectedContentItemIndices.end();
 
         if (index == mContentItemHoveredIndex)
         {
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TabActive));
             mContentItemHoveredIndex = -1;
         }
+        else if (isSelected)
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
         else
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TableRowBgAlt));
         
         ImGui::BeginChild(path.GetString().c_str(), childSize, true);
 
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows))
+        {
             mContentItemHoveredIndex = index;
+            
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            {
+                bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
+                bool shift   = Input::IsKeyPressed(EKeyCode::LeftShift)   || Input::IsKeyPressed(EKeyCode::RightShift);
 
-        ImGui::PushID(path.GetBase().c_str());
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-
-        ImGuiStyle& style = ImGui::GetStyle();
-        float32 disabledAlpha = style.DisabledAlpha;
-        style.DisabledAlpha = 1.0f;
-
-        ImGui::BeginDisabled();
-
-        bool open = ImGui::Button(icon, ImVec2(mContentItemSize, mContentItemSize));
-
-        ImGui::EndDisabled();
-
-        style.DisabledAlpha = disabledAlpha;
-
-        ImGui::PopFont();
-        ImGui::PopID();
-
-        char* base = (char*)alloca(path.GetBase().size());
-        strcpy(base, path.GetBase().c_str());
-
-        float32 baseWidth = ImGui::CalcTextSize(base).x;
-
-        if (baseWidth < childSize.x)
-        {
-            ImGui::SetCursorPosX((childSize.x - baseWidth) * 0.5f); // center text
-            ImGui::Text("%s", base);
+                if (control)
+                {
+                    auto it = std::find(mSelectedContentItemIndices.begin(), mSelectedContentItemIndices.end(), index);
+                    
+                    if (it == mSelectedContentItemIndices.end())
+                        mSelectedContentItemIndices.push_back(index);
+                    else
+                        mSelectedContentItemIndices.erase(it);
+                }
+                else if (shift)
+                {
+                    if (mSelectedContentItemIndices.empty())
+                        mSelectedContentItemIndices.push_back(index);
+                    else
+                    {
+                        int32 lastSelelectedIdx = mSelectedContentItemIndices[mSelectedContentItemIndices.size() - 1];
+                        
+                        if (index > lastSelelectedIdx)
+                        {
+                            for (int32 i = lastSelelectedIdx + 1; i <= index; i++)
+                                mSelectedContentItemIndices.push_back(i);
+                        }
+                        else if (index < lastSelelectedIdx)
+                        {
+                            for (int32 i = lastSelelectedIdx - 1; i >= index; i--)
+                                mSelectedContentItemIndices.push_back(i);
+                        }
+                    }
+                }
+                else
+                {
+                    mSelectedContentItemIndices.clear();
+                    mSelectedContentItemIndices.push_back(index);
+                }
+            }
+            else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+            {
+                if (FileSystem::IsDirectory(path))
+                    mCurrentDirectory /= path;
+            }
         }
-        else
+
         {
-            float32 avgGlyphWidth = baseWidth / path.GetBase().size();
-            int32 maxCharCount = childSize.x / avgGlyphWidth;
-            maxCharCount -= 3; // for the ...
+            // Thumbnail
 
-            base[maxCharCount - 1] = '\0';
+            ImGui::PushID(path.GetBase().c_str());
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
-            ImGui::Text("%s...", base);
+            ImGuiStyle& style = ImGui::GetStyle();
+            float32 disabledAlpha = style.DisabledAlpha;
+            style.DisabledAlpha = 1.0f;
+
+            ImGui::BeginDisabled();
+
+            bool open = ImGui::Button(icon, ImVec2(mContentItemSize, mContentItemSize));
+
+            ImGui::EndDisabled();
+
+            style.DisabledAlpha = disabledAlpha;
+
+            ImGui::PopFont();
+            ImGui::PopID();
+        }
+
+        {
+            // Filename
+
+            char* base = (char*)alloca(path.GetBase().size());
+            strcpy(base, path.GetBase().c_str());
+
+            float32 baseWidth = ImGui::CalcTextSize(base).x;
+
+            if (baseWidth < childSize.x)
+            {
+                ImGui::SetCursorPosX((childSize.x - baseWidth) * 0.5f); // center text
+                ImGui::Text("%s", base);
+            }
+            else
+            {
+                float32 avgGlyphWidth = baseWidth / path.GetBase().size();
+                int32 maxCharCount = childSize.x / avgGlyphWidth;
+                maxCharCount -= 3; // for the ...
+
+                base[maxCharCount - 1] = '\0';
+
+                ImGui::Text("%s...", base);
+            }
         }
 
         ImGui::PopStyleColor();
@@ -230,6 +281,18 @@ namespace Cosmic
     bool ContentBrowserPanel::OnDirectoryModified(const DirectoryModifiedEvent& e)
     {
         return false;
+    }
+
+    Vector<Path> ContentBrowserPanel::GetSelectedContentItems()
+    {
+        Vector<Path> selectedContentItems(mSelectedContentItemIndices.size());
+
+        for (int32 i = 0; i < mSelectedContentItemIndices.size(); i++)
+        {
+            selectedContentItems.push_back(mDirectoryContents[mSelectedContentItemIndices[i]]);
+        }
+
+        return selectedContentItems;
     }
 
 }

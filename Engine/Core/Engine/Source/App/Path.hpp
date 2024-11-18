@@ -19,6 +19,9 @@ namespace Cosmic
         bool IsRelative() const;
 
         String GetBase() const; // part after parent dir
+    
+    public:
+        void operator/=(const Path& other);
 
     public:
         operator String() const { return mPath; }

@@ -45,6 +45,11 @@ namespace Cosmic
         return std::filesystem::path(mPath).filename().string();
     }
 
+    void Path::operator/=(const Path& other)
+    {
+        mPath = (mPath / other).mPath;
+    }
+
     Path operator /(const Path& lhs, const Path& rhs)
     {
         StringView lhsStr = StringView(lhs.GetString().data(), lhs.GetString().size());
