@@ -23,9 +23,11 @@ namespace Cosmic
     private:
         void RenderTop();
         void RenderContents();
-        void RenderContentItem(const Path& path);
+        void RenderContentItem(const Path& path, int32 index);
 
     private:
+        bool OnMouseScrolled(const MouseScrollEvent& e);
+
         bool OnFileAdded(const FileAddedEvent& e);
         bool OnFileRemoved(const FileRemovedEvent& e);
         bool OnFileRenamed(const FileRenamedEvent& e);
@@ -43,6 +45,7 @@ namespace Cosmic
         //int32 mContentTableColumnCount;
 
         Vector<Path> mDirectoryContents;
+        int32 mContentItemHoveredIndex;
         float32 mContentItemSize = 80.0f;
     };
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "Base/Base.hpp"
+#include "Base/Types.hpp"
 
 #include <functional>
 #include <queue>
@@ -37,6 +38,13 @@ namespace Cosmic
         static void Shutdown();
 
         static void AddEvent(Event* e);
+        
+        //template<typename T, typename... Args>
+        //static void AddEvent(Args&&... args)
+        //{
+        //    T* e = new T(std::forward<Args>(args)...);
+        //    sEventQueue.push(e);
+        //}
 
     private:
         static void DispatchEvents();

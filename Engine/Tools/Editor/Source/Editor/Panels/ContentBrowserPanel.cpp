@@ -1,8 +1,13 @@
 #include "cspch.hpp"
+#include "App/Event/WindowEvents.hpp"
+#include "App/KeyAndMouseCodes.hpp"
+#include "cspch.hpp"
 #include "ContentBrowserPanel.hpp"
 #include "App/Event/Events.hpp"
 #include "Project/ProjectManager.hpp"
 #include "App/FileSystem.hpp"
+#include "App/Input.hpp"
+#include "imgui_internal.h"
 
 #include <imgui.h>
 #include <IconsFontAwesome6.h>
@@ -31,6 +36,7 @@ namespace Cosmic
     {
         EventDispatcher dispatcher(e);
 
+        CS_DISPATCH_EVENT(MouseScrollEvent, OnMouseScrolled);
         CS_DISPATCH_EVENT(FileAddedEvent, OnFileAdded);
         CS_DISPATCH_EVENT(FileRemovedEvent, OnFileRemoved);
         CS_DISPATCH_EVENT(FileRenamedEvent, OnFileRenamed);
@@ -58,6 +64,7 @@ namespace Cosmic
     void ContentBrowserPanel::UpdateContents()
     {
         mDirectoryContents = FileSystem::ListDirectoryContents(mCurrentDirectory);
+        mContentItemHoveredIndex = -1;
     }
     
     void ContentBrowserPanel::RenderTop()
@@ -73,9 +80,10 @@ namespace Cosmic
 
         float32 childWidth = ImGui::GetItemRectMax().x;
 
-        for (Path path : mDirectoryContents)
+        for (int32 i = 0; i < mDirectoryContents.size(); i++)
         {
-            RenderContentItem(path);
+            const Path& path = mDirectoryContents[i];
+            RenderContentItem(path, i);
 
             float32 contentRegionAvail = childWidth - ImGui::GetItemRectMax().x - mContentItemSize - mContentItemSize * 0.5f;
 
@@ -90,7 +98,7 @@ namespace Cosmic
         ImGui::PopStyleVar(2);
     }
     
-    void ContentBrowserPanel::RenderContentItem(const Path& path)
+    void ContentBrowserPanel::RenderContentItem(const Path& path, int32 index)
     {
         const char* icon = "";
 
@@ -111,21 +119,71 @@ namespace Cosmic
         ImVec2 childSize = ImVec2(mContentItemSize + 2.0f * padding.x, mContentItemSize + ImGui::GetTextLineHeight() + 2.0f * padding.y + itemSpacing);
         
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, padding);
+
+        if (index == mContentItemHoveredIndex)
+        {
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TabActive));
+            mContentItemHoveredIndex = -1;
+        }
+        else
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TableRowBgAlt));
+        
         ImGui::BeginChild(path.GetString().c_str(), childSize, true);
+
+        if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows))
+            mContentItemHoveredIndex = index;
 
         ImGui::PushID(path.GetBase().c_str());
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+
+        ImGuiStyle& style = ImGui::GetStyle();
+        float32 disabledAlpha = style.DisabledAlpha;
+        style.DisabledAlpha = 1.0f;
+
+        ImGui::BeginDisabled();
+
         bool open = ImGui::Button(icon, ImVec2(mContentItemSize, mContentItemSize));
+
+        ImGui::EndDisabled();
+
+        style.DisabledAlpha = disabledAlpha;
+
         ImGui::PopFont();
         ImGui::PopID();
 
-        const char* base = path.GetBase().c_str();
+        char* base = (char*)alloca(path.GetBase().size());
+        strcpy(base, path.GetBase().c_str());
+
         float32 baseWidth = ImGui::CalcTextSize(base).x;
-        ImGui::SetCursorPosX((childSize.x - baseWidth) * 0.5f); // center text
-        ImGui::Text("%s", base);
+
+        if (baseWidth < childSize.x)
+        {
+            ImGui::SetCursorPosX((childSize.x - baseWidth) * 0.5f); // center text
+            ImGui::Text("%s", base);
+        }
+        else
+        {
+            float32 avgGlyphWidth = baseWidth / path.GetBase().size();
+            int32 maxCharCount = childSize.x / avgGlyphWidth;
+            maxCharCount -= 3; // for the ...
+
+            base[maxCharCount - 1] = '\0';
+
+            ImGui::Text("%s...", base);
+        }
+
+        ImGui::PopStyleColor();
         
         ImGui::EndChild();
         ImGui::PopStyleVar();
+    }
+
+    bool ContentBrowserPanel::OnMouseScrolled(const MouseScrollEvent& e)
+    {
+        if (Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl))
+            mContentItemSize += e.GetOffset();
+
+        return false;
     }
 
     bool ContentBrowserPanel::OnFileAdded(const FileAddedEvent& e)
