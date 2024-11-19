@@ -4,6 +4,8 @@
 #include "App/Path.hpp"
 #include "App/Event/FileSystemEvents.hpp"
 
+#include <imgui.h>
+
 namespace Cosmic
 {
 
@@ -27,8 +29,14 @@ namespace Cosmic
         void RenderTop();
         void RenderContents();
         bool RenderContentItem(const Path& path, int32 index);
+        void RenderRightClickMenu();
 
     private:
+        void SelectAll();
+        void DeleteSelected();
+
+    private:
+        bool OnKeyPressed(const KeyPressEvent& e);
         bool OnMouseScrolled(const MouseScrollEvent& e);
 
         bool OnFileAdded(const FileAddedEvent& e);
@@ -56,6 +64,13 @@ namespace Cosmic
         char mDirectoryInputBuffer[256];
 
         String mContentItemDragDropString = "Content Browser Item Drag Drop";
+
+        ImVec2 mMouseSelectionStart, mMouseSelectionEnd;
+        bool mMouseSelectionStarted;
+
+        bool mWindowHovered = false;
+
+        static constexpr const char* sPopupID = "ContentBrowserPanel RightClickMenu";
     };
 
 }

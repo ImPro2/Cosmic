@@ -57,7 +57,7 @@ namespace Cosmic
         int32 mLastSelectedEntityIndex;
         Vector<Entity> mSelectedEntities;
 
-        bool mClicked = false;
+        bool mWindowHovered = false;
 
         ImVec2 mMouseSelectionStart, mMouseSelectionEnd;
         bool mMouseSelectionStarted;

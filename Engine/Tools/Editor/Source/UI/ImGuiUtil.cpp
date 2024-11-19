@@ -33,9 +33,9 @@ namespace Cosmic::ImGuiUtil
         return ImGui::BeginMenu(label);
     }
 
-    bool MenuItem(const char* label, const char* shortcutStr, const Vector<EKeyCode>& shortcut, bool* enabledPtr)
+    bool MenuItem(const char* label, const char* shortcutStr, const Vector<EKeyCode>& shortcut, bool* enabledPtr, bool enabled)
     {
-        return ImGui::MenuItem(label, shortcutStr, enabledPtr) || Util::IsShortcutPressed(shortcut);
+        return ImGui::MenuItem(label, shortcutStr, enabledPtr, enabled) || Util::IsShortcutPressed(shortcut);
     }
 
     bool SelectionRect(ImVec2* startPos, ImVec2* endPos, ImGuiMouseButton mouseButton)

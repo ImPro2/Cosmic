@@ -7,9 +7,9 @@
 #include "Project/ProjectManager.hpp"
 #include "App/FileSystem.hpp"
 #include "App/Input.hpp"
-#include "imgui_internal.h"
+#include "UI/ImGuiUtil.hpp"
+#include "imgui.h"
 
-#include <imgui.h>
 #include <IconsFontAwesome6.h>
 
 namespace Cosmic
@@ -36,6 +36,7 @@ namespace Cosmic
     {
         EventDispatcher dispatcher(e);
 
+        CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(MouseScrollEvent, OnMouseScrolled);
         CS_DISPATCH_EVENT(FileAddedEvent, OnFileAdded);
         CS_DISPATCH_EVENT(FileRemovedEvent, OnFileRemoved);
@@ -57,6 +58,8 @@ namespace Cosmic
             RenderTop();
             RenderContents();
         }
+
+        mWindowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
 
         ImGui::End();
     }
@@ -130,6 +133,11 @@ namespace Cosmic
             }
         }
 
+        RenderRightClickMenu();
+
+        if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
+            mMouseSelectionStarted = !ImGuiUtil::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
+
         ImGui::EndChild();
         ImGui::PopStyleVar(2);
     }
@@ -163,6 +171,21 @@ namespace Cosmic
         // Selection & clicking
         
         bool contentsChanged = false;
+
+        if (mMouseSelectionStarted && std::find(mSelectedContentItemIndices.begin(), mSelectedContentItemIndices.end(), index) == mSelectedContentItemIndices.end() && !ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !Input::IsKeyPressed(EKeyCode::LeftControl))
+        {
+            ImVec2 topLeft  = ImGui::GetWindowPos();
+            ImVec2 btmRight = ImVec2(topLeft.x + childSize.x, topLeft.y + childSize.y);
+
+            ImVec2 mouseTopLeft  = ImVec2(std::min(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::min(mMouseSelectionStart.y, mMouseSelectionEnd.y));
+            ImVec2 mouseBtmRight = ImVec2(std::max(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::max(mMouseSelectionStart.y, mMouseSelectionEnd.y));
+
+            if (((mouseTopLeft.x  > topLeft.x && mouseTopLeft.y  > topLeft.y) && (mouseTopLeft.x  < btmRight.x && mouseTopLeft.y  < btmRight.y)) ||
+                ((mouseBtmRight.x > topLeft.x && mouseBtmRight.y > topLeft.y) && (mouseBtmRight.x < btmRight.x && mouseBtmRight.y < btmRight.y)))
+            {
+                mSelectedContentItemIndices.push_back(index);
+            }
+        }
 
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows))
         {
@@ -215,8 +238,6 @@ namespace Cosmic
                 }
             }
         }
-
-        
 
         if (!contentsChanged)
         {
@@ -273,6 +294,70 @@ namespace Cosmic
         ImGui::PopStyleVar();
 
         return contentsChanged;
+    }
+
+    void ContentBrowserPanel::RenderRightClickMenu()
+    {
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Right) && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows))
+            ImGui::OpenPopup(sPopupID);
+
+        if (ImGui::BeginPopup(sPopupID))
+        {
+            if (ImGui::MenuItem("Select All", "CTRL+A"))
+            {
+                SelectAll();
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::MenuItem("Delete", "DEL", false, !mSelectedContentItemIndices.empty()))
+            {
+                DeleteSelected();
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void ContentBrowserPanel::SelectAll()
+    {
+        mSelectedContentItemIndices.clear();
+        mSelectedContentItemIndices.resize(mDirectoryContents.size());
+
+        for (int32 i = 0; i < mDirectoryContents.size(); i++)
+        {
+            mSelectedContentItemIndices[i] = i;
+        }
+    }
+
+    void ContentBrowserPanel::DeleteSelected()
+    {
+
+    }
+
+    bool ContentBrowserPanel::OnKeyPressed(const KeyPressEvent& e)
+    {
+        if (!mWindowHovered)
+            return false;
+        
+        bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::LeftControl);
+
+        switch (e.GetKeyCode())
+        {
+            case EKeyCode::A:
+            {
+                if (control)
+                    SelectAll();
+                break;
+            }
+            case EKeyCode::Delete:
+            {
+                DeleteSelected();
+                break;
+            }
+        }
+
+        return false;
     }
 
     bool ContentBrowserPanel::OnMouseScrolled(const MouseScrollEvent& e)

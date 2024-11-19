@@ -36,6 +36,9 @@ namespace Cosmic
 
     bool SceneHierarchyPanel::OnKeyPressed(const KeyPressEvent& e)
     {
+        if (!mWindowHovered)
+            return false;
+
         bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
 
         switch (e.GetKeyCode())
@@ -117,9 +120,10 @@ namespace Cosmic
             ImGui::PopStyleVar(2);
             ImGui::EndChild();
         }
-        ImGui::End();
 
-        mClicked = false;
+        mWindowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+
+        ImGui::End();
     }
 
     void SceneHierarchyPanel::RenderEntities()
