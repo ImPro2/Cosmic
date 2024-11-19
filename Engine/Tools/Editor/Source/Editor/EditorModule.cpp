@@ -1,3 +1,4 @@
+#include "App/KeyAndMouseCodes.hpp"
 #include "cspch.hpp"
 #include "Editor/Event/EditorSceneEvents.hpp"
 #include "EditorModule.hpp"
@@ -19,6 +20,8 @@ CS_MODULE_LOG_INFO(Editor, EditorModule);
 #include "Panels/SceneHierarchyPanel.hpp"
 
 #include "UI/FileDialog.hpp"
+#include "UI/MenubarModule.hpp"
+#include "UI/ImGuiUtil.hpp"
 
 namespace Cosmic
 {
@@ -36,6 +39,9 @@ namespace Cosmic
         mActiveScene = CreateRef<Scene>();
 
         mPanels.Init(mFramebuffer, mActiveScene);
+
+        SetupMenuBar();
+
 
         CS_LOG_INFO("Successfully initialized editor.");
     }
@@ -76,11 +82,39 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        SetupMenuBar();
         SetupDockSpace();
 
         if (mShowDemoWindow)
             ImGui::ShowDemoWindow(&mShowDemoWindow);
+    }
+
+    void EditorModule::SetupMenuBar()
+    {
+        MenubarLayout menubar;
+
+        menubar.BeginMenu(new MenubarMenu("File", "ALT+F", { EKeyCode::LeftAlt, EKeyCode::F }));
+
+        menubar.Item(new MenubarItem("Open Scene",    "CTRL+O",       { EKeyCode::LeftControl, EKeyCode::O },                      nullptr, [this]() { OpenScene();   }));
+        menubar.Item(new MenubarItem("Save Scene",    "CTRL+S",       { EKeyCode::LeftControl, EKeyCode::S },                      nullptr, [this]() { SaveScene();   }));
+        menubar.Item(new MenubarItem("Save Scene As", "CTRL+SHIFT+S", { EKeyCode::LeftControl, EKeyCode::LeftShift, EKeyCode::S }, nullptr, [this]() { SaveSceneAs(); }));
+
+        menubar.EndMenu();
+
+        menubar.BeginMenu(new MenubarMenu("View", "ALT+V", { EKeyCode::LeftAlt, EKeyCode::V }));
+        menubar.BeginMenu(new MenubarMenu("Panels", "", {}));
+
+        menubar.Item(new MenubarItem("Show All", "", {}, nullptr, [this]() { mPanels.ShowAll(); }));
+
+        for (Panel* panel : mPanels.GetPanels())
+            menubar.Item(new MenubarItem(panel->GetPanelName().c_str(), "", {}, panel->IsOpenPtr()));
+
+        menubar.EndMenu();
+
+        menubar.Item(new MenubarItem("Show ImGui Demo Window", "", {}, &mShowDemoWindow));
+
+        menubar.EndMenu();
+
+        ModuleSystem::Add<MenubarModule>(menubar);
     }
 
     void EditorModule::SetupDockSpace()
@@ -144,55 +178,6 @@ namespace Cosmic
         ImGui::DockBuilderFinish(dockspaceID);
     }
 
-    void EditorModule::SetupMenuBar()
-    {
-        if (ImGui::BeginMainMenuBar())
-        {
-            bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
-            bool shift = Input::IsKeyPressed(EKeyCode::LeftShift) || Input::IsKeyPressed(EKeyCode::RightShift);
-
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem("Open Scene", "CTRL+O") || control && Input::IsKeyPressed(EKeyCode::O))
-                {
-                    OpenScene();
-                }
-                if (ImGui::MenuItem("Save Scene", "CTRL+S") || control && !shift && Input::IsKeyPressed(EKeyCode::S))
-                {
-                    SaveScene();
-                }
-                if (ImGui::MenuItem("Save Scene As", "CTRL+SHIFT+S") || control && shift && Input::IsKeyPressed(EKeyCode::S))
-                {
-                    SaveSceneAs();
-                }
-
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("View"))
-            {
-                if (ImGui::BeginMenu("Panels"))
-                {
-                    if (ImGui::MenuItem("Show All", ""))
-                    {
-                        mPanels.ShowAll();
-                    }
-
-                    for (Panel* panel : mPanels.GetPanels())
-                    {
-                        ImGui::MenuItem(panel->GetPanelName().c_str(), "", panel->IsOpenPtr());
-                    }
-
-                    ImGui::EndMenu();
-                }
-
-                ImGui::MenuItem("Show ImGui Demo Window", "", &mShowDemoWindow);
-
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
-        }
-    }
-
     bool EditorModule::OnKeyPressed(const KeyPressEvent& e)
     {
         bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
@@ -201,29 +186,6 @@ namespace Cosmic
 
         switch (e.GetKeyCode())
         {
-            case EKeyCode::S:
-            {
-                if (control)
-                {
-                    if (shift)
-                    {
-                        SaveSceneAs();
-                    }
-                    else
-                    {
-                        SaveScene();
-                    }
-                }
-                break;
-            }
-            case EKeyCode::O:
-            {
-                if (control)
-                {
-                    OpenScene();
-                }
-                break;
-            }
             case EKeyCode::Q: break;
             case EKeyCode::W: break;
             case EKeyCode::E: break;
@@ -256,17 +218,20 @@ namespace Cosmic
         }
     }
 
+    void EditorModule::SaveSceneAs(File file)
+    {
+        mActiveScenePath = file.GetAbsolutePath();
+        SceneSerializer serializer(mActiveScene);
+        serializer.Serialize(mActiveScenePath);
+
+        EventSystem::AddEvent(new EditorSceneSavedAsEvent(mActiveScene));
+    }
+
     void EditorModule::SaveSceneAs()
     {
         FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(".");
         
-        fileDialogModule->SetSaveFileCallback("Scene.cscene", { "Cosmic Scene (*.cscene)" }, [this](File file) {
-            mActiveScenePath = file.GetAbsolutePath();
-            SceneSerializer serializer(mActiveScene);
-            serializer.Serialize(mActiveScenePath);
-
-            EventSystem::AddEvent(new EditorSceneSavedAsEvent(mActiveScene));
-        });
+        fileDialogModule->SetSaveFileCallback("Scene.cscene", { "Cosmic Scene (*.cscene)" }, [this](File file) { SaveSceneAs(file); });
     }
 
     void EditorModule::OpenScene(File file)
@@ -289,16 +254,6 @@ namespace Cosmic
 
         FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(Path("Engine/Tools/Editor"));
         fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { OpenScene(file); });
-
-        //fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { 
-        //    mActiveScenePath = file.GetAbsolutePath();
-        //    mActiveScene = CreateRef<Scene>();
-
-        //    SceneSerializer serializer(mActiveScene);
-        //    serializer.Deserialize(mActiveScenePath);
-
-        //    EventSystem::AddEvent(new EditorSceneOpenedEvent(mActiveScene));
-        //});
     }
 
     void EditorModule::NewScene()

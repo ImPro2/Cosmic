@@ -33,22 +33,21 @@ namespace Cosmic
         void OnImGuiRender()         override;
 
     public:
+        void SaveScene();
+        void SaveSceneAs(File file);
+        void SaveSceneAs();
         void OpenScene(File file);
+        void OpenScene();
+        void NewScene();
 
     private:
+        void SetupMenuBar();
         void SetupDockSpace();
         void SetupDefaultDockLayout();
-        void SetupMenuBar();
 
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnFileModified(const FileModifiedEvent& e);
-
-    private:
-        void SaveScene();
-        void SaveSceneAs();
-        void OpenScene();
-        void NewScene();
 
     private:
         Ref<Scene> mActiveScene;
