@@ -6,6 +6,7 @@
 #include <IconsFontAwesome6.h>
 #include "Editor/Event/EditorSceneEvents.hpp"
 #include "Editor/EditorModule.hpp"
+#include "UI/ImGuiUtil.hpp"
 
 #include "ECS/Components.hpp"
 #include "imgui_internal.h"
@@ -100,6 +101,19 @@ namespace Cosmic
             RenderEntities();
             RenderRightClickMenu();
 
+            if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
+            {
+                bool first = !mMouseSelectionStarted;
+                mMouseSelectionStarted = !ImGuiUtil::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
+
+                if (first && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                {
+                    mSelectedEntities.clear();
+                    mLastSelectedEntity = {};
+                    mLastSelectedEntityIndex = -1;
+                }
+            }
+
             ImGui::PopStyleVar(2);
             ImGui::EndChild();
         }
@@ -143,94 +157,108 @@ namespace Cosmic
         };
         
         bool hasChildren = false;
+        auto entitySelectedIter = findEntity(mSelectedEntities, entity);
 
         const String& tag       = entity.GetComponent<TagComponent>().Tag;
         bool&         isVisible = entity.GetComponent<EntityMetadataComponent>().IsVisible;
 
-        if (!hasChildren)
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
+
+        // Set the entity selected if it is selected
+
+        if (entitySelectedIter != mSelectedEntities.end())
+            flags |= ImGuiTreeNodeFlags_Selected;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyleColorVec4(ImGuiCol_TabActive));
+
+        bool open = ImGui::TreeNodeEx(tag.c_str(), flags);
+
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
+
+        if (open)
         {
-            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
+            ImGui::TreePop();
+        }
 
-            // Set the entity selected if it is selected
+        // Entity Selection
 
-            if (findEntity(mSelectedEntities, entity) != mSelectedEntities.end())
-                flags |= ImGuiTreeNodeFlags_Selected;
+        if (mMouseSelectionStarted && entitySelectedIter == mSelectedEntities.end())
+        {
+            ImVec2 topLeft  = ImGui::GetItemRectMin();
+            ImVec2 btmRight = ImGui::GetItemRectMax();
 
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-            ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyleColorVec4(ImGuiCol_TabActive));
-
-            bool open = ImGui::TreeNodeEx(tag.c_str(), flags);
-
-            ImGui::PopStyleColor();
-            ImGui::PopStyleVar();
-
-            if (open)
+            ImVec2 mouseTopLeft  = ImVec2(std::min(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::min(mMouseSelectionStart.y, mMouseSelectionEnd.y));
+            ImVec2 mouseBtmRight = ImVec2(std::max(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::max(mMouseSelectionStart.y, mMouseSelectionEnd.y));
+            
+            if ((topLeft.y  > mouseTopLeft.y && topLeft.y  < mouseBtmRight.y) ||
+                (btmRight.y > mouseTopLeft.y && btmRight.y < mouseBtmRight.y))
             {
-                ImGui::TreePop();
-            }
-
-            // Entity Selection
-
-            if ((ImGui::IsMouseDown(ImGuiMouseButton_Left) || ImGui::IsMouseDown(ImGuiMouseButton_Right)) && ImGui::IsItemHovered())
-            {
+                mSelectedEntities.push_back(entity);
                 mLastSelectedEntity = entity;
-
-                //if (ImGui::GetIO().KeyCtrl)
-                if (Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl))
-                {
-                    // Adds entities to the selection one by one, or deselects them if they're already selected.
-
-                    auto entityIter = findEntity(mSelectedEntities, entity);
-
-                    if (entityIter != mSelectedEntities.end())
-                        mSelectedEntities.erase(entityIter);
-                    else
-                        mSelectedEntities.push_back(entity);
-                }
-                else if (Input::IsKeyPressed(EKeyCode::LeftShift) || Input::IsKeyPressed(EKeyCode::RightShift))
-                {
-                    // Adds more than one entities to the selection.
-
-                    mScene->ForEachEntityIndexed([&](Entity other, int32 i)
-                    {
-                        if (index > mLastSelectedEntityIndex && (i > mLastSelectedEntityIndex && i <= index))
-                        {
-                            mSelectedEntities.push_back(other);
-                        }
-                        else if (index < mLastSelectedEntityIndex && (i >= index && i < mLastSelectedEntityIndex))
-                        {
-                            mSelectedEntities.push_back(other);
-                        }
-                    });
-                }
-                else
-                {
-                    // A single left click clears the selection and only selects one entity.
-
-                    mSelectedEntities.clear();
-                    mSelectedEntities.push_back(entity);
-                }
-
                 mLastSelectedEntityIndex = index;
             }
-
-            ImGui::TableNextColumn();
-            ImGui::PushID(index);
-            
-            // Hack to make the radio button smaller
-
-            ImFont* currFont = ImGui::GetFont(); 
-            currFont->Scale = 0.75f;
-            ImGui::PushFont(currFont);
-
-            if (ImGui::RadioButton("", isVisible))
-                isVisible = !isVisible;
-            
-            currFont->Scale = 1.0f;
-            ImGui::PopFont();
-
-            ImGui::PopID();
         }
+
+        if ((ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)) && ImGui::IsItemHovered())
+        {
+            mLastSelectedEntity = entity;
+
+            if (Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl))
+            {
+                // Adds entities to the selection one by one, or deselects them if they're already selected.
+
+                auto entityIter = findEntity(mSelectedEntities, entity);
+
+                if (entityIter != mSelectedEntities.end())
+                    mSelectedEntities.erase(entityIter);
+                else
+                    mSelectedEntities.push_back(entity);
+            }
+            else if (Input::IsKeyPressed(EKeyCode::LeftShift) || Input::IsKeyPressed(EKeyCode::RightShift))
+            {
+                // Adds more than one entities to the selection.
+
+                mScene->ForEachEntityIndexed([&](Entity other, int32 i)
+                {
+                    if (index > mLastSelectedEntityIndex && (i > mLastSelectedEntityIndex && i <= index))
+                    {
+                        mSelectedEntities.push_back(other);
+                    }
+                    else if (index < mLastSelectedEntityIndex && (i >= index && i < mLastSelectedEntityIndex))
+                    {
+                        mSelectedEntities.push_back(other);
+                    }
+                });
+            }
+            else
+            {
+                // A single left click clears the selection and only selects one entity.
+
+                mSelectedEntities.clear();
+                mSelectedEntities.push_back(entity);
+            }
+
+            mLastSelectedEntityIndex = index;
+        }
+
+        ImGui::TableNextColumn();
+        ImGui::PushID(index);
+        
+        // Hack to make the radio button smaller
+
+        ImFont* currFont = ImGui::GetFont(); 
+        currFont->Scale = 0.75f;
+        ImGui::PushFont(currFont);
+
+        if (ImGui::RadioButton("", isVisible))
+            isVisible = !isVisible;
+        
+        currFont->Scale = 1.0f;
+        ImGui::PopFont();
+
+        ImGui::PopID();
     }
 
     void SceneHierarchyPanel::RenderRightClickMenu()

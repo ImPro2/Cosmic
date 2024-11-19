@@ -59,6 +59,9 @@ namespace Cosmic
 
         bool mClicked = false;
 
+        ImVec2 mMouseSelectionStart, mMouseSelectionEnd;
+        bool mMouseSelectionStarted;
+
         static constexpr const char* sPopupID = "Scene Hierarchy Panel Right Click";
     };
 
