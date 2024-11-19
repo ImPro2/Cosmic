@@ -78,7 +78,7 @@ namespace Cosmic
             mProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, mOrthographicNear, mOrthographicFar);
         }
 
+        mProjectionInverse = glm::inverse(mProjection);
     }
-
 
 }

@@ -26,7 +26,7 @@ namespace Cosmic
 
     bool Input::IsMouseButtonPressed(EMouseCode button)
     {
-        int result = glfwGetKey(static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetHandle()), (int)button);
+        int result = glfwGetMouseButton(static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetHandle()), (int)button);
         return result == GLFW_PRESS || result == GLFW_REPEAT;
     }
 

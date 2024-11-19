@@ -47,10 +47,10 @@ namespace Cosmic
         float32 GetAspectRatio()            const { return mAspectRatio;      }
         EProjectionType GetProjectionType() const { return mProjectionType;   }
 
-    private:
+    protected:
         void RecalculateProjection();
 
-    private:
+    protected:
         EProjectionType mProjectionType = EProjectionType::Orthographic;
 
         float32 mOrthographicSize =  10.0f;
@@ -62,6 +62,8 @@ namespace Cosmic
         float32 mPerspectiveFar  = 1000.0f;
 
         float32 mAspectRatio = 1.6f;
+
+        glm::mat4 mProjectionInverse;
     };
 
 }

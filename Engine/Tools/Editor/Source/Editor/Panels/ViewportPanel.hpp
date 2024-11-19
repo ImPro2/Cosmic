@@ -13,6 +13,7 @@
 #include "ECS/Scene.hpp"
 
 #include "Editor/Event/EditorSceneEvents.hpp"
+#include "Editor/EditorCamera.hpp"
 
 namespace Cosmic
 {
@@ -28,17 +29,16 @@ namespace Cosmic
         void OnEvent(const Event& e) override;
         void OnImGuiRender() override;
 
-    public:
-        const OrthographicCameraController& GetCameraController() const { return mCameraController; }
-
     private:
         bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
 
     private:
         Ref<Framebuffer> mFramebuffer;
         Ref<Scene>       mScene;
-        OrthographicCameraController mCameraController;
         bool mSceneChanged = false;
+        bool mWindowHovered = false;
+
+        EditorCamera mCamera;
     };
 
 }

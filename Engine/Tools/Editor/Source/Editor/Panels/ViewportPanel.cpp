@@ -18,8 +18,6 @@ namespace Cosmic
         : Panel("Viewport")
     {
         CS_PROFILE_FN();
-
-        mCameraController.SetRotation(false);
     }
 
     void ViewportPanel::OnInit()
@@ -37,7 +35,8 @@ namespace Cosmic
 
     void ViewportPanel::OnUpdate(Dt dt)
     {
-        mCameraController.OnUpdate();
+        if (mWindowHovered)
+            mCamera.OnUpdate();
 
         Renderer2D::ResetStatistics();
 
@@ -45,14 +44,15 @@ namespace Cosmic
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
         RenderCommand::Clear();
 
-        mScene->OnUpdate(dt);
+        mScene->OnUpdateEditor(dt, mCamera, mCamera.GetTransform());
 
         mFramebuffer->Unbind();
     }
 
     void ViewportPanel::OnEvent(const Event& e)
     {
-        mCameraController.OnEvent(e);
+        if (mWindowHovered)
+            mCamera.OnEvent(e);
 
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(EditorSceneOpenedEvent, OnEditorSceneOpened);
@@ -92,7 +92,7 @@ namespace Cosmic
                 mSceneChanged = false;
 
                 mFramebuffer->Resize(width, height);
-                mCameraController.OnResize(width, height);
+                mCamera.OnResized(width, height);
 
                 mScene->OnViewportResize(width, height);
             }
@@ -119,6 +119,8 @@ namespace Cosmic
                 ImGui::EndDragDropTarget();
             }
         }
+
+        mWindowHovered = ImGui::IsWindowHovered();
 
         ImGui::PopStyleVar(2);
         ImGui::End();

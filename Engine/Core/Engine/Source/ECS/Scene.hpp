@@ -10,6 +10,7 @@
 #include "ECS/Entity.hpp"
 #include "Script/NativeScript.hpp"
 #include "Renderer/OrthographicCamera.hpp"
+#include "ECS/SceneCamera.hpp"
 
 namespace Cosmic
 {
@@ -22,7 +23,7 @@ namespace Cosmic
 
     public:
         void OnUpdate(Dt dt);
-        void OnUpdateEditor(Dt dt, const OrthographicCamera& camera);
+        void OnUpdateEditor(Dt dt, const Camera& camera, const glm::mat4& cameraTransform);
         void OnViewportResize(uint32 width, uint32 height);
 
     public:

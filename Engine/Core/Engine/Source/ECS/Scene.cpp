@@ -80,33 +80,25 @@ namespace Cosmic
         }
     }
 
-    void Scene::OnUpdateEditor(Dt dt, const OrthographicCamera& camera)
+    void Scene::OnUpdateEditor(Dt dt, const Camera& camera, const glm::mat4& cameraTransform)
     {
         // Update scripts
+
+        mRegistry.view<NativeScriptComponent, TransformComponent>().each([this](auto entity, auto& nsc, auto& transform)
         {
-            mRegistry.view<NativeScriptComponent, TransformComponent>().each([=](auto entity, auto& nsc, auto& transform)
-                {
-                    //auto a = entt::type_seq<TransformComponent>();
-                    if (!nsc.Instance && nsc.Bound)
-                    {
-                        nsc.Instance = nsc.ScriptCallbacks.InstantiateScript();
-                        nsc.Instance->mEntity = Entity{ entity, &mRegistry };
-                        nsc.Instance->OnCreate();
-                    }
-                    if (nsc.Bound)
-                        nsc.Instance->OnUpdate(Time::GetDeltaTime());
-                });
-        }
+            if (!nsc.Instance && nsc.Bound)
+            {
+                nsc.Instance = nsc.ScriptCallbacks.InstantiateScript();
+                nsc.Instance->mEntity = Entity{ entity, &mRegistry };
+                nsc.Instance->OnCreate();
+            }
+            if (nsc.Bound)
+                nsc.Instance->OnUpdate(Time::GetDeltaTime());
+        });
 
-        Renderer2D::BeginScene(camera);
+        // Render SpriteRendererComponents
 
-        /*auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-        for (auto entity : group)
-        {
-            auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-            Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
-        }*/
+        Renderer2D::BeginScene(camera, cameraTransform);
 
         mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](auto entity, auto& metadata, auto& transform, auto& sprite)
         {
