@@ -89,7 +89,7 @@ namespace Cosmic
 
         menubar.Item(new MenubarItem("Show All", "", {}, nullptr, [this]() { mPanels.ShowAll(); }));
 
-        for (Panel* panel : mPanels.GetPanels())
+        for (Ref<Panel> panel : mPanels.GetPanels())
             menubar.Item(new MenubarItem(panel->GetPanelName().c_str(), "", {}, panel->IsOpenPtr()));
 
         menubar.EndMenu();
@@ -142,11 +142,11 @@ namespace Cosmic
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
-        ConsolePanel*        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
-        ViewportPanel*       viewportPanel       = mPanels.GetPanel<ViewportPanel>();
-        InspectorPanel*      inspectorPanel      = mPanels.GetPanel<InspectorPanel>();
-        SceneHierarchyPanel* sceneHierarchyPanel = mPanels.GetPanel<SceneHierarchyPanel>();
-        ContentBrowserPanel* contentBrowserPanel = mPanels.GetPanel<ContentBrowserPanel>();
+        const Ref<ConsolePanel>&        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
+        const Ref<ViewportPanel>&       viewportPanel       = mPanels.GetPanel<ViewportPanel>();
+        const Ref<InspectorPanel>&      inspectorPanel      = mPanels.GetPanel<InspectorPanel>();
+        const Ref<SceneHierarchyPanel>& sceneHierarchyPanel = mPanels.GetPanel<SceneHierarchyPanel>();
+        const Ref<ContentBrowserPanel>& contentBrowserPanel = mPanels.GetPanel<ContentBrowserPanel>();
 
         ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
         ImGuiID dockIdRight = dockspaceID;
@@ -216,7 +216,7 @@ namespace Cosmic
 
     void EditorModule::SaveSceneAs()
     {
-        FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(".");
+        Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(".");
         
         fileDialogModule->SetSaveFileCallback("Scene.cscene", { "Cosmic Scene (*.cscene)" }, [this](File file) { SaveSceneAs(file); });
     }
@@ -239,7 +239,7 @@ namespace Cosmic
             serializer.Serialize(mActiveScenePath);
         }
 
-        FileDialogModule* fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(Path("Engine/Tools/Editor"));
+        Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(Path("Engine/Tools/Editor"));
         fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { OpenScene(file); });
     }
 

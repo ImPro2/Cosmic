@@ -23,7 +23,7 @@ namespace Cosmic
 
     void SceneHierarchyPanel::OnInit()
     {
-        EditorModule* editorModule = ModuleSystem::Get<EditorModule>();
+        Ref<EditorModule> editorModule = ModuleSystem::Get<EditorModule>();
         mScene = editorModule->GetActiveScene();
     }
 

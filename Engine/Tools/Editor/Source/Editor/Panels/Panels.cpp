@@ -24,7 +24,7 @@ namespace Cosmic
 
     void Panels::ShowAll()
     {
-        for (Panel* panel : mPanels)
+        for (Ref<Panel> panel : mPanels)
         {
             panel->Show(true);
         }

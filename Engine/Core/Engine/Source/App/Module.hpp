@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <queue>
 #include <vector>
 #include <typeinfo>
@@ -47,94 +48,90 @@ namespace Cosmic
         };
 
     public:
-        template<typename T, typename ... Args>
-        static T* Add(Args&& ... args)
+        template<typename T, typename... Args>
+        static Ref<T> Add(Args&&... args)
         {
             if (Get<T>())
                 return Get<T>();
 
-            Module* module = new T(std::forward<Args>(args)...);
+            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
             sModules.push_back(module);
             module->mName = typeid(T).name();
             module->OnInit();
 
-            return static_cast<T*>(module);
+            return std::static_pointer_cast<T>(module);
         }
 
         template<typename T, typename ... Args>
-        static T* AddFront(Args&& ... args)
+        static Ref<T> AddFront(Args&& ... args)
         {
             if (Get<T>())
                 return Get<T>();
 
-            Module* module = new T(std::forward<Args>(args)...);
+            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
             sModules.insert(sModules.begin(), module);
             module->mName = typeid(T).name();
             module->OnInit();
 
-            return static_cast<T*>(module);
+            return std::static_pointer_cast<T>(module);
         }
 
         template<typename T, typename ... Args>
-        static T* AddDeferred(Args&& ... args)
+        static Ref<T> AddDeferred(Args&& ... args)
         {
-            if (Get<T>())
+            if (Get<T>().get())
                 return Get<T>();
 
-            Module* module = new T(std::forward<Args>(args)...);
+            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             sDeferredModules.push({ module, EDeferredInsertMode::Back });
 
-            return static_cast<T*>(module);
+            return std::static_pointer_cast<T>(module);
         }
 
         template<typename T, typename ... Args>
-        static T* AddFrontDeferred(Args&& ... args)
+        static Ref<T> AddFrontDeferred(Args&& ... args)
         {
-            if (Get<T>())
+            if (Get<T>().get())
                 return Get<T>();
 
-            Module* module = new T(std::forward<Args>(args)...);
+            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             sDeferredModules.push({ module, EDeferredInsertMode::Front });
 
-            return static_cast<T*>(module);
+            return std::static_pointer_cast<T>(module);
         }
 
         template<typename T>
         static void Remove()
         {
-            auto eraseFunction = [](Module* module)
+            auto eraseFunction = [](Ref<Module> module)
             {
                 if (module->mName == typeid(T).name())
                 {
                     module->OnShutdown();
-                    delete module;
+                    module.reset();
                     return true;
                 }
 
                 return false;
             };
 
-            //std::erase_if(sFrontModules, eraseFunction);
             std::erase_if(sModules, eraseFunction);
         }
 
         template<typename T>
-        static T* Get()
+        static Ref<T> Get()
         {
             const char* name = typeid(T).name();
-            /*for (Module* module : sFrontModules)
+
+            for (Ref<Module> module : sModules)
             {
                 if (module->GetName() == name)
-                    return static_cast<T*>(module);
-            }*/
-            for (Module* module : sModules)
-            {
-                if (module->GetName() == name)
-                    return static_cast<T*>(module);
+                    return std::static_pointer_cast<T>(module);
             }
-            return nullptr;
+
+            return Ref<T>(nullptr);
         }
 
     private:
@@ -148,8 +145,8 @@ namespace Cosmic
         static void AddDeferredModules();
 
     private:
-        inline static Vector<Module*> sModules;
-        inline static std::queue<Pair<Module*, EDeferredInsertMode>> sDeferredModules;
+        inline static Vector<Ref<Module>> sModules;
+        inline static std::queue<Pair<Ref<Module>, EDeferredInsertMode>> sDeferredModules;
         friend class Application;
     };
 

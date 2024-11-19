@@ -24,7 +24,7 @@ namespace Cosmic
 
     void ViewportPanel::OnInit()
     {
-        EditorModule* editorModule = ModuleSystem::Get<EditorModule>();
+        Ref<EditorModule> editorModule = ModuleSystem::Get<EditorModule>();
 
         FramebufferInfo fbInfo = {};
         fbInfo.Width = 1280;
@@ -112,7 +112,7 @@ namespace Cosmic
                 {
                     File sceneFile(Path((char*)payload->Data));
                     
-                    EditorModule* editorModule = ModuleSystem::Get<EditorModule>();
+                    Ref<EditorModule> editorModule = ModuleSystem::Get<EditorModule>();
                     editorModule->OpenScene(sceneFile);
                 }
                 

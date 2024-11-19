@@ -1,4 +1,5 @@
 ﻿#include "cspch.hpp"
+#include "Editor/Panels/SceneHierarchyPanel.hpp"
 #include "InspectorPanel.hpp"
 #include <entt/entt.hpp>
 #include <IconsFontAwesome6.h>
@@ -24,7 +25,8 @@ namespace Cosmic
 
         if (ImGui::Begin(mPanelName.c_str(), &mOpen))
         {
-            const Vector<Entity>& selectedEntities = ModuleSystem::Get<SceneHierarchyPanel>()->GetSelectedEntities();
+            Ref<SceneHierarchyPanel> sceneHierarchyPanel = ModuleSystem::Get<SceneHierarchyPanel>();
+            const Vector<Entity>& selectedEntities = sceneHierarchyPanel->GetSelectedEntities();
             
             if (selectedEntities.size() == 1)
                 RenderComponents(selectedEntities[0]);

@@ -22,15 +22,17 @@ namespace Cosmic
 
         AddDeferredModules();
 
-        for (Module* module : sModules)
-            module->OnUpdate(float32(Time::GetDeltaTime()));
+        float32 dt = Time::GetDeltaTime();
+
+        for (Ref<Module> module : sModules)
+            module->OnUpdate(dt);
     }
 
     void ModuleSystem::OnEvent(const Event& e)
     {
         CS_PROFILE_FN();
 
-        for (Module* module : sModules)
+        for (Ref<Module> module : sModules)
             module->OnEvent(e);
     }
 
@@ -38,7 +40,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        for (Module* module : sModules)
+        for (Ref<Module> module : sModules)
             module->OnImGuiRender();
     }
 

@@ -36,20 +36,20 @@ namespace Cosmic
 
     public:
         template<typename T>
-        T* GetPanel()
+        Ref<T> GetPanel()
         {
             const char* name = typeid(T).name();
-            for (Panel* panel : mPanels)
+            for (Ref<Panel> panel : mPanels)
             {
                 if (panel->GetName() == name)
-                    return static_cast<T*>(panel);
+                    return std::static_pointer_cast<T>(panel);
             }
         }
 
-        const Vector<Panel*>& GetPanels() const { return mPanels; }
+        const Vector<Ref<Panel>>& GetPanels() const { return mPanels; }
 
     private:
-        Vector<Panel*> mPanels;
+        Vector<Ref<Panel>> mPanels;
     };
 
 }
