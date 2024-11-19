@@ -5,6 +5,7 @@
 #include <entt/entt.hpp>
 #include <IconsFontAwesome6.h>
 #include "Editor/Event/EditorSceneEvents.hpp"
+#include "Editor/EditorModule.hpp"
 
 #include "ECS/Components.hpp"
 #include "imgui_internal.h"
@@ -14,10 +15,15 @@ CS_MODULE_LOG_INFO(Editor, Panels.SceneHierarchyPanel);
 namespace Cosmic
 {
 
-    SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene)
+    SceneHierarchyPanel::SceneHierarchyPanel()
         : Panel("Scene Hierarchy")
     {
-        mScene = scene;
+    }
+
+    void SceneHierarchyPanel::OnInit()
+    {
+        EditorModule* editorModule = ModuleSystem::Get<EditorModule>();
+        mScene = editorModule->GetActiveScene();
     }
 
     void SceneHierarchyPanel::OnEvent(const Event& e)

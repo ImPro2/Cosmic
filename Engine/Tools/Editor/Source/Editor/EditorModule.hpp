@@ -40,6 +40,15 @@ namespace Cosmic
         void OpenScene();
         void NewScene();
 
+    public:
+        const Ref<Scene>& GetActiveScene() const { return mActiveScene; }
+        Ref<Scene>        GetActiveScene()       { return mActiveScene; }
+
+        const String& GetActiveScenePath() const { return mActiveScenePath; }
+
+        const Panels& GetPanels() const { return mPanels; }
+        Panels&       GetPanels()       { return mPanels; }
+
     private:
         void SetupMenuBar();
         void SetupDockSpace();
@@ -53,13 +62,9 @@ namespace Cosmic
         Ref<Scene> mActiveScene;
         String     mActiveScenePath;
 
-        Ref<Texture2D> mCosmicLogoTexture;
-        Ref<Framebuffer> mFramebuffer;
-
         Panels mPanels;
 
         bool mSetupDefaultLayout = true;
-        
         bool mShowDemoWindow = false;
     };
 

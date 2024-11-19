@@ -18,6 +18,7 @@ CS_MODULE_LOG_INFO(Editor, EditorModule);
 #include "Panels/ViewportPanel.hpp"
 #include "Panels/InspectorPanel.hpp"
 #include "Panels/SceneHierarchyPanel.hpp"
+#include "Panels/ContentBrowserPanel.hpp"
 
 #include "UI/FileDialog.hpp"
 #include "UI/MenubarModule.hpp"
@@ -29,19 +30,11 @@ namespace Cosmic
     void EditorModule::OnInit()
     {
         CS_PROFILE_FN();
-
-        FramebufferInfo fbInfo = {};
-        fbInfo.Width = 1280;
-        fbInfo.Height = 720;
-        fbInfo.SwapChainTarget = false;
-        mFramebuffer = CreateFramebuffer(fbInfo);
-
+        
         mActiveScene = CreateRef<Scene>();
-
-        mPanels.Init(mFramebuffer, mActiveScene);
+        mPanels.Init();
 
         SetupMenuBar();
-
 
         CS_LOG_INFO("Successfully initialized editor.");
     }
@@ -57,16 +50,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        Renderer2D::ResetStatistics();
-        mFramebuffer->Bind();
-        RenderCommand::SetClearColor({ 0.2f, 0.3f, 0.2f, 1.0f });
         RenderCommand::Clear();
-
-        //const OrthographicCamera& camera = mPanels.GetPanel<ViewportPanel>()->GetCameraController().GetCamera();
-
-        mActiveScene->OnUpdate(dt);
-
-        mFramebuffer->Unbind();
     }
 
     void EditorModule::OnEvent(const Event& e)
@@ -162,6 +146,7 @@ namespace Cosmic
         ViewportPanel*       viewportPanel       = mPanels.GetPanel<ViewportPanel>();
         InspectorPanel*      inspectorPanel      = mPanels.GetPanel<InspectorPanel>();
         SceneHierarchyPanel* sceneHierarchyPanel = mPanels.GetPanel<SceneHierarchyPanel>();
+        ContentBrowserPanel* contentBrowserPanel = mPanels.GetPanel<ContentBrowserPanel>();
 
         ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
         ImGuiID dockIdRight = dockspaceID;
@@ -169,11 +154,13 @@ namespace Cosmic
         ImGuiID dockIdInspector = dockIdLeft;
         ImGuiID dockIdViewport = ImGui::DockBuilderSplitNode(dockIdRight, ImGuiDir_Up, 0.7f, nullptr, &dockIdRight);
         ImGuiID dockIdConsole = dockIdRight;
+        ImGuiID dockIdContentBrowser = dockIdConsole;
 
         ImGui::DockBuilderDockWindow(consolePanel->GetPanelName().c_str(),        dockIdConsole);
         ImGui::DockBuilderDockWindow(viewportPanel->GetPanelName().c_str(),       dockIdViewport);
         ImGui::DockBuilderDockWindow(inspectorPanel->GetPanelName().c_str(),      dockIdInspector);
         ImGui::DockBuilderDockWindow(sceneHierarchyPanel->GetPanelName().c_str(), dockIdSceneHierarchy);
+        ImGui::DockBuilderDockWindow(contentBrowserPanel->GetPanelName().c_str(), dockIdContentBrowser);
     
         ImGui::DockBuilderFinish(dockspaceID);
     }
@@ -262,3 +249,4 @@ namespace Cosmic
     }
 
 }
+

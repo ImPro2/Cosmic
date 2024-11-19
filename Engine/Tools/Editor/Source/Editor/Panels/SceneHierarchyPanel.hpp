@@ -24,9 +24,10 @@ namespace Cosmic
     class SceneHierarchyPanel : public Panel
     {
     public:
-        SceneHierarchyPanel(const Ref<Scene>& scene);
+        SceneHierarchyPanel();
 
     public:
+        void OnInit() override;
         void OnEvent(const Event& e) override;
         void OnImGuiRender() override;
 

@@ -11,15 +11,15 @@
 namespace Cosmic
 {
 
-    void Panels::Init(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene)
+    void Panels::Init()
     {
         mPanels.reserve(10);
 
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<ConsolePanel>()));
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<SceneHierarchyPanel>(scene)));
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<InspectorPanel>()));
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<ContentBrowserPanel>()));
-        mPanels.push_back(static_cast<Panel*>(ModuleSystem::Add<ViewportPanel>(framebuffer, scene, GetPanel<ContentBrowserPanel>())));
+        mPanels.push_back(ModuleSystem::Add<ConsolePanel>());
+        mPanels.push_back(ModuleSystem::Add<SceneHierarchyPanel>());
+        mPanels.push_back(ModuleSystem::Add<InspectorPanel>());
+        mPanels.push_back(ModuleSystem::Add<ContentBrowserPanel>());
+        mPanels.push_back(ModuleSystem::Add<ViewportPanel>());
     }
 
     void Panels::ShowAll()

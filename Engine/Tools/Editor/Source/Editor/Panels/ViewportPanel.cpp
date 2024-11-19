@@ -1,9 +1,11 @@
+#include "Renderer/Framebuffer.hpp"
 #include "cspch.hpp"
 #include "App/Module.hpp"
 #include "ViewportPanel.hpp"
 #include "ContentBrowserPanel.hpp"
 #include "App/File.hpp"
 #include "Editor/EditorModule.hpp"
+#include "ContentBrowserPanel.hpp"
 
 #include <imgui.h>
 #include <glm/glm.hpp>
@@ -12,17 +14,40 @@
 namespace Cosmic
 {
 
-    ViewportPanel::ViewportPanel(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene, ContentBrowserPanel* contentBrowserPanel)
-        : mFramebuffer(framebuffer), mScene(scene), mContentBrowserPanel(contentBrowserPanel), Panel("Viewport")
+    ViewportPanel::ViewportPanel()
+        : Panel("Viewport")
     {
         CS_PROFILE_FN();
 
         mCameraController.SetRotation(false);
     }
 
+    void ViewportPanel::OnInit()
+    {
+        EditorModule* editorModule = ModuleSystem::Get<EditorModule>();
+
+        FramebufferInfo fbInfo = {};
+        fbInfo.Width = 1280;
+        fbInfo.Height = 720;
+        fbInfo.SwapChainTarget = false;
+        mFramebuffer = CreateFramebuffer(fbInfo);
+        
+        mScene = editorModule->GetActiveScene();
+    }
+
     void ViewportPanel::OnUpdate(Dt dt)
     {
         mCameraController.OnUpdate();
+
+        Renderer2D::ResetStatistics();
+
+        mFramebuffer->Bind();
+        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+        RenderCommand::Clear();
+
+        mScene->OnUpdate(dt);
+
+        mFramebuffer->Unbind();
     }
 
     void ViewportPanel::OnEvent(const Event& e)
@@ -77,7 +102,7 @@ namespace Cosmic
             uint32 textureID = mFramebuffer->GetColorAttachmentRendererID();
             ImGui::Image((void*)textureID, ImVec2((float32)width, (float32)height), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 
-            const String& contentItemDragDropStr = mContentBrowserPanel->GetContentItemDragDropString();
+            const String& contentItemDragDropStr = ModuleSystem::Get<ContentBrowserPanel>()->GetContentItemDragDropString();
             
             if (ImGui::BeginDragDropTarget())
             {

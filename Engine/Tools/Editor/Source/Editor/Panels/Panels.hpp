@@ -31,7 +31,7 @@ namespace Cosmic
     class Panels
     {
     public:
-        void Init(const Ref<Framebuffer>& framebuffer, const Ref<Scene>& scene);
+        void Init();
         void ShowAll();
 
     public:

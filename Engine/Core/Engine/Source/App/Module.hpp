@@ -54,9 +54,9 @@ namespace Cosmic
                 return Get<T>();
 
             Module* module = new T(std::forward<Args>(args)...);
+            sModules.push_back(module);
             module->mName = typeid(T).name();
             module->OnInit();
-            sModules.push_back(module);
 
             return static_cast<T*>(module);
         }
@@ -68,9 +68,9 @@ namespace Cosmic
                 return Get<T>();
 
             Module* module = new T(std::forward<Args>(args)...);
+            sModules.insert(sModules.begin(), module);
             module->mName = typeid(T).name();
             module->OnInit();
-            sModules.insert(sModules.begin(), module);
 
             return static_cast<T*>(module);
         }
