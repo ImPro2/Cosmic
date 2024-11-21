@@ -16,13 +16,19 @@ namespace Cosmic
     public:
         void Invalidate() override;
         void Resize(uint32 width, uint32 height) override;
+        void ClearAttachment(uint32 attachmentIndex, int32 value) override;
+        int32 ReadPixel(uint32 attachmentIndex, uint2 pos) override;
+
+    public:
         void Bind() override;
         void Unbind() override;
         uint32 GetColorAttachmentRendererID() override;
 
     private:
-        GLenum mRendererID;
-        GLenum mColorAttachmentRendererID;
+        void CreateAttachments();
+
+    private:
+        GLenum mRendererID = 0;
     };
 
 }

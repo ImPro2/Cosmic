@@ -10,8 +10,8 @@ namespace Cosmic
     class OpenGLTexture2D : public Texture2D
     {
     public:
-        OpenGLTexture2D(const String& filePath, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag);
-        OpenGLTexture2D(uint32 width, uint32 height, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag);
+        OpenGLTexture2D(const String& filePath, const Texture2DInfo& info);
+        OpenGLTexture2D(const Texture2DInfo& info);
         ~OpenGLTexture2D();
 
         void SetData(void* data, uint32 size)         override;
@@ -19,6 +19,11 @@ namespace Cosmic
 
     public:
         uint32 GetRendererID() const override { return (uint32)mRendererID; }
+        ETextureAttachmentType GetAttachmentType() const override;
+
+    public:
+        GLenum GetInternalFormat() const { return mInternalFormat; }
+        GLenum GetDataFormat()     const { return mDataFormat;     }
 
     protected:
         GLenum mRendererID;

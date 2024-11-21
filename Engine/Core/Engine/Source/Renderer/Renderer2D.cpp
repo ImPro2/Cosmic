@@ -1,3 +1,4 @@
+#include "Texture.hpp"
 #include "cspch.hpp"
 #include "Renderer.hpp"
 #include <glm/glm.hpp>
@@ -88,8 +89,9 @@ namespace Cosmic
         delete[] quadIndices;
 
         uint32 whiteTextureData = 0xffffffff;
+        Texture2DInfo whiteTextureInfo = Texture2DInfo(1, 1, ETextureWrapMode::Repeat);
 
-        sData->WhiteTexture = CreateTexture2D(1, 1);
+        sData->WhiteTexture = CreateTexture2D(whiteTextureInfo);
         sData->WhiteTexture->SetData(&whiteTextureData, sizeof(uint32));
 
         sData->Standard2DShader = CreateShader("Engine/Core/Engine/Assets/Shaders/Standard2D.glsl");

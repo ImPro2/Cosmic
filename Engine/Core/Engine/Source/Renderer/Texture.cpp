@@ -7,35 +7,35 @@
 namespace Cosmic
 {
 
-    Texture2D::Texture2D(const String& filePath, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag)
-        : mFilePath(filePath)
+    Texture2D::Texture2D(const String& filePath, const Texture2DInfo& info)
+        : mFilePath(filePath), mInfo(info)
     {
         CS_PROFILE_FN();
     }
 
-    Texture2D::Texture2D(uint32 width, uint32 height, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag)
-        : mWidth(width), mHeight(height)
+    Texture2D::Texture2D(const Texture2DInfo& info)
+        : mInfo(info)
     {
         CS_PROFILE_FN();
     }
 
-    Ref<Texture2D> CreateTexture2D(const String& filePath, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag)
+    Ref<Texture2D> CreateTexture2D(const String& filePath, const Texture2DInfo& info)
     {
         CS_PROFILE_FN();
 
         switch (RendererAPI::Get())
         {
-            case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(filePath, wrapMode, min, mag);
+            case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(filePath, info);
         }
     }
 
-    Ref<Texture2D> CreateTexture2D(uint32 width, uint32 height, ETextureWrapMode wrapMode, ETextureScalingFilter min, ETextureScalingFilter mag)
+    Ref<Texture2D> CreateTexture2D(const Texture2DInfo& info)
     {
         CS_PROFILE_FN();
 
         switch (RendererAPI::Get())
         {
-            case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(width, height, wrapMode, min, mag);
+            case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(info);
         }
     }
 

@@ -31,21 +31,22 @@ namespace Cosmic {
     }
     
     void ILinuxDesktopWindow::Init() {
-      CS_PROFILE_FN();
-    
-      if (sGLFWWindowCount == 0)
+        CS_PROFILE_FN();
+
+        if (sGLFWWindowCount == 0)
         CS_ASSERT(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW.");
-    
-      sGLFWWindowCount++;
-    
-      mHandle = glfwCreateWindow((int)mData.Size.width, (int)mData.Size.height,
-                                 mData.Title.c_str(), nullptr, nullptr);
-      mGraphicsContext = CreateGraphicsContext((void *)mHandle);
-      mGraphicsContext->Init();
-    
-      SetupCallbacks();
-    
-      EventSystem::AddEvent(new WindowCreateEvent(mData, true));
+
+        sGLFWWindowCount++;
+
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+
+        mHandle = glfwCreateWindow((int)mData.Size.width, (int)mData.Size.height, mData.Title.c_str(), nullptr, nullptr);
+        mGraphicsContext = CreateGraphicsContext((void *)mHandle);
+        mGraphicsContext->Init();
+
+        SetupCallbacks();
+
+        EventSystem::AddEvent(new WindowCreateEvent(mData, true));
     }
     
     void ILinuxDesktopWindow::SetupCallbacks() {

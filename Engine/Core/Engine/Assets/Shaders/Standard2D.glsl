@@ -39,4 +39,5 @@ uniform sampler2D uTextures[16];
 void main()
 {
     aFragColor = texture(uTextures[int(vTexIndex)], vTexCoord * vTilingFactor) * vColor;
+    //aFragColor = vColor;
 }

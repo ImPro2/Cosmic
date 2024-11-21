@@ -1,13 +1,13 @@
 #include "cspch.hpp"
 #include "OpenGLShader.hpp"
+#include "OpenGLErrors.hpp"
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLShader);
-
-#include "App/Log/Log.hpp"
 
 namespace Cosmic
 {
@@ -69,14 +69,14 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        glUseProgram(mRendererID);
+        GL_CALL(glUseProgram(mRendererID));
     }
 
     void OpenGLShader::Unbind() const
     {
         CS_PROFILE_FN();
 
-        glUseProgram(0);
+        GL_CALL(glUseProgram(0));
     }
 
     String OpenGLShader::ReadFile(const String& path)
@@ -146,32 +146,32 @@ namespace Cosmic
         for (auto& kv : sources)
         {
             GLenum shaderID = CreateAndCompileShader(kv.first, kv.second);
-            glAttachShader(programID, shaderID);
+            GL_CALL(glAttachShader(programID, shaderID));
 
             shaderIDs.push_back(shaderID);
         }
 
-        glLinkProgram(programID);
-        glValidateProgram(programID);
+        GL_CALL(glLinkProgram(programID));
+        GL_CALL(glValidateProgram(programID));
 
         int isLinked;
-        glGetProgramiv(programID, GL_LINK_STATUS, &isLinked);
+        GL_CALL(glGetProgramiv(programID, GL_LINK_STATUS, &isLinked));
         if (isLinked == GL_FALSE)
         {
             int length;
-            glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &length);
+            GL_CALL(glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &length));
 
             char* message = (char*)alloca(length * sizeof(char*));
-            glGetProgramInfoLog(programID, length, &length, message); 
+            GL_CALL(glGetProgramInfoLog(programID, length, &length, message)); 
 
             CS_LOG_ERROR("Failed to link shader {}:\n{}", GetFilePath(), message);
-            glDeleteProgram(programID);
+            GL_CALL(glDeleteProgram(programID));
         }
 
         for (GLenum shaderID : shaderIDs)
         {
-            glDetachShader(programID, shaderID);
-            glDeleteShader(shaderID);
+            GL_CALL(glDetachShader(programID, shaderID));
+            GL_CALL(glDeleteShader(shaderID));
         }
 
         return programID;
@@ -183,21 +183,21 @@ namespace Cosmic
 
         uint32 shaderID = glCreateShader(type);
         const char* src = source.c_str();
-        glShaderSource(shaderID, 1, &src, nullptr);
-        glCompileShader(shaderID);
+        GL_CALL(glShaderSource(shaderID, 1, &src, nullptr));
+        GL_CALL(glCompileShader(shaderID));
 
         int compileResult;
-        glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileResult);
+        GL_CALL(glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileResult));
         if (compileResult == GL_FALSE)
         {
             int length;
-            glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
+            GL_CALL(glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length));
             char* message = (char*)alloca(length * sizeof(char*));
-            glGetShaderInfoLog(shaderID, length, &length, message);
+            GL_CALL(glGetShaderInfoLog(shaderID, length, &length, message));
 
             CS_LOG_ERROR("Failed to compile {} shader. Reason:\n{}", OpenGLShaderTypeToStr(type), message);
 
-            glDeleteShader(shaderID);
+            GL_CALL(glDeleteShader(shaderID));
             CS_BREAK();
             return -1;
         }

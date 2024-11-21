@@ -1,6 +1,11 @@
+#include "Base/Macros.hpp"
 #include "cspch.hpp"
 #include "OpenGLBuffer.hpp"
+#include "OpenGLErrors.hpp"
+
 #include <glad/glad.h>
+
+CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLBuffer);
 
 namespace Cosmic
 {
@@ -43,27 +48,27 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        glGenBuffers(1, &mRendererID);
-        glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
-        glBufferData(GL_ARRAY_BUFFER, size, nullptr, EBufferUsageToOpenGLBufferUsage(usage));
+        GL_CALL(glGenBuffers(1, &mRendererID));
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererID));
+        GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, nullptr, EBufferUsageToOpenGLBufferUsage(usage)));
 
         if (vertices)
-            glBufferSubData(GL_ARRAY_BUFFER, 0, size, (const void*)vertices);
+            GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, size, (const void*)vertices));
     }
 
     OpenGLVertexBuffer::~OpenGLVertexBuffer()
     {
         CS_PROFILE_FN();
 
-        glDeleteBuffers(1, &mRendererID);
+        GL_CALL(glDeleteBuffers(1, &mRendererID));
     }
 
     void OpenGLVertexBuffer::SetData(const void* data, uint32 size, uint32 offset)
     {
         CS_PROFILE_FN();
 
-        glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererID));
+        GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
     }
 
     void OpenGLVertexBuffer::SetLayout(const VertexBufferLayout& layout)
@@ -72,21 +77,21 @@ namespace Cosmic
 
         mLayout = layout;
 
-        glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererID));
 
         uint32 index = 0;
 
         for (const auto& element : layout)
         {
-            glEnableVertexAttribArray(index);
-            glVertexAttribPointer(
+            GL_CALL(glEnableVertexAttribArray(index));
+            GL_CALL(glVertexAttribPointer(
                 index,
                 element.ComponentCount,
                 EShaderDataTypeToOpenGLType(element.Type),
                 element.Normalized ? GL_TRUE : GL_FALSE,
                 layout.GetStride(),
                 (GLvoid*)element.Offset
-            );
+            ));
 
             index++;
         }
@@ -96,14 +101,14 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mRendererID));
     }
 
     void OpenGLVertexBuffer::Unbind() const
     {
         CS_PROFILE_FN();
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     }
 
     // Index Buffer
@@ -113,30 +118,30 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        glGenBuffers(1, &mRendererID);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * count, (const void*)indices, EBufferUsageToOpenGLBufferUsage(usage));
+        GL_CALL(glGenBuffers(1, &mRendererID));
+        GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID));
+        GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * count, (const void*)indices, EBufferUsageToOpenGLBufferUsage(usage)));
     }
 
     OpenGLIndexBuffer::~OpenGLIndexBuffer()
     {
         CS_PROFILE_FN();
 
-        glDeleteBuffers(1, &mRendererID);
+        GL_CALL(glDeleteBuffers(1, &mRendererID));
     }
 
     void OpenGLIndexBuffer::Bind() const
     {
         CS_PROFILE_FN();
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID);
+        GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID));
     }
 
     void OpenGLIndexBuffer::Unbind() const
     {
         CS_PROFILE_FN();
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
 }

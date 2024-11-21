@@ -1,8 +1,10 @@
 #include "cspch.hpp"
 #include "OpenGLRendererAPI.hpp"
+#include "OpenGLErrors.hpp"
+
 #include <glad/glad.h>
 
-CS_MODULE_LOG_INFO(Sandbox, SandboxApp);
+CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLRendererAPI);
 
 namespace Cosmic
 {
@@ -32,21 +34,21 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        glViewport(x, y, width, height);
+        GL_CALL(glViewport(x, y, width, height));
     }
 
     void OpenGLRendererAPI::SetClearColor(float4 color)
     {
         CS_PROFILE_FN();
 
-        glClearColor(color.r, color.g, color.b, color.a);
+        GL_CALL(glClearColor(color.r, color.g, color.b, color.a));
     }
 
     void OpenGLRendererAPI::Clear()
     {
         CS_PROFILE_FN();
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
     void OpenGLRendererAPI::Render(EPrimitiveTopology primitiveTopology, uint32 count)
@@ -55,14 +57,14 @@ namespace Cosmic
 
         switch (primitiveTopology)
         {
-            case EPrimitiveTopology::PointList:       glDrawArrays  (GL_POINTS,         0, count);                     return;
-            case EPrimitiveTopology::PointIndexed:    glDrawElements(GL_POINTS,     count, GL_UNSIGNED_INT, (void*)0); return;
-            case EPrimitiveTopology::LineList:        glDrawArrays  (GL_LINES,          0, count);                     return;
-            case EPrimitiveTopology::LineIndexed:     glDrawElements(GL_LINES,      count, GL_UNSIGNED_INT, (void*)0); return;
-            case EPrimitiveTopology::LineStrip:       glDrawArrays  (GL_LINE_STRIP,     0, count);                     return;
-            case EPrimitiveTopology::TriangleList:    glDrawArrays  (GL_TRIANGLES,      0, count);                     return;
-            case EPrimitiveTopology::TriangleIndexed: glDrawElements(GL_TRIANGLES,  count, GL_UNSIGNED_INT, (void*)0); return;
-            case EPrimitiveTopology::TriangleStrip:   glDrawArrays  (GL_TRIANGLE_STRIP, 0, count);                     return;
+            case EPrimitiveTopology::PointList:       GL_CALL(glDrawArrays  (GL_POINTS,         0, count));                     return;
+            case EPrimitiveTopology::PointIndexed:    GL_CALL(glDrawElements(GL_POINTS,     count, GL_UNSIGNED_INT, (void*)0)); return;
+            case EPrimitiveTopology::LineList:        GL_CALL(glDrawArrays  (GL_LINES,          0, count));                     return;
+            case EPrimitiveTopology::LineIndexed:     GL_CALL(glDrawElements(GL_LINES,      count, GL_UNSIGNED_INT, (void*)0)); return;
+            case EPrimitiveTopology::LineStrip:       GL_CALL(glDrawArrays  (GL_LINE_STRIP,     0, count));                     return;
+            case EPrimitiveTopology::TriangleList:    GL_CALL(glDrawArrays  (GL_TRIANGLES,      0, count));                     return;
+            case EPrimitiveTopology::TriangleIndexed: GL_CALL(glDrawElements(GL_TRIANGLES,  count, GL_UNSIGNED_INT, (void*)0)); return;
+            case EPrimitiveTopology::TriangleStrip:   GL_CALL(glDrawArrays  (GL_TRIANGLE_STRIP, 0, count));                     return;
         }
     }
 

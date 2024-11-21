@@ -29,10 +29,16 @@ namespace Cosmic
     {
         Ref<EditorModule> editorModule = ModuleSystem::Get<EditorModule>();
 
-        FramebufferInfo fbInfo = {};
-        fbInfo.Width = 1280;
-        fbInfo.Height = 720;
+        FramebufferInfo fbInfo = {}; 
+        fbInfo.Width           = 1280;
+        fbInfo.Height          = 720;
+        fbInfo.Samples         = 1;
         fbInfo.SwapChainTarget = false;
+        fbInfo.AttachmentsInfo = FramebufferAttachmentsInfo({
+            FramebufferTextureInfo(),
+            FramebufferTextureInfo(ETextureFormat::R32_SInt)
+        });
+
         mFramebuffer = CreateFramebuffer(fbInfo);
         
         mScene = editorModule->GetActiveScene();
