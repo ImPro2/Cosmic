@@ -1,14 +1,19 @@
-#include "Renderer/Framebuffer.hpp"
 #include "cspch.hpp"
+#include "App/KeyAndMouseCodes.hpp"
+#include "ECS/SceneCamera.hpp"
+#include "Renderer/Framebuffer.hpp"
+#include "SceneHierarchyPanel.hpp"
 #include "App/Module.hpp"
 #include "ViewportPanel.hpp"
 #include "ContentBrowserPanel.hpp"
 #include "App/File.hpp"
 #include "Editor/EditorModule.hpp"
 #include "ContentBrowserPanel.hpp"
+#include "ECS/Components.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
-#include <imgui.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <entt/entt.hpp>
 
 namespace Cosmic
@@ -31,12 +36,14 @@ namespace Cosmic
         mFramebuffer = CreateFramebuffer(fbInfo);
         
         mScene = editorModule->GetActiveScene();
+
+        mSceneHierarchyPanel = ModuleSystem::Get<SceneHierarchyPanel>();
     }
 
     void ViewportPanel::OnUpdate(Dt dt)
     {
-        if (mWindowHovered)
-            mCamera.OnUpdate();
+        //if (mWindowHovered)
+        //    mCamera.OnUpdate();
 
         Renderer2D::ResetStatistics();
 
@@ -55,6 +62,7 @@ namespace Cosmic
             mCamera.OnEvent(e);
 
         EventDispatcher dispatcher(e);
+        CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(EditorSceneOpenedEvent, OnEditorSceneOpened);
     }
 
@@ -65,65 +73,162 @@ namespace Cosmic
         if (!mOpen)
             return;
 
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
-        windowFlags |= ImGuiWindowFlags_NoNavInputs;
-        windowFlags |= ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoScrollbar;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
         ImGui::Begin(mPanelName.c_str(), &mOpen, windowFlags);
-        {
-            // BLock events if the panel is selected or hovered.
-            bool hovered = ImGui::IsWindowHovered();
-            bool focused = ImGui::IsWindowFocused();
-            Gui::BlockEvents(!hovered && !focused);
-
-            uint32 fbWidth  = mFramebuffer->GetInfo().Width;
-            uint32 fbHeight = mFramebuffer->GetInfo().Height;
-
-            uint32 width  = ImGui::GetContentRegionAvail().x;
-            uint32 height = ImGui::GetContentRegionAvail().y;
-
-            // Check if the framebuffer's size matches the window size
-
-            if (fbWidth != width || fbHeight != height && width > 0.0f && height > 0.0f || mSceneChanged)
-            {
-                mSceneChanged = false;
-
-                mFramebuffer->Resize(width, height);
-                mCamera.OnResized(width, height);
-
-                mScene->OnViewportResize(width, height);
-            }
-
-            // Render the image
-
-            uint32 textureID = mFramebuffer->GetColorAttachmentRendererID();
-            ImGui::Image((void*)textureID, ImVec2((float32)width, (float32)height), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
-
-            const String& contentItemDragDropStr = ModuleSystem::Get<ContentBrowserPanel>()->GetContentItemDragDropString();
-            
-            if (ImGui::BeginDragDropTarget())
-            {
-                const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(contentItemDragDropStr.c_str());
-
-                if (payload)
-                {
-                    File sceneFile(Path((char*)payload->Data));
-                    
-                    Ref<EditorModule> editorModule = ModuleSystem::Get<EditorModule>();
-                    editorModule->OpenScene(sceneFile);
-                }
-                
-                ImGui::EndDragDropTarget();
-            }
-        }
 
         mWindowHovered = ImGui::IsWindowHovered();
+        mWindowFocused = ImGui::IsWindowFocused();
+
+        // Block events if the panel is selected or hovered.
+        Gui::BlockEvents(!mWindowHovered && !mWindowFocused);
+
+        RenderResizing();
+        RenderFramebuffer();
+        RenderGizmo();
+        RenderGrid();
+        RenderDragDrop();
 
         ImGui::PopStyleVar(2);
         ImGui::End();
+    }
+
+    void ViewportPanel::RenderResizing()
+    {
+        uint32 fbWidth  = mFramebuffer->GetInfo().Width;
+        uint32 fbHeight = mFramebuffer->GetInfo().Height;
+
+        uint32 width  = ImGui::GetContentRegionAvail().x;
+        uint32 height = ImGui::GetContentRegionAvail().y;
+
+        // Check if the framebuffer's size matches the window size
+
+        if (fbWidth != width || fbHeight != height && width > 0.0f && height > 0.0f || mSceneChanged)
+        {
+            mSceneChanged = false;
+
+            mFramebuffer->Resize(width, height);
+            mCamera.OnResized(width, height);
+
+            mScene->OnViewportResize(width, height);
+        }
+    }
+
+    void ViewportPanel::RenderFramebuffer()
+    {
+        uint32 textureID = mFramebuffer->GetColorAttachmentRendererID();
+        ImGui::Image((ImTextureID)textureID, ImGui::GetContentRegionAvail(), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+    }
+
+    void ViewportPanel::RenderGizmo()
+    {
+        Vector<Entity> selectedEntities = mSceneHierarchyPanel->GetSelectedEntities();
+
+        if (selectedEntities.size() == 1 && mGizmoOperation != (ImGuizmo::OPERATION)(-1))
+        {
+            Entity selectedEntity = selectedEntities[0];
+
+            ImVec2 viewportMin = ImGui::GetWindowContentRegionMin();
+            ImVec2 viewportMax = ImGui::GetWindowContentRegionMax();
+            ImVec2 viewportPos = ImGui::GetWindowPos();
+            ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+
+            float2 topLeft  = { viewportMin.x + viewportPos.x, viewportMin.y + viewportPos.y };
+            float2 btmRight = { viewportMax.x + viewportPos.x, viewportMax.y + viewportPos.y };
+
+            ImGuizmo::SetOrthographic(mCamera.GetProjectionType() == EProjectionType::Orthographic);
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(topLeft.x, topLeft.y, btmRight.x - topLeft.x, btmRight.y - topLeft.y);
+
+            auto& tc = selectedEntity.GetComponent<TransformComponent>();
+
+            const glm::mat4& cameraProj = mCamera.GetProjection();
+            const glm::mat4& cameraView = mCamera.GetTransform();
+            glm::mat4        transform  = tc.GetTransform();
+
+            bool snap = Input::IsKeyPressed(EKeyCode::LeftControl);
+
+            float32 snapValue = mGizmoOperation == ImGuizmo::OPERATION::ROTATE ? 45.0f : 0.5f;
+            float32 snapValues[3] = { snapValue, snapValue, snapValue };
+
+            ImGuizmo::Manipulate(glm::value_ptr(glm::inverse(cameraView)), glm::value_ptr(cameraProj), mGizmoOperation, mGizmoMode, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
+
+            if (ImGuizmo::IsUsing())
+            {
+                glm::vec3 translation, rotation, scale;
+                ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform), glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale));
+
+                tc.Translation = translation;
+                tc.Rotation = glm::radians(rotation);
+                tc.Scale = scale;
+            }
+        }
+    }
+
+    void ViewportPanel::RenderGrid()
+    {
+        const glm::mat4& cameraView = mCamera.GetTransform();
+        const glm::mat4& cameraProj = mCamera.GetProjection();
+        static float32 theta = 0.0f;
+        glm::mat4 transform = glm::rotate(glm::mat4(1.0f), glm::radians(theta * 0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
+        theta++;
+
+        //ImGuizmo::DrawGrid(glm::value_ptr(glm::inverse(cameraView)), glm::value_ptr(cameraProj), glm::value_ptr(transform), 100.0f);
+    }
+
+    void ViewportPanel::RenderDragDrop()
+    {
+        const String& contentItemDragDropStr = ModuleSystem::Get<ContentBrowserPanel>()->GetContentItemDragDropString();
+                
+        if (ImGui::BeginDragDropTarget())
+        {
+            const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(contentItemDragDropStr.c_str());
+
+            if (payload)
+            {
+                File sceneFile(Path((char*)payload->Data));
+                
+                Ref<EditorModule> editorModule = ModuleSystem::Get<EditorModule>();
+                editorModule->OpenScene(sceneFile);
+            }
+            
+            ImGui::EndDragDropTarget();
+        }
+    }
+
+    bool ViewportPanel::OnKeyPressed(const KeyPressEvent& e)
+    {
+        if (Input::IsKeyPressed(EKeyCode::LeftControl))
+            return false;
+
+        switch (e.GetKeyCode())
+        {
+            case EKeyCode::Q:
+            {
+                mGizmoOperation = (ImGuizmo::OPERATION)(-1);
+                break;
+            }
+            case EKeyCode::W:
+            {
+                mGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+                break;
+            }
+            case EKeyCode::E:
+            {
+                mGizmoOperation = ImGuizmo::OPERATION::ROTATE;
+                break;
+            }
+            case EKeyCode::R:
+            {
+                mGizmoOperation = ImGuizmo::OPERATION::SCALE;
+                break;
+            }
+        }
+
+        return false;
     }
 
     bool ViewportPanel::OnEditorSceneOpened(const EditorSceneOpenedEvent& e)

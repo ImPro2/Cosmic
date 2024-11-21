@@ -7,6 +7,9 @@
 #include <GLFW/glfw3.h>
 #include <IconsFontAwesome6.h>
 
+#include <ImGuizmo.h>
+
+
 CS_MODULE_LOG_INFO(Cosmic, Gui);
 
 #include "Base/Types.hpp"
@@ -147,6 +150,8 @@ namespace Cosmic
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        ImGuizmo::BeginFrame();
     }
 
     void Gui::End()

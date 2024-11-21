@@ -12,8 +12,17 @@
 #include "App/Event/Events.hpp"
 #include "ECS/Scene.hpp"
 
+#include "App/Event/WindowEvents.hpp"
 #include "Editor/Event/EditorSceneEvents.hpp"
 #include "Editor/EditorCamera.hpp"
+
+#include "SceneHierarchyPanel.hpp"
+
+#include <imgui.h>
+#include <imgui_internal.h>
+
+#define USE_IMGUI_API
+#include <ImGuizmo.h>
 
 namespace Cosmic
 {
@@ -30,15 +39,30 @@ namespace Cosmic
         void OnImGuiRender() override;
 
     private:
+        void RenderResizing();
+        void RenderFramebuffer();
+        void RenderGizmo();
+        void RenderGrid();
+        void RenderDragDrop();
+
+    private:
+        bool OnKeyPressed(const KeyPressEvent& e);
         bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
 
     private:
         Ref<Framebuffer> mFramebuffer;
         Ref<Scene>       mScene;
         bool mSceneChanged = false;
+
         bool mWindowHovered = false;
+        bool mWindowFocused = false;
 
         EditorCamera mCamera;
+
+        Ref<SceneHierarchyPanel> mSceneHierarchyPanel;
+
+        ImGuizmo::OPERATION mGizmoOperation = (ImGuizmo::OPERATION)(-1);
+        ImGuizmo::MODE      mGizmoMode = ImGuizmo::MODE::LOCAL;
     };
 
 }

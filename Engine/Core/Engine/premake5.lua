@@ -20,6 +20,7 @@ project "Engine"
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.ImGui}",
+        "%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.YamlCPP}",
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.EnTT}",

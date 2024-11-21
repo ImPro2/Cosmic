@@ -16,3 +16,6 @@
 [submodule "Dependencies/EnTT"]
 	path = Dependencies/EnTT
 	url = https://github.com/ImPro2/entt.git
+[submodule "Dependencies/ImGuizmo"]
+	path = Dependencies/ImGuizmo
+	url = https://github.com/ImPro2/ImGuizmo

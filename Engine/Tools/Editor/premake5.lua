@@ -28,6 +28,7 @@ project "Editor"
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.ImGui}",
+        "%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.EnTT}",
 		"%{IncludeDir.FontAwesome}"
 	}
