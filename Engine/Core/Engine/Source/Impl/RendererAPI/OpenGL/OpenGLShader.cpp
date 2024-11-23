@@ -99,12 +99,12 @@ namespace Cosmic
             }
             else
             {
-                CS_LOG_ERROR("Could not read from file {}", GetFilePath());
+                CS_LOG_ERROR("Could not read from file {}", GetFilePath().c_str());
             }
         }
         else
         {
-            CS_LOG_ERROR("Could not open file {}", GetFilePath());
+            CS_LOG_ERROR("Could not open file {}", GetFilePath().c_str());
         }
 
         return result;

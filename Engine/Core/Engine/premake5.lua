@@ -41,3 +41,6 @@ project "Engine"
 		"stb_image",
 		--"OptickCore"
 	}
+
+	filter "system:windows"
+		links { "shlwapi.lib" }

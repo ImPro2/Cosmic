@@ -67,7 +67,7 @@ namespace Cosmic
 
     }
 
-    static APIENTRY void OpenGLDebugMessageCallback(
+    static void APIENTRY OpenGLDebugMessageCallback(
         GLenum source,
         GLenum type,
         GLenum id,

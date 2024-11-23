@@ -32,10 +32,11 @@ namespace Cosmic::WindowsUtils
         }
         else
         {
-            ::Cosmic::Log::Error("[Cosmic.{}]: Windows Error in [{}:{}:{}].", "Default", logMod, file, func, line);
-            ::Cosmic::Log::Error("[Cosmic.{}]: Reason: `{}`", "Default", logMod, errorString.c_str());
+            ::Cosmic::Log::Error("[Cosmic.{}]: Windows Error in [{}:{}:{}].", logMod.data(), file.data(), func.data(), line);
+            ::Cosmic::Log::Error("[Cosmic.{}]: Reason: `{}`", logMod.data(), errorString.c_str());
         }
 
+        CS_BREAK();
     }
 }
 

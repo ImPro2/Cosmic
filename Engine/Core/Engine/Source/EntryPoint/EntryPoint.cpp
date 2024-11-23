@@ -8,6 +8,6 @@ int32 main(int32 argc, char* argv[])
 {
     CS_PROFILE_FN();
 
-    system("pwd");
+    system("dir");
     Application* app = CreateApplication({ argc, argv });
 }

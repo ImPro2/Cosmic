@@ -1,6 +1,5 @@
 #pragma once
 #include <thread>
-#include <unistd.h>
 
 #include "Base/Types.hpp"
 #include "App/Path.hpp"

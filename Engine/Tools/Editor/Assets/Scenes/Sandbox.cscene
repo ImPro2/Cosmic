@@ -16,7 +16,7 @@ Entities:
         Perspective FOV: 0.785398185
         Perspective Near: 0.00999999978
         Perspective Far: 1000
-        Aspect Ratio: 1.69163001
+        Aspect Ratio: 2.10669446
       Primary: true
       Fixed Aspect Ratio: false
   - Entity: 123456789

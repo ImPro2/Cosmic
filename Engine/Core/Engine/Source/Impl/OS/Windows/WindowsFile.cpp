@@ -5,6 +5,8 @@
 #include "App/File.hpp"
 #include "WindowsUtils.hpp"
 
+#include <filesystem>
+
 #include <Windows.h>
 #include <windows.h>
 
@@ -36,47 +38,24 @@ namespace Cosmic
 
     }
 
-    const std::string_view File::GetName()
+    const String File::GetName()
     {
-        const std::string_view nameAndExt = GetNameAndExtension();
-
-        return std::string_view(nameAndExt.data(), nameAndExt.find('.'));
+        return std::filesystem::path(mAbsolutePath.GetString()).filename().string();
     }
 
-    const std::string_view File::GetExtension()
+    const String File::GetExtension()
     {
-        const std::string_view nameAndExt = GetNameAndExtension();
-
-        return nameAndExt.substr(nameAndExt.find('.') + 1, nameAndExt.size() - 1);
+        return std::filesystem::path(mAbsolutePath.GetString()).extension().string();
     }
 
     const String File::GetNameAndExtension()
     {
-        if (mAbsolutePath.contains('\\'))
-        {
-            size_t slash_pos = mAbsolutePath.find_last_of('\\') + 1;
-            auto sv = std::string_view(mAbsolutePath.c_str() + slash_pos, mAbsolutePath.size() - slash_pos);
-            
-            return mAbsolutePath.substr(slash_pos);
-        }
-
-        return mAbsolutePath;
-
-        //auto sv = std::string_view(mAbsolutePath.c_str() + mAbsolutePath.find_last_of('/') + 1);
-        //return sv;
+        return std::filesystem::path(mAbsolutePath.GetString()).root_name().string();
     }
 
-    const std::string_view File::GetAbsolutePath()
+    const Path File::GetAbsolutePath() const
     {
         return mAbsolutePath;
-    }
-
-    const std::string_view File::GetParentDirectory()
-    {
-        // TODO: Do extra checks and stuff
-
-        std::string_view s(mAbsolutePath.c_str(), mAbsolutePath.find_last_of('/'));
-        return s;
     }
 
     const size_t File::GetSize()
@@ -131,7 +110,7 @@ namespace Cosmic
         // get the file handle and open the file
 
         CS_WINDOWS_CALL(hFile = CreateFileA(
-            mAbsolutePath.c_str(),                        // file to open
+            mAbsolutePath.GetString().c_str(),            // file to open
             GENERIC_READ,                                 // open for reading
             FILE_SHARE_READ,                              // share for reading
             NULL,                                         // default security
@@ -179,7 +158,7 @@ namespace Cosmic
         // get the file handle and open the file
 
         CS_WINDOWS_CALL(hFile = CreateFileA(
-            mAbsolutePath.c_str(),                        // file to open
+            mAbsolutePath.GetString().c_str(),            // file to open
             GENERIC_WRITE,                                // open for writing
             0,                                            // do not share for writing
             NULL,                                         // default security
@@ -201,7 +180,7 @@ namespace Cosmic
         ::CloseHandle(hFile);
     }
 
-    void File::WriteBinary(const uint8* data, size_t size
+    void File::WriteBinary(const uint8* data, size_t size)
     {
         // TODO: Implement
     }

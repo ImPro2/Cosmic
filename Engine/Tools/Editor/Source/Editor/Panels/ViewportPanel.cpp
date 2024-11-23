@@ -218,10 +218,11 @@ namespace Cosmic
 
             if (payload)
             {
-                File sceneFile(Path((char*)payload->Data));
+                String path = String((char*)payload->Data);
+                path[payload->DataSize] = '\0';
                 
                 Ref<EditorModule> editorModule = ModuleSystem::Get<EditorModule>();
-                editorModule->OpenScene(sceneFile);
+                editorModule->OpenScene(File(Path(path)));
             }
             
             ImGui::EndDragDropTarget();

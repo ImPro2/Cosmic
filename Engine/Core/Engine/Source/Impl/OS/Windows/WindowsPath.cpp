@@ -3,13 +3,20 @@
 #ifdef CS_PLATFORM_WINDOWS
 
 #include "App/Path.hpp"
+#include <filesystem>
 #include <Windows.h>
+#include <Shlwapi.h>
 
 namespace Cosmic
 {
 
     Path::Path()
         : mPath("")
+    {
+    }
+
+    Path::Path(const char* path)
+        : mPath(path)
     {
     }
 
@@ -31,6 +38,16 @@ namespace Cosmic
     bool Path::IsRelative() const
     {
         return ::PathIsRelativeA(mPath.c_str());
+    }
+
+    String Path::GetBase() const
+    {
+        return std::filesystem::path(mPath).filename().string();
+    }
+
+    void Path::operator /=(const Path& other)
+    {
+        *this =  operator/(*this, other);
     }
 
     Path operator /(const Path& lhs, const Path& rhs)

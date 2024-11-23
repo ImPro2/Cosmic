@@ -9,6 +9,7 @@
 #include <windows.h>
 #include <profileapi.h>
 #include <Libloaderapi.h>
+#include <Shlwapi.h>
 
 #undef max
 #undef min
@@ -414,8 +415,8 @@ namespace Cosmic
     String OS::GetWorkingDirectory()
     {
         char buf[256];
-        ::GetModuleFileName(NULL, buf, 256);
-        PathRemoveFileSpec(buf);
+        ::GetModuleFileNameA(NULL, buf, 256);
+        ::PathRemoveFileSpecA(buf);
 
         return String(buf);
     }
@@ -431,10 +432,10 @@ namespace Cosmic
         CONSOLE_SCREEN_BUFFER_INFO screen;
         DWORD                      written;
 
-        CS_WINDOWS_CALL(GetConsoleScreenBufferInfo(console, &screen),                                                                                                   "Unable to obtain console information.");
-        CS_WINDOWS_CALL(FillConsoleOutputCharacterA(console, ' ', screen.dwSize.X * screen.dwSize.Y, topLeft, &written),                                                "Unable to clear the console.");
-        CS_WINDOWS_CALL(FillConsoleOutputAttribute(console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE, screen.dwSize.X * screen.dwSize.Y, topLeft, &written), "Unable to clear the console colors.");
-        CS_WINDOWS_CALL(SetConsoleCursorPosition(console, topLeft),                                                                                                     "Unable to reset the console cursor position.");
+        GetConsoleScreenBufferInfo(console, &screen);
+        FillConsoleOutputCharacterA(console, ' ', screen.dwSize.X * screen.dwSize.Y, topLeft, &written);
+        FillConsoleOutputAttribute(console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE, screen.dwSize.X * screen.dwSize.Y, topLeft, &written);
+        SetConsoleCursorPosition(console, topLeft);
 
         SetConsoleColor({ EConsoleColor::White, EConsoleColor::Black });
     }
@@ -448,10 +449,10 @@ namespace Cosmic
         CONSOLE_SCREEN_BUFFER_INFO screen;
         DWORD                      written;
 
-        CS_WINDOWS_CALL(GetConsoleScreenBufferInfo (console, &screen),                                                                                                 "Unable to obtain console information.");
-        CS_WINDOWS_CALL(FillConsoleOutputCharacterA(console, ' ', screen.dwSize.X * screen.dwSize.Y, coord, &written),                                                 "Unable to clear the console line.");
-        CS_WINDOWS_CALL(FillConsoleOutputAttribute (console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE, screen.dwSize.X * screen.dwSize.Y, coord, &written), "Unable to clear the console line colors.");
-        CS_WINDOWS_CALL(SetConsoleCursorPosition   (console, coord),                                                                                                   "Unable to set the console cursor position.");
+        GetConsoleScreenBufferInfo(console, &screen);
+        FillConsoleOutputCharacterA(console, ' ', screen.dwSize.X * screen.dwSize.Y, coord, &written);
+        FillConsoleOutputAttribute(console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE, screen.dwSize.X * screen.dwSize.Y, coord, &written);
+        SetConsoleCursorPosition(console, coord);
 
         SetConsoleColor({ EConsoleColor::White, EConsoleColor::Black });
     }
@@ -461,7 +462,7 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         WORD wAttributes = Utils::EConsoleColorToWindowsConsoleColor(color);
-        CS_WINDOWS_CALL(SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wAttributes), "Unable to set the console color.");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wAttributes);
 
         DWORD error = GetLastError();
         SetLastError(0);
@@ -474,7 +475,7 @@ namespace Cosmic
         // TODO: Check if `text` contains '\n'
         Utils::sCurrentConsoleLinePos++;
 
-        CS_WINDOWS_CALL(WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), text, (DWORD)strlen(text), nullptr, nullptr), "Unable to log to the console.");
+        WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), text, (DWORD)strlen(text), nullptr, nullptr);
 
         DWORD error = GetLastError();
         SetLastError(0);

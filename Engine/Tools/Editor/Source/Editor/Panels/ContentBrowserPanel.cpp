@@ -26,7 +26,7 @@ namespace Cosmic
         //const ProjectInfo& projectInfo = ProjectManager::GetActiveProject()->GetInfo();
         //mProjectDirectory = FileSystem::GetParentDirectory(projectInfo.ProjectFilePath.GetAbsolutePath());
         
-        mProjectDirectory = "Engine/Tools/Editor/";
+        mProjectDirectory = "Engine/Tools/Editor";
         
         mCurrentDirectory = mProjectDirectory;
         UpdateContents();
@@ -266,8 +266,9 @@ namespace Cosmic
 
             // Filename
 
-            char* base = (char*)alloca(path.GetBase().size());
+            char* base = (char*)alloca(path.GetBase().size() + 1);
             strcpy(base, path.GetBase().c_str());
+            base[path.GetBase().size()] = '\0';
 
             float32 baseWidth = ImGui::CalcTextSize(base).x;
 
