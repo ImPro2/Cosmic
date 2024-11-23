@@ -134,6 +134,57 @@ namespace Cosmic
                 case ETextureFormat::Depth32Stencil8: return GL_DEPTH32F_STENCIL8;
             }
         }
+    
+        static GLenum ETextureFormatToOpenGLDataType(ETextureFormat format)
+        {
+            switch (format)
+            {
+                case ETextureFormat::R8_Float:
+                case ETextureFormat::R16_Float:
+                case ETextureFormat::R32_Float:
+                case ETextureFormat::RG8_Float:
+                case ETextureFormat::RG16_Float:
+                case ETextureFormat::RG32_Float:
+                case ETextureFormat::RGB8_Float:
+                case ETextureFormat::RGB16_Float:
+                case ETextureFormat::RGB32_Float:
+                case ETextureFormat::RGBA8_Float:
+                case ETextureFormat::RGBA16_Float:
+                case ETextureFormat::RGBA32_Float:
+                case ETextureFormat::Depth16:
+                case ETextureFormat::Depth24:
+                case ETextureFormat::Depth32:
+                case ETextureFormat::Depth24Stencil8:
+                case ETextureFormat::Depth32Stencil8:
+                    return GL_UNSIGNED_BYTE;
+                case ETextureFormat::R8_SInt:
+                case ETextureFormat::R16_SInt:
+                case ETextureFormat::R32_SInt:
+                case ETextureFormat::RG8_SInt:
+                case ETextureFormat::RG16_SInt:
+                case ETextureFormat::RG32_SInt:
+                case ETextureFormat::RGB8_SInt:
+                case ETextureFormat::RGB16_SInt:
+                case ETextureFormat::RGB32_SInt:
+                case ETextureFormat::RGBA8_SInt:
+                case ETextureFormat::RGBA16_SInt:
+                case ETextureFormat::RGBA32_SInt:
+                    return GL_INT;
+                case ETextureFormat::R8_UInt:
+                case ETextureFormat::R16_UInt:
+                case ETextureFormat::R32_UInt:
+                case ETextureFormat::RG8_UInt:
+                case ETextureFormat::RG16_UInt:
+                case ETextureFormat::RG32_UInt:
+                case ETextureFormat::RGB8_UInt:
+                case ETextureFormat::RGB16_UInt:
+                case ETextureFormat::RGB32_UInt:
+                case ETextureFormat::RGBA8_UInt:
+                case ETextureFormat::RGBA16_UInt:
+                case ETextureFormat::RGBA32_UInt:
+                    return GL_UNSIGNED_INT;
+            }
+        }
 
         static ETextureAttachmentType ETextureFormatToETextureAttachmentType(ETextureFormat format)
         {
@@ -204,6 +255,7 @@ namespace Cosmic
         GLenum magScale  = Utils::ETextureScalingFilterToOpenGLScalingFilter(mInfo.MagScalingFilter);
         mInternalFormat  = Utils::ETextureFormatToOpenGLInternalFormat(mInfo.Format);
         mDataFormat      = Utils::ETextureFormatToOpenGLDataFormat(mInfo.Format);
+        mDataType        = Utils::ETextureFormatToOpenGLDataType(mInfo.Format);
 
         GL_CALL(glGenTextures(1, &mRendererID));
         GL_CALL(glBindTexture (GL_TEXTURE_2D, mRendererID));
@@ -214,7 +266,10 @@ namespace Cosmic
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minScale));
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magScale));
 
-        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mInfo.Width, mInfo.Height, 0, mDataFormat, GL_UNSIGNED_BYTE, nullptr));
+        //if (info.Format != ETextureFormat::R32_SInt)
+            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mInfo.Width, mInfo.Height, 0, mDataFormat, mDataType, nullptr));
+        //else
+        //    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, mInfo.Width, mInfo.Height, 0, GL_RED_INTEGER, GL_INT, nullptr));
     }
 
     OpenGLTexture2D::~OpenGLTexture2D()

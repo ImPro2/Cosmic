@@ -94,10 +94,13 @@ namespace Cosmic
             colorAttachmentIndex++;
         }
 
-        if (colorAttachmentCount > 0)
-            GL_CALL(glDrawBuffers(colorAttachmentCount, colorAttachments));
-        else
-            GL_CALL(glDrawBuffer(GL_NONE));
+        GLenum colorAttachmentsGl[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        GL_CALL(glDrawBuffers(2, colorAttachmentsGl));
+
+        //if (colorAttachmentCount > 0)
+        //    GL_CALL(glDrawBuffers(colorAttachmentCount, colorAttachments));
+        //else
+        //    GL_CALL(glDrawBuffer(GL_NONE));
         
         int32 result;
         GL_CALL(result = glCheckFramebufferStatus(GL_FRAMEBUFFER));
@@ -150,16 +153,18 @@ namespace Cosmic
         GL_CALL(glClearTexImage(texture->GetRendererID(), 0, texture->GetDataFormat(), GL_INT, &value));
     }
 
-    int32 OpenGLFramebuffer::ReadPixel(uint32 attachmentIndex, uint2 pos)
+    int32 OpenGLFramebuffer::ReadPixel(uint32 attachmentIndex, int2 pos)
     {
+        GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mRendererID));
         GL_CALL(glReadBuffer(Utils::IndexToOpenGLColorAttachmentIndex(attachmentIndex)));
 
         const Ref<OpenGLTexture2D> attachment = std::static_pointer_cast<OpenGLTexture2D>(mTextures[attachmentIndex]);
-        
-        int32 pixelData;
-        GL_CALL(glReadPixels(pos.x, pos.y, 1, 1, attachment->GetDataFormat(), GL_INT, &pixelData));
 
-        return pixelData;
+        float32 pixelData;
+
+        GL_CALL(glReadPixels(pos.x, pos.y, 1, 1, attachment->GetDataFormat(), attachment->GetDataType(), &pixelData));
+
+        return (int32)pixelData;
     }
 
     void OpenGLFramebuffer::CreateAttachments()

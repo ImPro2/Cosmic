@@ -137,6 +137,12 @@ namespace Cosmic
     {
         ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+        if (viewport->Size.x == 0 || viewport->Size.y == 0)
+        {
+            mSetupDefaultLayout = true;
+            return;
+        }
         
         ImGui::DockBuilderRemoveNode(dockspaceID);
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);

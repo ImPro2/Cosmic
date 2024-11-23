@@ -32,6 +32,8 @@ namespace Cosmic
         void OnImGuiRender() override;
 
     public:
+        void SetSelectedEntity(Entity entity);
+
         const Vector<Entity>& GetSelectedEntities() const { return mSelectedEntities; }
         Vector<Entity>        GetSelectedEntities()       { return mSelectedEntities; }
 

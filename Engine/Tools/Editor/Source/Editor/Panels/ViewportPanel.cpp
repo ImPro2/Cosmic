@@ -1,4 +1,5 @@
 #include "cspch.hpp"
+#include "Base/Macros.hpp"
 #include "App/KeyAndMouseCodes.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "Renderer/Framebuffer.hpp"
@@ -10,11 +11,14 @@
 #include "Editor/EditorModule.hpp"
 #include "ContentBrowserPanel.hpp"
 #include "ECS/Components.hpp"
+#include "entt/entity/fwd.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <entt/entt.hpp>
+
+CS_MODULE_LOG_INFO(Editor, Editor.Panel.ViewportPanel);
 
 namespace Cosmic
 {
@@ -35,12 +39,12 @@ namespace Cosmic
         fbInfo.Samples         = 1;
         fbInfo.SwapChainTarget = false;
         fbInfo.AttachmentsInfo = FramebufferAttachmentsInfo({
-            FramebufferTextureInfo(),
+            FramebufferTextureInfo(ETextureFormat::RGBA8_Float),
             FramebufferTextureInfo(ETextureFormat::R32_SInt)
         });
 
         mFramebuffer = CreateFramebuffer(fbInfo);
-        
+
         mScene = editorModule->GetActiveScene();
 
         mSceneHierarchyPanel = ModuleSystem::Get<SceneHierarchyPanel>();
@@ -57,7 +61,25 @@ namespace Cosmic
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
         RenderCommand::Clear();
 
+        mFramebuffer->ClearAttachment(1, -1);
         mScene->OnUpdateEditor(dt, mCamera, mCamera.GetTransform());
+
+        auto [x, y] = ImGui::GetMousePos();
+        x -= mTopLeft.x;
+        y -= mTopLeft.y;
+        y = mFramebuffer->GetInfo().Height - y;
+
+        if (mWindowHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
+            int32 pixelData;
+            pixelData = (int32)mFramebuffer->ReadPixel(1, { (int32)x, (int32)y });
+
+            if (pixelData > 0)
+            {
+                Entity entity = Entity((entt::entity)pixelData, mScene->GetRegistryPtr());
+                mSceneHierarchyPanel->SetSelectedEntity(entity);
+            }
+        }
 
         mFramebuffer->Unbind();
     }
@@ -88,6 +110,14 @@ namespace Cosmic
 
         mWindowHovered = ImGui::IsWindowHovered();
         mWindowFocused = ImGui::IsWindowFocused();
+
+        ImVec2 viewportMin = ImGui::GetWindowContentRegionMin();
+        ImVec2 viewportMax = ImGui::GetWindowContentRegionMax();
+        ImVec2 viewportPos = ImGui::GetWindowPos();
+        ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+
+        mTopLeft  = { viewportMin.x + viewportPos.x, viewportMin.y + viewportPos.y };
+        mBtmRight = { viewportMax.x + viewportPos.x, viewportMax.y + viewportPos.y };
 
         // Block events if the panel is selected or hovered.
         Gui::BlockEvents(!mWindowHovered && !mWindowFocused);
@@ -137,17 +167,10 @@ namespace Cosmic
         {
             Entity selectedEntity = selectedEntities[0];
 
-            ImVec2 viewportMin = ImGui::GetWindowContentRegionMin();
-            ImVec2 viewportMax = ImGui::GetWindowContentRegionMax();
-            ImVec2 viewportPos = ImGui::GetWindowPos();
-            ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-
-            float2 topLeft  = { viewportMin.x + viewportPos.x, viewportMin.y + viewportPos.y };
-            float2 btmRight = { viewportMax.x + viewportPos.x, viewportMax.y + viewportPos.y };
-
+            
             ImGuizmo::SetOrthographic(mCamera.GetProjectionType() == EProjectionType::Orthographic);
             ImGuizmo::SetDrawlist();
-            ImGuizmo::SetRect(topLeft.x, topLeft.y, btmRight.x - topLeft.x, btmRight.y - topLeft.y);
+            ImGuizmo::SetRect(mTopLeft.x, mTopLeft.y, mBtmRight.x - mTopLeft.x, mBtmRight.y - mTopLeft.y);
 
             auto& tc = selectedEntity.GetComponent<TransformComponent>();
 

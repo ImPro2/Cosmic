@@ -103,7 +103,8 @@ namespace Cosmic
         mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](auto entity, auto& metadata, auto& transform, auto& sprite)
         {
             if (metadata.IsVisible)
-                Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
+                Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color, (int32)entity);
+                //Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color, (int)entity);
         });
 
         Renderer2D::EndScene();

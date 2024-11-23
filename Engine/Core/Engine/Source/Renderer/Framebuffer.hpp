@@ -88,7 +88,7 @@ namespace Cosmic
         virtual void Resize(uint32 width, uint32 height) = 0;
         virtual void ClearAttachment(uint32 attachmentIndex, int32 value) = 0;
 
-        virtual int32 ReadPixel(uint32 attachmentIndex, uint2 pos) = 0;
+        virtual int32 ReadPixel(uint32 attachmentIndex, int2 pos) = 0;
 
     public:
         virtual void Bind()   = 0;

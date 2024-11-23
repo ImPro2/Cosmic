@@ -57,6 +57,8 @@ namespace Cosmic
         bool mWindowHovered = false;
         bool mWindowFocused = false;
 
+        ImVec2 mTopLeft, mBtmRight;
+
         EditorCamera mCamera;
 
         Ref<SceneHierarchyPanel> mSceneHierarchyPanel;

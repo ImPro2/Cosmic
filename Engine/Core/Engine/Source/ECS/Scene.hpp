@@ -11,6 +11,7 @@
 #include "Script/NativeScript.hpp"
 #include "Renderer/OrthographicCamera.hpp"
 #include "ECS/SceneCamera.hpp"
+#include "entt/entity/fwd.hpp"
 
 namespace Cosmic
 {
@@ -35,6 +36,7 @@ namespace Cosmic
         void ForEachEntityIndexed(std::function<void(Entity, int32)> fn);
 
         size_t GetEntityCount() const;
+        entt::registry* GetRegistryPtr() { return &mRegistry; }
 
     private:
         entt::registry mRegistry;

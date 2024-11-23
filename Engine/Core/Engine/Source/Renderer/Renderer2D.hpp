@@ -35,8 +35,9 @@ namespace Cosmic
         static void RenderQuad(const glm::vec3& position, float32 rotation, const glm::vec2& scale, float4 color);
         static void RenderQuad(const glm::vec2& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f }, float32 tilingFactor = 1.0f);
         static void RenderQuad(const glm::vec3& position, float32 rotation, const glm::vec2& scale, const Ref<Texture2D>& texture, float4 color = { 1.0f, 1.0f, 1.0f, 1.0f }, float32 tilingFactor = 1.0f);
-        static void RenderQuad(const glm::mat4& transform, float4 color);
-        static void RenderQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float4 color, float32 tilingFactor);
+        static void RenderQuad(const glm::mat4& transform, float4 color, int32 entityID = 0);
+        static void RenderQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float4 color, float32 tilingFactor, int32 entityID = 0);
+
     public:
         static void  ResetStatistics();
         static const Renderer2DStatistics& GetStatistics();

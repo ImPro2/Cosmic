@@ -24,10 +24,11 @@ namespace Cosmic
     public:
         GLenum GetInternalFormat() const { return mInternalFormat; }
         GLenum GetDataFormat()     const { return mDataFormat;     }
+        GLenum GetDataType()       const { return mDataType;       }
 
     protected:
         GLenum mRendererID;
-        GLenum mInternalFormat, mDataFormat;
+        GLenum mInternalFormat, mDataFormat, mDataType;
     };
 
 

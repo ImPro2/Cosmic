@@ -104,7 +104,8 @@ namespace Cosmic
             RenderEntities();
             RenderRightClickMenu();
 
-            if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
+            //if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
+            if (false)
             {
                 bool first = !mMouseSelectionStarted;
                 mMouseSelectionStarted = !ImGuiUtil::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
@@ -300,6 +301,14 @@ namespace Cosmic
 
             ImGui::EndPopup();
         }
+    }
+
+    void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
+    {
+        mSelectedEntities.clear();
+        mSelectedEntities.push_back(entity);
+        mLastSelectedEntity = entity;
+        mLastSelectedEntityIndex = 0;
     }
 
     void SceneHierarchyPanel::SelectAllEntities()

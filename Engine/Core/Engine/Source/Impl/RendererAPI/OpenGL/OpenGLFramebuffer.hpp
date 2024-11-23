@@ -17,7 +17,7 @@ namespace Cosmic
         void Invalidate() override;
         void Resize(uint32 width, uint32 height) override;
         void ClearAttachment(uint32 attachmentIndex, int32 value) override;
-        int32 ReadPixel(uint32 attachmentIndex, uint2 pos) override;
+        int32 ReadPixel(uint32 attachmentIndex, int2 pos) override;
 
     public:
         void Bind() override;

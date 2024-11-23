@@ -135,8 +135,8 @@ namespace Cosmic
 
         RenderRightClickMenu();
 
-        if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
-            mMouseSelectionStarted = !ImGuiUtil::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
+        //if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
+        //    mMouseSelectionStarted = !ImGuiUtil::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
 
         ImGui::EndChild();
         ImGui::PopStyleVar(2);

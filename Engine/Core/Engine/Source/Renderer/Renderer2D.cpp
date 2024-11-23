@@ -18,10 +18,11 @@ namespace Cosmic
     struct QuadVertex
     {
         glm::vec4 Position;
-        float4  Color;
-        float2  TexCoord;
-        float32 TexIndex;
-        float32 TilingFactor;
+        float4    Color;
+        float2    TexCoord;
+        float32   TexIndex;
+        float32   TilingFactor;
+        int32     EntityID;
     };
 
     struct Renderer2DData
@@ -62,8 +63,10 @@ namespace Cosmic
             VertexBufferElement(EShaderDataType::Float4),
             VertexBufferElement(EShaderDataType::Float2),
             VertexBufferElement(EShaderDataType::Float),
-            VertexBufferElement(EShaderDataType::Float)
+            VertexBufferElement(EShaderDataType::Float),
+            VertexBufferElement(EShaderDataType::Int)
         });
+
         sData->QuadVertexBuffer->Bind();
 
         sData->QuadVertexBufferBasePtr = new QuadVertex[sData->MaxVertices];
@@ -211,7 +214,7 @@ namespace Cosmic
         RenderQuad(transform, texture, color, tilingFactor);
     }
 
-    void Renderer2D::RenderQuad(const glm::mat4& transform, float4 color)
+    void Renderer2D::RenderQuad(const glm::mat4& transform, float4 color, int32 entityID)
     {
         CS_PROFILE_FN();
 
@@ -224,11 +227,12 @@ namespace Cosmic
 
         for (int32 i = 0; i < 4; i++)
         {
-            sData->QuadVertexBufferPtr->Position = transform * sData->QuadVertexPositions[i];
-            sData->QuadVertexBufferPtr->Color = color;
-            sData->QuadVertexBufferPtr->TexCoord = texCoord[i];
-            sData->QuadVertexBufferPtr->TexIndex = textureIndex;
+            sData->QuadVertexBufferPtr->Position     = transform * sData->QuadVertexPositions[i];
+            sData->QuadVertexBufferPtr->Color        = color;
+            sData->QuadVertexBufferPtr->TexCoord     = texCoord[i];
+            sData->QuadVertexBufferPtr->TexIndex     = textureIndex;
             sData->QuadVertexBufferPtr->TilingFactor = tilingFactor;
+            sData->QuadVertexBufferPtr->EntityID     = entityID;
             sData->QuadVertexBufferPtr++;
         }
 
@@ -238,7 +242,7 @@ namespace Cosmic
         sData->Stats.TotalIndexCount  += 6;
     }
 
-    void Renderer2D::RenderQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float4 color, float32 tilingFactor)
+    void Renderer2D::RenderQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float4 color, float32 tilingFactor, int32 entityID)
     {
         CS_PROFILE_FN();
 
@@ -265,11 +269,12 @@ namespace Cosmic
 
         for (int32 i = 0; i < 4; i++)
         {
-            sData->QuadVertexBufferPtr->Position = transform * sData->QuadVertexPositions[i];
-            sData->QuadVertexBufferPtr->Color    = color;
-            sData->QuadVertexBufferPtr->TexCoord = texCoord[i];
-            sData->QuadVertexBufferPtr->TexIndex = textureIndex;
+            sData->QuadVertexBufferPtr->Position     = transform * sData->QuadVertexPositions[i];
+            sData->QuadVertexBufferPtr->Color        = color;
+            sData->QuadVertexBufferPtr->TexCoord     = texCoord[i];
+            sData->QuadVertexBufferPtr->TexIndex     = textureIndex;
             sData->QuadVertexBufferPtr->TilingFactor = tilingFactor;
+            sData->QuadVertexBufferPtr->EntityID     = entityID;
             sData->QuadVertexBufferPtr++;
         }
 

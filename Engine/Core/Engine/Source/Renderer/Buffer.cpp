@@ -12,18 +12,18 @@ namespace Cosmic
     {
         switch (type)
         {
-            case EShaderDataType::Float:  return 4;
-            case EShaderDataType::Float2: return 4 * 2;
-            case EShaderDataType::Float3: return 4 * 3;
-            case EShaderDataType::Float4: return 4 * 4;
-            case EShaderDataType::Int:    return 4;
-            case EShaderDataType::Int2:   return 4 * 2;
-            case EShaderDataType::Int3:   return 4 * 3;
-            case EShaderDataType::Int4:   return 4 * 4;
-            case EShaderDataType::Mat2:   return 4 * 2 * 2;
-            case EShaderDataType::Mat3:   return 4 * 3 * 3;
-            case EShaderDataType::Mat4:   return 4 * 4 * 4;
-            case EShaderDataType::Bool:   return 1;
+            case EShaderDataType::Float:  return sizeof(float32) * 1;
+            case EShaderDataType::Float2: return sizeof(float32) * 2;
+            case EShaderDataType::Float3: return sizeof(float32) * 3;
+            case EShaderDataType::Float4: return sizeof(float32) * 4;
+            case EShaderDataType::Int:    return sizeof(int32) * 1;
+            case EShaderDataType::Int2:   return sizeof(int32) * 2;
+            case EShaderDataType::Int3:   return sizeof(int32) * 3;
+            case EShaderDataType::Int4:   return sizeof(int32) * 4;
+            case EShaderDataType::Mat2:   return sizeof(float32) * 2 * 2;
+            case EShaderDataType::Mat3:   return sizeof(float32) * 3 * 3;
+            case EShaderDataType::Mat4:   return sizeof(float32) * 4 * 4;
+            case EShaderDataType::Bool:   return sizeof(bool);
         }
     }
 

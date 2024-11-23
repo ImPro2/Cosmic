@@ -81,8 +81,26 @@ namespace Cosmic
         const char* typeStr     = Utils::OpenGLErrorTypeToStr(type);
         const char* severityStr = Utils::OpenGLSeverityToStr(severity);
         
-        CS_LOG_ERROR("OpenGL Error (Source: {}, Type: {}, Severity: {}): {}", sourceStr, typeStr, severityStr, message);
-        CS_BREAK();
+        switch (severity)
+        {
+            case GL_DEBUG_SEVERITY_LOW:
+            case GL_DEBUG_SEVERITY_NOTIFICATION:
+            {
+                CS_LOG_DEBUG("OpenGL Notification (Source: {}, Type: {}, Severity: {}): {}", sourceStr, typeStr, severityStr, message);
+                break;
+            }
+            case GL_DEBUG_SEVERITY_MEDIUM:
+            {
+                CS_LOG_WARN("OpenGL Warning (Source: {}, Type: {}, Severity: {}): {}", sourceStr, typeStr, severityStr, message);
+                break;
+            }
+            case GL_DEBUG_SEVERITY_HIGH:
+            {
+                CS_LOG_ERROR("OpenGL Error (Source: {}, Type: {}, Severity: {}): {}", sourceStr, typeStr, severityStr, message);
+                CS_BREAK();
+                break;
+            }
+        }
     }
 
     OpenGLGraphicsContext::OpenGLGraphicsContext(GLFWwindow* window)
