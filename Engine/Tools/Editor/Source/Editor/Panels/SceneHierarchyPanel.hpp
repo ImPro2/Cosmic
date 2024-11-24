@@ -2,7 +2,8 @@
 #include <imgui.h>
 #include <entt/entt.hpp>
 
-#include "Editor/Event/EditorSceneEvents.hpp"
+#include "Editor/Event/SceneEvents.hpp"
+#include "Editor/Event/EntityEvents.hpp"
 #include "Panels.hpp"
 
 #include "Base/Base.hpp"
@@ -17,7 +18,6 @@
 #include "App/Event/WindowEvents.hpp"
 
 #include "Editor/Event/EditorEvents.hpp"
-#include "Editor/Event/EditorSceneEvents.hpp"
 
 namespace Cosmic
 {
@@ -41,9 +41,9 @@ namespace Cosmic
 
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
-        bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
-        bool OnEntityAdded(const EditorEntityAddedEvent& e);
-        bool OnEntityRemoved(const EditorEntityRemovedEvent& e);
+        bool OnEditorSceneOpened(const SceneOpenedEvent& e);
+        bool OnEntityAdded(const EntityAddedEvent& e);
+        bool OnEntityRemoved(const EntityRemovedEvent& e);
 
     private:
         void RenderEntities();

@@ -1,10 +1,11 @@
 #pragma once
 #include "App/Event/Events.hpp"
 #include "Editor/Event/EditorEvents.hpp"
-#include "Editor/Event/EditorSceneEvents.hpp"
+#include "Editor/Event/SceneEvents.hpp"
+#include "Editor/Event/EntityEvents.hpp"
+#include "Editor/Event/ComponentEvents.hpp"
 
 #include "IEditorAction.hpp"
-#include "EntityActions.hpp"
 
 namespace Cosmic
 {
@@ -21,6 +22,9 @@ namespace Cosmic
 		template<typename T, typename ... Args>
 		void NewAction(Args&& ... args)
 		{
+			mLastActionUndone = false;
+			mLastActionRedone = false;
+
 			// Remove all next actions of mLastAction
 			if (mLastAction)
 				DeleteNextActionsRecurse(mLastAction->GetNextAction());
@@ -43,12 +47,16 @@ namespace Cosmic
 		}
 
 	private:
-		bool OnEntityAdded(const EditorEntityAddedEvent& e);
-		bool OnEntityRemoved(const EditorEntityRemovedEvent& e);
+		bool OnEntityAdded(const EntityAddedEvent& e);
+		bool OnEntityRemoved(const EntityRemovedEvent& e);
+		bool OnComponentAdded(const ComponentAddedEvent& e);
+		bool OnComponentRemoved(const ComponentRemovedEvent& e);
+		bool OnComponentModified(const ComponentModifiedEvent& e);
 
 	private:
-		IEditorAction* mFirstAction = nullptr;
-		IEditorAction* mLastAction  = nullptr;
+		IEditorAction* mLastAction       = nullptr;
+		bool           mLastActionUndone = false;
+		bool           mLastActionRedone = false;
 	};
 
 }

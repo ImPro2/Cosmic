@@ -7,6 +7,9 @@
 namespace Cosmic
 {
 
+    enum class EComponentType;
+    struct IComponent;
+
     class Entity
     {
     public:
@@ -21,6 +24,12 @@ namespace Cosmic
             : mEntityHandle(handle), mRegistry(registry)
         {
         }
+
+        void AddComponent(EComponentType type, IComponent* component);
+        void RemoveComponent(EComponentType type);
+
+        IComponent* GetComponent(EComponentType type);
+        bool HasComponent(EComponentType type);
 
         template<typename T, typename ... Args>
         T& AddComponent(Args&& ... args)

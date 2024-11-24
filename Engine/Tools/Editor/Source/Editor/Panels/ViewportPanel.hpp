@@ -13,7 +13,7 @@
 #include "ECS/Scene.hpp"
 
 #include "App/Event/WindowEvents.hpp"
-#include "Editor/Event/EditorSceneEvents.hpp"
+#include "Editor/Event/SceneEvents.hpp"
 #include "Editor/EditorCamera.hpp"
 
 #include "SceneHierarchyPanel.hpp"
@@ -47,7 +47,7 @@ namespace Cosmic
 
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
-        bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
+        bool OnEditorSceneOpened(const SceneOpenedEvent& e);
 
     private:
         Ref<Framebuffer> mFramebuffer;

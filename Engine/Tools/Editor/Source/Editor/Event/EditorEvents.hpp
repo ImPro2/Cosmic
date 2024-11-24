@@ -8,7 +8,8 @@ namespace Cosmic
     enum class EEditorEvent : int16
     {
         SceneSaved = (int16)EEventType::Last, SceneSavedAs, SceneOpened, SceneNew,
-        EntityAdded, EntityRemoved
+        EntityAdded, EntityRemoved,
+        ComponentAdded, ComponentRemoved, ComponentModified
     };
 
 }

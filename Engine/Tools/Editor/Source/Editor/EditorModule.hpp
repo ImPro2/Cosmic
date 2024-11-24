@@ -15,7 +15,7 @@
 #include "Panels/Panels.hpp"
 #include "Panels/ViewportPanel.hpp"
 #include "Event/EditorEvents.hpp"
-#include "Event/EditorSceneEvents.hpp"
+#include "Event/SceneEvents.hpp"
 
 #include "Editor/Action/ActionManager.hpp"
 

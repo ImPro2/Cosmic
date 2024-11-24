@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <entt/entt.hpp>
 #include <IconsFontAwesome6.h>
-#include "Editor/Event/EditorSceneEvents.hpp"
+#include "Editor/Event/SceneEvents.hpp"
 #include "Editor/EditorModule.hpp"
 #include "UI/ImGuiUtil.hpp"
 
@@ -31,9 +31,9 @@ namespace Cosmic
     {
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
-        CS_DISPATCH_EVENT(EditorSceneOpenedEvent, OnEditorSceneOpened);
-        CS_DISPATCH_EVENT(EditorEntityAddedEvent, OnEntityAdded);
-        CS_DISPATCH_EVENT(EditorEntityRemovedEvent, OnEntityRemoved);
+        CS_DISPATCH_EVENT(SceneOpenedEvent, OnEditorSceneOpened);
+        CS_DISPATCH_EVENT(EntityAddedEvent, OnEntityAdded);
+        CS_DISPATCH_EVENT(EntityRemovedEvent, OnEntityRemoved);
     }
 
     bool SceneHierarchyPanel::OnKeyPressed(const KeyPressEvent& e)
@@ -74,7 +74,7 @@ namespace Cosmic
         return false;
     }
 
-    bool SceneHierarchyPanel::OnEditorSceneOpened(const EditorSceneOpenedEvent& e)
+    bool SceneHierarchyPanel::OnEditorSceneOpened(const SceneOpenedEvent& e)
     {
         mScene = e.GetScene();
         mSelectedEntities.clear();
@@ -84,12 +84,12 @@ namespace Cosmic
         return true;
     }
 
-    bool SceneHierarchyPanel::OnEntityAdded(const EditorEntityAddedEvent& e)
+    bool SceneHierarchyPanel::OnEntityAdded(const EntityAddedEvent& e)
     {
         return false;
     }
 
-    bool SceneHierarchyPanel::OnEntityRemoved(const EditorEntityRemovedEvent& e)
+    bool SceneHierarchyPanel::OnEntityRemoved(const EntityRemovedEvent& e)
     {
         for (Entity entity : e.GetEntities())
             e.GetScene()->RemoveEntity(entity);
@@ -356,12 +356,12 @@ namespace Cosmic
         mSelectedEntities = { mLastSelectedEntity };
         mLastSelectedEntityIndex = 0;
 
-        EventSystem::AddEvent(new EditorEntityAddedEvent({ mLastSelectedEntity }, mScene));
+        EventSystem::AddEvent(new EntityAddedEvent({ mLastSelectedEntity }, mScene));
     }
 
     void SceneHierarchyPanel::DeleteSelectedEntities()
     {
-        EventSystem::AddEvent(new EditorEntityRemovedEvent(mSelectedEntities, mScene));
+        EventSystem::AddEvent(new EntityRemovedEvent(mSelectedEntities, mScene));
 
         mSelectedEntities.clear();
         mLastSelectedEntity = {};
@@ -379,7 +379,7 @@ namespace Cosmic
 
         mSelectedEntities.insert(mSelectedEntities.end(), duplicatedEntities.begin(), duplicatedEntities.end());
 
-		EventSystem::AddEvent(new EditorEntityAddedEvent(duplicatedEntities, mScene));
+		EventSystem::AddEvent(new EntityAddedEvent(duplicatedEntities, mScene));
     }
 
 }

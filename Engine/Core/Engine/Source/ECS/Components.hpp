@@ -13,10 +13,26 @@
 #include "Time/DeltaTime.hpp"
 #include "Time/Time.hpp"
 
+#define CS_COMPONENT_TYPE(type)                                      \
+	EComponentType        GetType() const override { return type; }  \
+	static EComponentType GetStaticType()          { return type; }
+
+
 namespace Cosmic
 {
 
-    struct TagComponent
+    enum class EComponentType
+    {
+        Tag, EntityMetadata, Transform, SpriteRenderer, Camera, NativeScript
+    };
+
+    struct IComponent
+    {
+        virtual void           Reset()         = 0;
+        virtual EComponentType GetType() const = 0;
+    };
+
+    struct TagComponent : public IComponent
     {
         String Tag = "";
 
@@ -27,16 +43,18 @@ namespace Cosmic
         {
         }
 
-        void Reset()
+        void Reset() override
         {
             Tag = "";
         }
 
         operator String& ()             { return Tag; }
         operator const String& () const { return Tag; }
+
+        CS_COMPONENT_TYPE(EComponentType::Tag);
     };
 
-    struct EntityMetadataComponent
+    struct EntityMetadataComponent : public IComponent
     {
         int32 ID        = -1;
         bool  IsVisible = true;
@@ -48,14 +66,16 @@ namespace Cosmic
         {
         }
 
-        void Reset()
+        void Reset() override
         {
             ID        = -1;
             IsVisible = true;
         }
+
+        CS_COMPONENT_TYPE(EComponentType::EntityMetadata);
     };
 
-    struct TransformComponent
+    struct TransformComponent : public IComponent
     {
         glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
         glm::vec3 Rotation    = { 0.0f, 0.0f, 0.0f };
@@ -75,15 +95,17 @@ namespace Cosmic
             return glm::translate(glm::mat4(1.0f), Translation) * rotation * glm::scale(glm::mat4(1.0f), Scale);
         }
 
-        void Reset()
+        void Reset() override
         {
             Translation = { 0.0f, 0.0f, 0.0f };
             Rotation    = { 0.0f, 0.0f, 0.0f };
             Scale       = { 1.0f, 1.0f, 1.0f };
         }
+
+        CS_COMPONENT_TYPE(EComponentType::Transform);
     };
 
-    struct SpriteRendererComponent
+    struct SpriteRendererComponent : public IComponent
     {
         float4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         //xRef<Texture2D> Texture;
@@ -95,16 +117,18 @@ namespace Cosmic
         {
         }
 
-        void Reset()
+        void Reset() override
         {
             Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         }
 
         operator float4& ()             { return Color; }
         operator const float4& () const { return Color; }
+
+        CS_COMPONENT_TYPE(EComponentType::SpriteRenderer);
     };
 
-    struct CameraComponent
+    struct CameraComponent : public IComponent
     {
         SceneCamera Camera;
         bool        Primary = true;
@@ -113,14 +137,16 @@ namespace Cosmic
         CameraComponent() = default;
         CameraComponent(const CameraComponent&) = default;
 
-        void Reset()
+        void Reset() override
         {
             Primary = true;
             FixedAspectRatio = false;
         }
+
+        CS_COMPONENT_TYPE(EComponentType::Camera);
     };
 
-    struct NativeScriptComponent
+    struct NativeScriptComponent : public IComponent
     {
         NativeScript*         Instance        = nullptr;
         NativeScriptCallbacks ScriptCallbacks = {};
@@ -134,7 +160,7 @@ namespace Cosmic
             ClassName = className;
         }
 
-        void Reset()
+        void Reset() override
         {
             Instance = nullptr;
             
@@ -144,6 +170,8 @@ namespace Cosmic
             ClassName = "";
             Bound = false;
         }
+
+        CS_COMPONENT_TYPE(EComponentType::NativeScript);
     };
 
 }

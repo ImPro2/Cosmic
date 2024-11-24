@@ -6,6 +6,8 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Editor/Event/ComponentEvents.hpp"
+
 CS_MODULE_LOG_INFO(Editor, Panels.InspectorPanel);
 
 #include "Script/ScriptEngine.hpp"
@@ -97,8 +99,8 @@ namespace Cosmic
         {
             if (!entity.HasComponent<Component>())
             {
-                entity.AddComponent<Component>();
-                CS_LOG_INFO("Added {} to {}", name, entity.GetComponent<TagComponent>().Tag.c_str());
+                Component component = entity.AddComponent<Component>();
+                EventSystem::AddEvent(new ComponentAddedEvent(entity, new Component()));
             }
             else
                 CS_LOG_WARN("This entity already has a {}.", name);
