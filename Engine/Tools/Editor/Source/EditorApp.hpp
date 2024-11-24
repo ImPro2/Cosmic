@@ -13,7 +13,7 @@ namespace Cosmic
         EditorApp(const StartupArguments& args);
 
         bool OnInit(const ApplicationInitEvent& e);
-        void OnEvent(const Event& e) override;
+        void OnEvent(const IEvent& e) override;
     };
 
 }

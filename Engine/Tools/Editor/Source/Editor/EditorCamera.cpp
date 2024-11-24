@@ -38,7 +38,7 @@ namespace Cosmic
         }
     }
 
-    void EditorCamera::OnEvent(const Event& e)
+    void EditorCamera::OnEvent(const IEvent& e)
     {
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(MouseScrollEvent, OnMouseScrolled);

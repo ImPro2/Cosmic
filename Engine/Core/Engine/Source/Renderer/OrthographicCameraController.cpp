@@ -49,7 +49,7 @@ namespace Cosmic
         mCamera.SetPosition(mCameraPosition);
     }
 
-    void OrthographicCameraController::OnEvent(const Event& e)
+    void OrthographicCameraController::OnEvent(const IEvent& e)
     {
         CS_PROFILE_FN();
 

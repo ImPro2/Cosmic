@@ -24,15 +24,15 @@ namespace Cosmic
 
         float32 dt = Time::GetDeltaTime();
 
-        for (Ref<Module> module : sModules)
+        for (Ref<IModule> module : sModules)
             module->OnUpdate(dt);
     }
 
-    void ModuleSystem::OnEvent(const Event& e)
+    void ModuleSystem::OnEvent(const IEvent& e)
     {
         CS_PROFILE_FN();
 
-        for (Ref<Module> module : sModules)
+        for (Ref<IModule> module : sModules)
             module->OnEvent(e);
     }
 
@@ -40,7 +40,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        for (Ref<Module> module : sModules)
+        for (Ref<IModule> module : sModules)
             module->OnImGuiRender();
     }
 

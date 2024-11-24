@@ -12,7 +12,7 @@ namespace Cosmic
 
     using FileDialogCallback = std::function<void(File f)>;
 
-    class FileDialogModule : public Module
+    class FileDialogModule : public IModule
     {
     public:
         FileDialogModule(const Path& dir);

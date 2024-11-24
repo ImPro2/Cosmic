@@ -28,7 +28,7 @@ namespace Cosmic
         return false;
     }
 
-    void EditorApp::OnEvent(const Event& e)
+    void EditorApp::OnEvent(const IEvent& e)
     {
         CS_PROFILE_FN();
 

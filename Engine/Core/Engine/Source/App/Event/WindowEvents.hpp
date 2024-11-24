@@ -12,10 +12,10 @@
 namespace Cosmic
 {
 
-    struct WindowEvent : public Event
+    struct IWindowEvent : public IEvent
     {
     public:
-        WindowEvent(const DesktopWindowInfo& info, bool isPrimary)
+        IWindowEvent(const DesktopWindowInfo& info, bool isPrimary)
             : mInfo(info), mIsPrimary(isPrimary)
         {
         }
@@ -29,30 +29,30 @@ namespace Cosmic
         const DesktopWindowInfo& mInfo;
     };
 
-    struct WindowCreateEvent : public WindowEvent
+    struct WindowCreateEvent : public IWindowEvent
     {
         WindowCreateEvent(const DesktopWindowInfo& info, bool isPrimary)
-            : WindowEvent(info, isPrimary)
+            : IWindowEvent(info, isPrimary)
         {
         }
 
         CS_EVENT_TYPE(EEventType::WindowCreate);
     };
 
-    struct WindowCloseEvent : public WindowEvent
+    struct WindowCloseEvent : public IWindowEvent
     {
         WindowCloseEvent(const DesktopWindowInfo& info, bool isPrimary)
-            : WindowEvent(info, isPrimary)
+            : IWindowEvent(info, isPrimary)
         {
         }
 
         CS_EVENT_TYPE(EEventType::WindowClose);
     };
 
-    struct WindowResizeEvent : public WindowEvent
+    struct WindowResizeEvent : public IWindowEvent
     {
         WindowResizeEvent(uint2 size, const DesktopWindowInfo& info, bool isPrimary)
-            : mSize(size), WindowEvent(info, isPrimary)
+            : mSize(size), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -66,10 +66,10 @@ namespace Cosmic
         uint2 mSize;
     };
 
-    struct WindowMoveEvent : public WindowEvent
+    struct WindowMoveEvent : public IWindowEvent
     {
         WindowMoveEvent(int2 pos, const DesktopWindowInfo& info, bool isPrimary)
-            : mPos(pos), WindowEvent(info, isPrimary)
+            : mPos(pos), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -83,10 +83,10 @@ namespace Cosmic
        int2 mPos;
     };
 
-    struct WindowTitleEvent : public WindowEvent
+    struct WindowTitleEvent : public IWindowEvent
     {
         WindowTitleEvent(const String& title, const DesktopWindowInfo& info, bool isPrimary)
-            : mTitle(title), WindowEvent(info, isPrimary)
+            : mTitle(title), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -98,10 +98,10 @@ namespace Cosmic
         String mTitle;
     };
 
-    struct KeyPressEvent : public WindowEvent
+    struct KeyPressEvent : public IWindowEvent
     {
         KeyPressEvent(EKeyCode key, uint8 repeatCount, const DesktopWindowInfo& info, bool isPrimary)
-            : mKey(key), mRepeatCount(repeatCount), WindowEvent(info, isPrimary)
+            : mKey(key), mRepeatCount(repeatCount), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -115,10 +115,10 @@ namespace Cosmic
         uint8    mRepeatCount;
     };
 
-    struct KeyReleaseEvent : public WindowEvent
+    struct KeyReleaseEvent : public IWindowEvent
     {
         KeyReleaseEvent(EKeyCode key, const DesktopWindowInfo& info, bool isPrimary)
-            : mKey(key), WindowEvent(info, isPrimary)
+            : mKey(key), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -130,10 +130,10 @@ namespace Cosmic
         EKeyCode mKey;
     };
 
-    struct KeyTypeEvent : public WindowEvent
+    struct KeyTypeEvent : public IWindowEvent
     {
         KeyTypeEvent(char character, const DesktopWindowInfo& info, bool isPrimary)
-            : mChar(character), WindowEvent(info, isPrimary)
+            : mChar(character), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -145,10 +145,10 @@ namespace Cosmic
         char mChar;
     };
 
-    struct MouseMoveEvent : public WindowEvent
+    struct MouseMoveEvent : public IWindowEvent
     {
         MouseMoveEvent(float2 pos, const DesktopWindowInfo& info, bool isPrimary)
-            : mPos(pos), WindowEvent(info, isPrimary)
+            : mPos(pos), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -160,10 +160,10 @@ namespace Cosmic
         float2 mPos;
     };
 
-    struct MouseScrollEvent : public WindowEvent
+    struct MouseScrollEvent : public IWindowEvent
     {
         MouseScrollEvent(float32 offset, const DesktopWindowInfo& info, bool isPrimary)
-            : mOffset(offset), WindowEvent(info, isPrimary)
+            : mOffset(offset), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -175,10 +175,10 @@ namespace Cosmic
         float32 mOffset;
     };
 
-    struct MouseButtonClickEvent : public WindowEvent
+    struct MouseButtonClickEvent : public IWindowEvent
     {
         MouseButtonClickEvent(EMouseCode button, const DesktopWindowInfo& info, bool isPrimary)
-            : mButton(button), WindowEvent(info, isPrimary)
+            : mButton(button), IWindowEvent(info, isPrimary)
         {
         }
 
@@ -189,10 +189,10 @@ namespace Cosmic
     private:
         EMouseCode mButton;
     };
-    struct MouseButtonReleaseEvent : public WindowEvent
+    struct MouseButtonReleaseEvent : public IWindowEvent
     {
         MouseButtonReleaseEvent(EMouseCode button, const DesktopWindowInfo& info, bool isPrimary)
-            : mButton(button), WindowEvent(info, isPrimary)
+            : mButton(button), IWindowEvent(info, isPrimary)
         {
         }
 

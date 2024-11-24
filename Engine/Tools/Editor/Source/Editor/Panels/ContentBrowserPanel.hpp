@@ -9,15 +9,15 @@
 namespace Cosmic
 {
 
-    class ContentBrowserPanel : public Panel
+    class ContentBrowserPanel : public IPanel
     {
     public:
         ContentBrowserPanel();
 
     public:
-        void OnInit() override;
-        void OnEvent(const Event& e) override;
-        void OnImGuiRender() override;
+        void OnInit()                 override;
+        void OnEvent(const IEvent& e) override;
+        void OnImGuiRender()          override;
 
         Vector<Path> GetSelectedContentItems();
         const String& GetContentItemDragDropString() { return mContentItemDragDropString; }

@@ -17,22 +17,24 @@
 #include "App/Event/WindowEvents.hpp"
 
 #include "Editor/Event/EditorEvents.hpp"
+#include "Editor/Event/EditorSceneEvents.hpp"
 
 namespace Cosmic
 {
 
-    class SceneHierarchyPanel : public Panel
+    class SceneHierarchyPanel : public IPanel
     {
     public:
         SceneHierarchyPanel();
 
     public:
-        void OnInit() override;
-        void OnEvent(const Event& e) override;
-        void OnImGuiRender() override;
+        void OnInit()                 override;
+        void OnEvent(const IEvent& e) override;
+        void OnImGuiRender()          override;
 
     public:
-        void SetSelectedEntity(Entity entity);
+        void ClearSelectedEntities();
+        void SetSelectedEntities(const Vector<Entity>& entities);
 
         const Vector<Entity>& GetSelectedEntities() const { return mSelectedEntities; }
         Vector<Entity>        GetSelectedEntities()       { return mSelectedEntities; }
@@ -40,6 +42,8 @@ namespace Cosmic
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnEditorSceneOpened(const EditorSceneOpenedEvent& e);
+        bool OnEntityAdded(const EditorEntityAddedEvent& e);
+        bool OnEntityRemoved(const EditorEntityRemovedEvent& e);
 
     private:
         void RenderEntities();

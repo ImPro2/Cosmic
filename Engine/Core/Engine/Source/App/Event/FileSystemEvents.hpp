@@ -6,9 +6,9 @@
 namespace Cosmic
 {
 
-    struct DirectoryEvent : public Event
+    struct IDirectoryEvent : public IEvent
     {
-        DirectoryEvent(const Path& dir)
+        IDirectoryEvent(const Path& dir)
             : mDirectory(dir)
         {
         }
@@ -19,49 +19,49 @@ namespace Cosmic
         Path mDirectory;
     };
 
-	struct DirectoryAddedEvent : public DirectoryEvent
+	struct DirectoryAddedEvent : public IDirectoryEvent
 	{
 		DirectoryAddedEvent(const Path& dir)
-			: DirectoryEvent(dir)
+			: IDirectoryEvent(dir)
 		{
 		}
 
         CS_EVENT_TYPE(EEventType::DirectoryAdded);
 	};
 
-	struct DirectoryRemovedEvent : public DirectoryEvent
+	struct DirectoryRemovedEvent : public IDirectoryEvent
 	{
 		DirectoryRemovedEvent(const Path& dir)
-			: DirectoryEvent(dir)
+			: IDirectoryEvent(dir)
 		{
 		}
 
         CS_EVENT_TYPE(EEventType::DirectoryRemoved);
 	};
 
-	struct DirectoryRenamedEvent : public DirectoryEvent
+	struct DirectoryRenamedEvent : public IDirectoryEvent
 	{
 		DirectoryRenamedEvent(const Path& dir)
-			: DirectoryEvent(dir)
+			: IDirectoryEvent(dir)
 		{
 		}
 
         CS_EVENT_TYPE(EEventType::DirectoryRenamed);
 	};
 
-	struct DirectoryModifiedEvent : public DirectoryEvent
+	struct DirectoryModifiedEvent : public IDirectoryEvent
 	{
 		DirectoryModifiedEvent(const Path& dir)
-			: DirectoryEvent(dir)
+			: IDirectoryEvent(dir)
 		{
 		}
 
         CS_EVENT_TYPE(EEventType::DirectoryModified);
 	};
 
-	struct FileEvent : public Event
+	struct IFileEvent : public IEvent
 	{
-		FileEvent(const File& file)
+		IFileEvent(const File& file)
 			: mFile(file)
 		{
 		}
@@ -72,41 +72,41 @@ namespace Cosmic
 		File mFile;
 	};
 
-	struct FileAddedEvent : public FileEvent
+	struct FileAddedEvent : public IFileEvent
 	{
 		FileAddedEvent(const File& file)
-			: FileEvent(file)
+			: IFileEvent(file)
 		{
 		}
 
         CS_EVENT_TYPE(EEventType::FileAdded);
 	};
 
-	struct FileRemovedEvent : public FileEvent
+	struct FileRemovedEvent : public IFileEvent
 	{
 		FileRemovedEvent(const File& file)
-			: FileEvent(file)
+			: IFileEvent(file)
 		{
 		}
 
         CS_EVENT_TYPE(EEventType::FileRemoved);
 	};
 
-	struct FileRenamedEvent : public FileEvent
+	struct FileRenamedEvent : public IFileEvent
 	{
 		FileRenamedEvent(const File& file)
-			: FileEvent(file)
+			: IFileEvent(file)
 		{
 		}
         
         CS_EVENT_TYPE(EEventType::FileRenamed);
 	};
 
-	struct FileModifiedEvent : public FileEvent
+	struct FileModifiedEvent : public IFileEvent
 	{
 	public:
 		FileModifiedEvent(const File& file)
-			: FileEvent(file)
+			: IFileEvent(file)
 		{
 		}
 

@@ -6,11 +6,11 @@
 namespace Cosmic
 {
 
-    struct ApplicationEvent : public Event
+    struct IApplicationEvent : public IEvent
     {
     };
 
-    struct ApplicationInitEvent : public ApplicationEvent
+    struct ApplicationInitEvent : public IApplicationEvent
     {
     public:
         ApplicationInitEvent(const ApplicationInfo& info)
@@ -27,12 +27,12 @@ namespace Cosmic
         ApplicationInfo mInfo;
     };
 
-    struct ApplicationUpdateEvent : public ApplicationEvent
+    struct ApplicationUpdateEvent : public IApplicationEvent
     {
         CS_EVENT_TYPE(EEventType::AppUpdate);
     };
 
-    struct ApplicationCloseEvent : public ApplicationEvent
+    struct ApplicationCloseEvent : public IApplicationEvent
     {
         CS_EVENT_TYPE(EEventType::AppClose);
     };

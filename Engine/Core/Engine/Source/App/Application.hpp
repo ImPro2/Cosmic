@@ -38,7 +38,7 @@ namespace Cosmic {
         void Run();
     
     public:
-        virtual void OnEvent(const Event &e);
+        virtual void OnEvent(const IEvent &e);
     
     private:
         bool OnWindowResize(const WindowResizeEvent &e);

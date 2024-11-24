@@ -114,7 +114,7 @@ namespace Cosmic
         Shutdown();
     }
     
-    void Application::OnEvent(const Event &e)
+    void Application::OnEvent(const IEvent &e)
     {
         CS_PROFILE_FN();
 
@@ -122,7 +122,7 @@ namespace Cosmic
 
         CS_DISPATCH_EVENT(WindowCloseEvent, OnWindowClose);
         CS_DISPATCH_EVENT(WindowResizeEvent, OnWindowResize);
-        Gui::OnEvent((Event *)std::addressof(e));
+        Gui::OnEvent((IEvent*)std::addressof(e));
 
         ModuleSystem::OnEvent(e);
     }

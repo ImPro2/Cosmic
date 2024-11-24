@@ -15,7 +15,7 @@ namespace Cosmic
 
     public:
         void OnUpdate();
-        void OnEvent(const Event& e);
+        void OnEvent(const IEvent& e);
         void OnResized(uint32 width, uint32 height);
 
     public:

@@ -25,7 +25,7 @@ namespace Cosmic
         Last
     };
 
-    struct Event
+    struct IEvent
     {
         virtual int16 GetType() const = 0;
         bool Block = false;
@@ -37,7 +37,7 @@ namespace Cosmic
         static void Init();
         static void Shutdown();
 
-        static void AddEvent(Event* e);
+        static void AddEvent(IEvent* e);
         
         //template<typename T, typename... Args>
         //static void AddEvent(Args&&... args)
@@ -50,15 +50,15 @@ namespace Cosmic
         static void DispatchEvents();
 
     private:
-        inline static std::queue<Event*> sEventQueue;
+        inline static std::queue<IEvent*> sEventQueue;
         friend class Application;
     };
 
     class EventDispatcher
     {
     public:
-        EventDispatcher(const Event& event)
-            : mEvent(const_cast<Event&>(event))
+        EventDispatcher(const IEvent& event)
+            : mEvent(const_cast<IEvent&>(event))
         {
         }
         
@@ -74,7 +74,7 @@ namespace Cosmic
             }
         }
     private:
-        Event& mEvent;
+        IEvent& mEvent;
     };
 
 }

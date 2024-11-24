@@ -20,14 +20,14 @@ namespace Cosmic
     class ModuleSystem;
 
     // class to be inherited from
-    class Module
+    class IModule
     {
     public:
-        virtual void OnInit()                { };
-        virtual void OnShutdown()            { };
-        virtual void OnUpdate(Dt dt)         { };
-        virtual void OnEvent(const Event& e) { };
-        virtual void OnImGuiRender()         { };
+        virtual void OnInit()                 { };
+        virtual void OnShutdown()             { };
+        virtual void OnUpdate(Dt dt)          { };
+        virtual void OnEvent(const IEvent& e) { };
+        virtual void OnImGuiRender()          { };
 
     public:
         const String& GetName() const { return mName; }
@@ -54,7 +54,7 @@ namespace Cosmic
             if (Get<T>())
                 return Get<T>();
 
-            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
+            Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             sModules.push_back(module);
             module->mName = typeid(T).name();
             module->OnInit();
@@ -68,7 +68,7 @@ namespace Cosmic
             if (Get<T>())
                 return Get<T>();
 
-            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
+            Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             sModules.insert(sModules.begin(), module);
             module->mName = typeid(T).name();
             module->OnInit();
@@ -82,7 +82,7 @@ namespace Cosmic
             if (Get<T>().get())
                 return Get<T>();
 
-            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
+            Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             sDeferredModules.push({ module, EDeferredInsertMode::Back });
 
@@ -95,7 +95,7 @@ namespace Cosmic
             if (Get<T>().get())
                 return Get<T>();
 
-            Ref<Module> module = CreateRef<T>(std::forward<Args>(args)...);
+            Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             sDeferredModules.push({ module, EDeferredInsertMode::Front });
 
@@ -105,7 +105,7 @@ namespace Cosmic
         template<typename T>
         static void Remove()
         {
-            auto eraseFunction = [](Ref<Module> module)
+            auto eraseFunction = [](Ref<IModule> module)
             {
                 if (module->mName == typeid(T).name())
                 {
@@ -125,7 +125,7 @@ namespace Cosmic
         {
             const char* name = typeid(T).name();
 
-            for (Ref<Module> module : sModules)
+            for (Ref<IModule> module : sModules)
             {
                 if (module->GetName() == name)
                     return std::static_pointer_cast<T>(module);
@@ -139,14 +139,14 @@ namespace Cosmic
         static void Shutdown();
 
         static void OnUpdate();
-        static void OnEvent(const Event& e);
+        static void OnEvent(const IEvent& e);
         static void OnImGuiRender();
 
         static void AddDeferredModules();
 
     private:
-        inline static Vector<Ref<Module>> sModules;
-        inline static std::queue<Pair<Ref<Module>, EDeferredInsertMode>> sDeferredModules;
+        inline static Vector<Ref<IModule>> sModules;
+        inline static std::queue<Pair<Ref<IModule>, EDeferredInsertMode>> sDeferredModules;
         friend class Application;
     };
 

@@ -17,20 +17,22 @@
 #include "Event/EditorEvents.hpp"
 #include "Event/EditorSceneEvents.hpp"
 
+#include "Editor/Action/ActionManager.hpp"
+
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
 
 namespace Cosmic
 {
 
-    class EditorModule : public Module
+    class EditorModule : public IModule
     {
     public:
-        void OnInit()                override;
-        void OnShutdown()            override;
-        void OnUpdate(Dt dt)         override;
-        void OnEvent(const Event& e) override;
-        void OnImGuiRender()         override;
+        void OnInit()                 override;
+        void OnShutdown()             override;
+        void OnUpdate(Dt dt)          override;
+        void OnEvent(const IEvent& e) override;
+        void OnImGuiRender()          override;
 
     public:
         void SaveScene();
@@ -62,7 +64,8 @@ namespace Cosmic
         Ref<Scene> mActiveScene;
         String     mActiveScenePath;
 
-        Panels mPanels;
+        Panels        mPanels;
+        ActionManager mActionManager;
 
         bool mSetupDefaultLayout = true;
         bool mShowDemoWindow = false;

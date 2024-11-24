@@ -9,7 +9,7 @@ namespace Cosmic
     public:
         static void Init();
         static void Shutdown();
-        static void OnEvent(Event* e);
+        static void OnEvent(IEvent* e);
 
     public:
         static void BlockEvents(bool block) { sBlockEvents = block; }

@@ -14,7 +14,7 @@ namespace Cosmic
 {
 
     InspectorPanel::InspectorPanel()
-        : Panel("Inspector")
+        : IPanel("Inspector")
     {
     }
 

@@ -24,7 +24,7 @@ namespace Cosmic
 {
 
     ViewportPanel::ViewportPanel()
-        : Panel("Viewport")
+        : IPanel("Viewport")
     {
         CS_PROFILE_FN();
     }
@@ -77,14 +77,14 @@ namespace Cosmic
             if (pixelData > 0)
             {
                 Entity entity = Entity((entt::entity)pixelData, mScene->GetRegistryPtr());
-                mSceneHierarchyPanel->SetSelectedEntity(entity);
+                mSceneHierarchyPanel->SetSelectedEntities({ entity });
             }
         }
 
         mFramebuffer->Unbind();
     }
 
-    void ViewportPanel::OnEvent(const Event& e)
+    void ViewportPanel::OnEvent(const IEvent& e)
     {
         if (mWindowHovered)
             mCamera.OnEvent(e);

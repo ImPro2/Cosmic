@@ -40,7 +40,7 @@ namespace Cosmic
         T& GetComponent()
         {
             //CS_ASSERT(HasComponent<T>(), "This entity does not have this component yet.");
-            return mRegistry->get<T>(mEntityHandle);
+			return mRegistry->get<T>(mEntityHandle);
         }
 
         template<typename T>

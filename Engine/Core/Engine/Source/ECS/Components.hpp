@@ -38,17 +38,19 @@ namespace Cosmic
 
     struct EntityMetadataComponent
     {
-        bool IsVisible = true;
+        int32 ID        = -1;
+        bool  IsVisible = true;
     
         EntityMetadataComponent() = default;
         EntityMetadataComponent(const EntityMetadataComponent&) = default;
-        EntityMetadataComponent(bool isVisible)
-            : IsVisible(isVisible)
+        EntityMetadataComponent(int32 id, bool isVisible)
+            : ID(id), IsVisible(isVisible)
         {
         }
 
         void Reset()
         {
+            ID        = -1;
             IsVisible = true;
         }
     };

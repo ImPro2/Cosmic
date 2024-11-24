@@ -53,13 +53,16 @@ namespace Cosmic
         RenderCommand::Clear();
     }
 
-    void EditorModule::OnEvent(const Event& e)
+    void EditorModule::OnEvent(const IEvent& e)
     {
         CS_PROFILE_FN();
 
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(FileModifiedEvent, OnFileModified);
+
+        if (e.GetType() >= (int16)EEventType::Last)
+			mActionManager.OnEditorEvent(e);
     }
 
     void EditorModule::OnImGuiRender()
@@ -84,12 +87,19 @@ namespace Cosmic
 
         menubar.EndMenu();
 
+        menubar.BeginMenu(new MenubarMenu("Edit", "ALT+E", { EKeyCode::LeftAlt, EKeyCode::E }));
+
+        menubar.Item(new MenubarItem("Undo", "CTRL+Z", { EKeyCode::LeftControl, EKeyCode::Z }, nullptr, [this]() { mActionManager.UndoLastAction(); }));
+        menubar.Item(new MenubarItem("Redo", "CTRL+Y", { EKeyCode::LeftControl, EKeyCode::Y }, nullptr, [this]() { mActionManager.RedoLastAction(); }));
+
+        menubar.EndMenu();
+
         menubar.BeginMenu(new MenubarMenu("View", "ALT+V", { EKeyCode::LeftAlt, EKeyCode::V }));
         menubar.BeginMenu(new MenubarMenu("Panels", "", {}));
 
         menubar.Item(new MenubarItem("Show All", "", {}, nullptr, [this]() { mPanels.ShowAll(); }));
 
-        for (Ref<Panel> panel : mPanels.GetPanels())
+        for (Ref<IPanel> panel : mPanels.GetPanels())
             menubar.Item(new MenubarItem(panel->GetPanelName().c_str(), "", {}, panel->IsOpenPtr()));
 
         menubar.EndMenu();
@@ -176,14 +186,6 @@ namespace Cosmic
         bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
         bool shift   = Input::IsKeyPressed(EKeyCode::LeftShift)   || Input::IsKeyPressed(EKeyCode::RightShift);
         bool alt     = Input::IsKeyPressed(EKeyCode::LeftAlt)     || Input::IsKeyPressed(EKeyCode::RightAlt);
-
-        switch (e.GetKeyCode())
-        {
-            case EKeyCode::Q: break;
-            case EKeyCode::W: break;
-            case EKeyCode::E: break;
-            case EKeyCode::R: break;
-        }
 
         return false;
     }

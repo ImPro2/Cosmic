@@ -8,9 +8,37 @@ CS_MODULE_LOG_INFO(Cosmic, ECS.Scene);
 
 #include "App/Log/Log.hpp"
 #include "ECS/Components.hpp"
+#include "Base/Random.hpp"
 
 namespace Cosmic
 {
+
+    namespace Utils
+    {
+
+        String NewEntityNameFromTag(const entt::registry& registry, const String& tag)
+        {
+			int index = 0;
+			auto view = registry.view<TagComponent>();
+			String newTag = tag.empty() ? "Entity" : tag;
+
+			for (auto entity : view)
+			{
+				auto& otherTag = view.get<TagComponent>(entity).Tag;
+
+				if (newTag == otherTag)
+				{
+					newTag = std::format("{} {}", tag, index);
+                    break;
+				}
+
+				index++;
+			}
+
+            return newTag;
+        }
+
+    }
 
     Scene::Scene()
     {
@@ -127,35 +155,52 @@ namespace Cosmic
 
     Entity Scene::CreateEntity(const String& name)
     {
-        int index = 0;
-        auto view = mRegistry.view<TagComponent>();
-        std::string tag = name.empty() ? "Entity" : name;
-        for (auto entity : view)
-        {
-            auto& otherTag = view.get<TagComponent>(entity).Tag;
-
-            if (tag == otherTag)
-            {
-                tag = std::format("{} {}", tag, index);
-            }
-
-            index++;
-        }
-
         EntityMetadataComponent metadata;
+        metadata.ID        = Random<int32>(0, std::numeric_limits<int32>::max());
         metadata.IsVisible = true;
 
         Entity entity = { mRegistry.create(), &mRegistry };
         entity.AddComponent<TransformComponent>();
-        entity.AddComponent<TagComponent>(tag);
+        entity.AddComponent<TagComponent>(Utils::NewEntityNameFromTag(mRegistry, name));
         entity.AddComponent<EntityMetadataComponent>(metadata);
 
         return entity;
     }
 
+    Entity Scene::AddEntity(Entity entity)
+    {
+        Entity newEntity = { mRegistry.create(), &mRegistry };
+
+		newEntity.AddComponent<TagComponent>(Utils::NewEntityNameFromTag(mRegistry, entity.GetComponent<TagComponent>().Tag));
+		newEntity.AddComponent<EntityMetadataComponent>(entity.GetComponent<EntityMetadataComponent>());
+		newEntity.AddComponent<TransformComponent>(entity.GetComponent<TransformComponent>());
+
+        if (entity.HasComponent<SpriteRendererComponent>())
+			newEntity.AddComponent<SpriteRendererComponent>(entity.GetComponent<SpriteRendererComponent>());
+
+        if (entity.HasComponent<CameraComponent>())
+			newEntity.AddComponent<CameraComponent>(entity.GetComponent<CameraComponent>());
+
+        if (entity.HasComponent<NativeScriptComponent>())
+			newEntity.AddComponent<NativeScriptComponent>(entity.GetComponent<NativeScriptComponent>());
+
+        return newEntity;
+    }
+
     void Scene::RemoveEntity(Entity entity)
     {
-        mRegistry.destroy((entt::entity)entity);
+        int32 ID = entity.GetComponent<EntityMetadataComponent>().ID;
+
+        for (entt::entity other : mRegistry.view<EntityMetadataComponent>())
+        {
+            int32 otherID = mRegistry.get<EntityMetadataComponent>(other).ID;
+
+            if (ID == otherID)
+            {
+                mRegistry.destroy(other);
+                break;
+            }
+        }
     }
 
     Entity Scene::FindEntityByTag(const String& tag)

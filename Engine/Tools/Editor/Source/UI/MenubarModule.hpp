@@ -67,7 +67,7 @@ namespace Cosmic
         MenubarMenu* mCurrentMenu;
     };
 
-    class MenubarModule : public Module
+    class MenubarModule : public IModule
     {
     public:
         MenubarModule(const MenubarLayout& layout);

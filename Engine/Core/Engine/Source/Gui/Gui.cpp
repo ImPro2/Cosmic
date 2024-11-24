@@ -126,7 +126,7 @@ namespace Cosmic
         ImGui::DestroyContext();
     }
 
-    void Gui::OnEvent(Event* e)
+    void Gui::OnEvent(IEvent* e)
     {
         CS_PROFILE_FN();
         if (!sInitialized) return;

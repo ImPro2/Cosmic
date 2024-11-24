@@ -14,14 +14,14 @@
 namespace Cosmic
 {
 
-    class ConsolePanel : public Panel
+    class ConsolePanel : public IPanel
     {
     public:
         ConsolePanel();
 
     public:
-        void OnEvent(const Event& e) override;
-        void OnImGuiRender() override;
+        void OnEvent(const IEvent& e) override;
+        void OnImGuiRender()          override;
 
     private:
         bool OnLog(const LogEvent& e);

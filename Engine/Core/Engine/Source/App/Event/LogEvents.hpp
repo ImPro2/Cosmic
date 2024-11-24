@@ -5,7 +5,7 @@
 namespace Cosmic
 {
 
-    struct LogEvent : public Event
+    struct LogEvent : public IEvent
     {
         LogEvent(const std::string& msg, ELogSeverity severity)
             : mMessage(msg), mSeverity(severity)

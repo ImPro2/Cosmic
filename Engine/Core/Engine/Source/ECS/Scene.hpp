@@ -29,6 +29,7 @@ namespace Cosmic
 
     public:
         Entity CreateEntity(const String& name = "");
+        Entity AddEntity(Entity entity);
         void   RemoveEntity(Entity entity);
         Entity FindEntityByTag(const String& tag);
 

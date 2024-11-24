@@ -17,7 +17,7 @@ namespace Cosmic
 
 	}
 
-	void EventSystem::AddEvent(Event* e)
+	void EventSystem::AddEvent(IEvent* e)
 	{
 		sEventQueue.push(e);
 	}
@@ -26,7 +26,7 @@ namespace Cosmic
 	{
 		while (!sEventQueue.empty())
 		{
-			Event* e = sEventQueue.front();
+			IEvent* e = sEventQueue.front();
 			Application::Get()->OnEvent(*e);
 			sEventQueue.pop();
 		}

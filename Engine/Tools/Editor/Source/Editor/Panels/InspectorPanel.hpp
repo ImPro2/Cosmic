@@ -14,7 +14,7 @@
 namespace Cosmic
 {
 
-    class InspectorPanel : public Panel
+    class InspectorPanel : public IPanel
     {
     public:
         InspectorPanel();

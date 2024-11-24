@@ -34,11 +34,11 @@ namespace Cosmic
     }
 
     ConsolePanel::ConsolePanel()
-        : Panel("Console")
+        : IPanel("Console")
     {
     }
 
-    void ConsolePanel::OnEvent(const Event& e)
+    void ConsolePanel::OnEvent(const IEvent& e)
     {
         CS_PROFILE_FN();
 

@@ -27,16 +27,16 @@
 namespace Cosmic
 {
 
-    class ViewportPanel : public Panel
+    class ViewportPanel : public IPanel
     {
     public:
         ViewportPanel();
 
     public:
-        void OnInit() override;
-        void OnUpdate(Dt dt) override;
-        void OnEvent(const Event& e) override;
-        void OnImGuiRender() override;
+        void OnInit()                 override;
+        void OnUpdate(Dt dt)          override;
+        void OnEvent(const IEvent& e) override;
+        void OnImGuiRender()          override;
 
     private:
         void RenderResizing();

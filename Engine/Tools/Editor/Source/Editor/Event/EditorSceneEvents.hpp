@@ -8,9 +8,9 @@
 namespace Cosmic
 {
 
-	struct EditorSceneEvent : public Event
+	struct IEditorSceneEvent : public IEvent
 	{
-		EditorSceneEvent(const Ref<Scene>& scene)
+		IEditorSceneEvent(const Ref<Scene>& scene)
 			: mScene(scene)
 		{
 		}
@@ -22,73 +22,75 @@ namespace Cosmic
 		Ref<Scene> mScene;
 	};
 
-	struct EditorSceneSavedEvent : public EditorSceneEvent
+	struct EditorSceneSavedEvent : public IEditorSceneEvent
 	{
 		EditorSceneSavedEvent(const Ref<Scene>& scene)
-			: EditorSceneEvent(scene)
+			: IEditorSceneEvent(scene)
 		{
 		}
 
         CS_EVENT_TYPE(EEditorEvent::SceneSaved);
 	};
 
-	struct EditorSceneSavedAsEvent : public EditorSceneEvent
+	struct EditorSceneSavedAsEvent : public IEditorSceneEvent
 	{
 		EditorSceneSavedAsEvent(const Ref<Scene>& scene)
-			: EditorSceneEvent(scene)
+			: IEditorSceneEvent(scene)
 		{
 		}
 
         CS_EVENT_TYPE(EEditorEvent::SceneSavedAs);
 	};
 
-	struct EditorSceneOpenedEvent : public EditorSceneEvent
+	struct EditorSceneOpenedEvent : public IEditorSceneEvent
 	{
 		EditorSceneOpenedEvent(const Ref<Scene>& scene)
-			: EditorSceneEvent(scene)
+			: IEditorSceneEvent(scene)
 		{
 		}
 
         CS_EVENT_TYPE(EEditorEvent::SceneOpened);
 	};
 
-	struct EditorSceneNewEvent : public EditorSceneEvent
+	struct EditorSceneNewEvent : public IEditorSceneEvent
 	{
 		EditorSceneNewEvent(const Ref<Scene>& scene)
-			: EditorSceneEvent(scene)
+			: IEditorSceneEvent(scene)
 		{
 		}
 
         CS_EVENT_TYPE(EEditorEvent::SceneNew);
 	};
 
-    struct EditorEntityEvent : public EditorSceneEvent
+    struct IEditorEntityEvent : public IEditorSceneEvent
     {
-        EditorEntityEvent(Entity entity, const Ref<Scene>& scene)
-            : mEntity(entity), EditorSceneEvent(scene)
+        IEditorEntityEvent(const Vector<Entity>& entities, const Ref<Scene>& scene)
+            : mEntities(entities), IEditorSceneEvent(scene)
         {
         }
 
-        Entity GetEntity() { return mEntity; }
+        const Vector<Entity>& GetEntities() const { return mEntities; }
+		Vector<Entity>        GetEntities()       { return mEntities; }
 
     private:
-        Entity mEntity;
+        Vector<Entity> mEntities;
     };
 
-    struct EditorEntityAddedEvent : public EditorEntityEvent
+    struct EditorEntityAddedEvent : public IEditorEntityEvent
     {
-        EditorEntityAddedEvent(Entity entity, const Ref<Scene>& scene)
-            : EditorEntityEvent(entity, scene)
+        EditorEntityAddedEvent(const Vector<Entity>& entities, const Ref<Scene>& scene)
+            : IEditorEntityEvent(entities, scene)
         {
         }
 
         CS_EVENT_TYPE(EEditorEvent::EntityAdded);
     };
 
-    struct EditorEntityRemovedEvent : public EditorEntityEvent
+    struct EditorEntityRemovedEvent : public IEditorEntityEvent
     {
-        EditorEntityRemovedEvent(Entity entity, const Ref<Scene>& scene)
-            : EditorEntityEvent(entity, scene)
+		// Copy entities
+        EditorEntityRemovedEvent(Vector<Entity> entities, const Ref<Scene>& scene)
+            : IEditorEntityEvent(entities, scene)
         {
         }
 

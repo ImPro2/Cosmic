@@ -16,7 +16,7 @@ namespace Cosmic
 {
 
     ContentBrowserPanel::ContentBrowserPanel()
-        : Panel("Content Browser")
+        : IPanel("Content Browser")
     {
     }
     
@@ -32,7 +32,7 @@ namespace Cosmic
         UpdateContents();
     }
 
-    void ContentBrowserPanel::OnEvent(const Event& e)
+    void ContentBrowserPanel::OnEvent(const IEvent& e)
     {
         EventDispatcher dispatcher(e);
 

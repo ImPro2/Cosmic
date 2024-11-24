@@ -17,7 +17,7 @@ namespace Cosmic
 {
 
     SceneHierarchyPanel::SceneHierarchyPanel()
-        : Panel("Scene Hierarchy")
+        : IPanel("Scene Hierarchy")
     {
     }
 
@@ -27,11 +27,13 @@ namespace Cosmic
         mScene = editorModule->GetActiveScene();
     }
 
-    void SceneHierarchyPanel::OnEvent(const Event& e)
+    void SceneHierarchyPanel::OnEvent(const IEvent& e)
     {
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(EditorSceneOpenedEvent, OnEditorSceneOpened);
+        CS_DISPATCH_EVENT(EditorEntityAddedEvent, OnEntityAdded);
+        CS_DISPATCH_EVENT(EditorEntityRemovedEvent, OnEntityRemoved);
     }
 
     bool SceneHierarchyPanel::OnKeyPressed(const KeyPressEvent& e)
@@ -43,32 +45,32 @@ namespace Cosmic
 
         switch (e.GetKeyCode())
         {
-            case EKeyCode::A:
-            {
-                if (control)
-                    SelectAllEntities();
-                break;
-            }
-            case EKeyCode::N:
-            {
-                if (control)
-                    AddNewEntity();
-                break;
-            }
-            case EKeyCode::X:
-            {
-                if (control)
-                    DeleteSelectedEntities();
-                break;
-            }
-            case EKeyCode::D:
-            {
-                if (control)
-                    DuplicateSelectedEntities();
-                break;
-            }
+        case EKeyCode::A:
+        {
+            if (control)
+                SelectAllEntities();
+            break;
         }
-        
+        case EKeyCode::N:
+        {
+            if (control)
+                AddNewEntity();
+            break;
+        }
+        case EKeyCode::X:
+        {
+            if (control)
+                DeleteSelectedEntities();
+            break;
+        }
+        case EKeyCode::D:
+        {
+            if (control)
+                DuplicateSelectedEntities();
+            break;
+        }
+        }
+
         return false;
     }
 
@@ -80,6 +82,19 @@ namespace Cosmic
         mLastSelectedEntityIndex = -1;
 
         return true;
+    }
+
+    bool SceneHierarchyPanel::OnEntityAdded(const EditorEntityAddedEvent& e)
+    {
+        return false;
+    }
+
+    bool SceneHierarchyPanel::OnEntityRemoved(const EditorEntityRemovedEvent& e)
+    {
+        for (Entity entity : e.GetEntities())
+            e.GetScene()->RemoveEntity(entity);
+
+        return false;
     }
 
     void SceneHierarchyPanel::OnImGuiRender()
@@ -160,12 +175,12 @@ namespace Cosmic
 
             return entities.end();
         };
-        
+
         bool hasChildren = false;
         auto entitySelectedIter = findEntity(mSelectedEntities, entity);
 
-        const String& tag       = entity.GetComponent<TagComponent>().Tag;
-        bool&         isVisible = entity.GetComponent<EntityMetadataComponent>().IsVisible;
+        const String& tag = entity.GetComponent<TagComponent>().Tag;
+        bool& isVisible = entity.GetComponent<EntityMetadataComponent>().IsVisible;
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
 
@@ -191,13 +206,13 @@ namespace Cosmic
 
         if (mMouseSelectionStarted && entitySelectedIter == mSelectedEntities.end())
         {
-            ImVec2 topLeft  = ImGui::GetItemRectMin();
+            ImVec2 topLeft = ImGui::GetItemRectMin();
             ImVec2 btmRight = ImGui::GetItemRectMax();
 
-            ImVec2 mouseTopLeft  = ImVec2(std::min(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::min(mMouseSelectionStart.y, mMouseSelectionEnd.y));
+            ImVec2 mouseTopLeft = ImVec2(std::min(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::min(mMouseSelectionStart.y, mMouseSelectionEnd.y));
             ImVec2 mouseBtmRight = ImVec2(std::max(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::max(mMouseSelectionStart.y, mMouseSelectionEnd.y));
-            
-            if ((topLeft.y  > mouseTopLeft.y && topLeft.y  < mouseBtmRight.y) ||
+
+            if ((topLeft.y > mouseTopLeft.y && topLeft.y < mouseBtmRight.y) ||
                 (btmRight.y > mouseTopLeft.y && btmRight.y < mouseBtmRight.y))
             {
                 mSelectedEntities.push_back(entity);
@@ -226,16 +241,16 @@ namespace Cosmic
                 // Adds more than one entities to the selection.
 
                 mScene->ForEachEntityIndexed([&](Entity other, int32 i)
-                {
-                    if (index > mLastSelectedEntityIndex && (i > mLastSelectedEntityIndex && i <= index))
                     {
-                        mSelectedEntities.push_back(other);
-                    }
-                    else if (index < mLastSelectedEntityIndex && (i >= index && i < mLastSelectedEntityIndex))
-                    {
-                        mSelectedEntities.push_back(other);
-                    }
-                });
+                        if (index > mLastSelectedEntityIndex && (i > mLastSelectedEntityIndex && i <= index))
+                        {
+                            mSelectedEntities.push_back(other);
+                        }
+                        else if (index < mLastSelectedEntityIndex && (i >= index && i < mLastSelectedEntityIndex))
+                        {
+                            mSelectedEntities.push_back(other);
+                        }
+                    });
             }
             else
             {
@@ -250,16 +265,16 @@ namespace Cosmic
 
         ImGui::TableNextColumn();
         ImGui::PushID(index);
-        
+
         // Hack to make the radio button smaller
 
-        ImFont* currFont = ImGui::GetFont(); 
+        ImFont* currFont = ImGui::GetFont();
         currFont->Scale = 0.75f;
         ImGui::PushFont(currFont);
 
         if (ImGui::RadioButton("", isVisible))
             isVisible = !isVisible;
-        
+
         currFont->Scale = 1.0f;
         ImGui::PopFont();
 
@@ -303,11 +318,18 @@ namespace Cosmic
         }
     }
 
-    void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
+    void SceneHierarchyPanel::ClearSelectedEntities()
     {
         mSelectedEntities.clear();
-        mSelectedEntities.push_back(entity);
-        mLastSelectedEntity = entity;
+        mLastSelectedEntity = {};
+        mLastSelectedEntityIndex = -1;
+    }
+
+    void SceneHierarchyPanel::SetSelectedEntities(const Vector<Entity>& entities)
+    {
+        ClearSelectedEntities();
+        mSelectedEntities = entities;
+        mLastSelectedEntity = mSelectedEntities[0];
         mLastSelectedEntityIndex = 0;
     }
 
@@ -333,15 +355,13 @@ namespace Cosmic
 
         mSelectedEntities = { mLastSelectedEntity };
         mLastSelectedEntityIndex = 0;
+
+        EventSystem::AddEvent(new EditorEntityAddedEvent({ mLastSelectedEntity }, mScene));
     }
 
     void SceneHierarchyPanel::DeleteSelectedEntities()
     {
-        for (Entity entity : mSelectedEntities)
-        {
-            mScene->RemoveEntity(entity);
-            EventSystem::AddEvent(new EditorEntityRemovedEvent(entity, mScene));
-        }
+        EventSystem::AddEvent(new EditorEntityRemovedEvent(mSelectedEntities, mScene));
 
         mSelectedEntities.clear();
         mLastSelectedEntity = {};
@@ -350,12 +370,16 @@ namespace Cosmic
 
     void SceneHierarchyPanel::DuplicateSelectedEntities()
     {
-        int32 count = mSelectedEntities.size();
-        for (int32 i = 0; i < count; i++)
+        Vector<Entity> duplicatedEntities(mSelectedEntities.size());
+
+        for (Entity entity : mSelectedEntities)
         {
-            mSelectedEntities.emplace_back(mScene->CreateEntity(mSelectedEntities[i].GetComponent<TagComponent>().Tag));
-            EventSystem::AddEvent(new EditorEntityAddedEvent(mSelectedEntities[count + i], mScene));
+            duplicatedEntities.push_back(mScene->AddEntity(entity));
         }
+
+        mSelectedEntities.insert(mSelectedEntities.end(), duplicatedEntities.begin(), duplicatedEntities.end());
+
+		EventSystem::AddEvent(new EditorEntityAddedEvent(duplicatedEntities, mScene));
     }
 
 }

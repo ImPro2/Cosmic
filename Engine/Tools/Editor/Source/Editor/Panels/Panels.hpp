@@ -11,11 +11,11 @@
 namespace Cosmic
 {
 
-    class Panel : public Module
+    class IPanel : public IModule
     {
     public:
-        Panel() = default;
-        Panel(const String& name) : mPanelName(name) { }
+        IPanel() = default;
+        IPanel(const String& name) : mPanelName(name) { }
 
     public:
         void  Show(bool open)              { mOpen = open;      }
@@ -39,17 +39,17 @@ namespace Cosmic
         Ref<T> GetPanel()
         {
             const char* name = typeid(T).name();
-            for (Ref<Panel> panel : mPanels)
+            for (Ref<IPanel> panel : mPanels)
             {
                 if (panel->GetName() == name)
                     return std::static_pointer_cast<T>(panel);
             }
         }
 
-        const Vector<Ref<Panel>>& GetPanels() const { return mPanels; }
+        const Vector<Ref<IPanel>>& GetPanels() const { return mPanels; }
 
     private:
-        Vector<Ref<Panel>> mPanels;
+        Vector<Ref<IPanel>> mPanels;
     };
 
 }
