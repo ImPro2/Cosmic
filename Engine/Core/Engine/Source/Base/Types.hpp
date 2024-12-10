@@ -22,7 +22,7 @@ namespace Cosmic {
     using float32 = float;
     using float64 = double;
     
-    // using byte = uint8;
+    using byte = uint8;
     
     using String = std::string;
     using StringView = std::string_view;

@@ -75,8 +75,17 @@
             CS_BREAK();                                                                     \
         }                                                                                   \
     } while(0)
+#   define CS_ASSERT_NOMSG(Condition)                                                       \
+    do                                                                                      \
+    {                                                                                       \
+        if (!(Condition))                                                                   \
+        {                                                                                   \
+            CS_BREAK();                                                                     \
+        }                                                                                   \
+    } while (0)
 #elif defined(CS_RELEASE) || defined(CS_DIST)
 #   define CS_ASSERT(Condition, Message)
+#   define CS_ASSERT_NOMSG(Condition)
 #endif
 
 #define CS_INVALID_ENUM(type) CS_ASSERT(false, "Invalid enum of type `{}` reached.", #type)
