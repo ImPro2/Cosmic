@@ -1,6 +1,8 @@
 #pragma once
 #include "Base/Types.hpp"
 
+#include <cstddef>
+
 namespace Cosmic
 {
 
@@ -19,8 +21,14 @@ namespace Cosmic
         bool IsRelative() const;
 
         String GetBase() const; // part after parent dir
+        Path   RelativeFrom(const Path& other) const;
     
     public:
+        inline bool operator==(const Path& other) const
+        {
+            return mPath == other.mPath;
+        }
+
         void operator/=(const Path& other);
 
     public:
@@ -35,3 +43,14 @@ namespace Cosmic
     Path operator /(const Path& lhs, const File& rhs);
 
 }
+
+template<>
+struct std::hash<Cosmic::Path>
+{
+
+	size_t operator()(const Cosmic::Path& path) const
+	{
+		return std::hash<std::string>()(path.GetString());
+	}
+
+};

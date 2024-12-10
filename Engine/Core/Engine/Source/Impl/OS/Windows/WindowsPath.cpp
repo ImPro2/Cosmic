@@ -45,6 +45,11 @@ namespace Cosmic
         return std::filesystem::path(mPath).filename().string();
     }
 
+    Path Path::RelativeFrom(const Path& other) const
+    {
+        return Path(std::filesystem::relative(mPath, other.GetString()).string());
+    }
+
     void Path::operator /=(const Path& other)
     {
         *this =  operator/(*this, other);
