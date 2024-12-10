@@ -25,9 +25,9 @@ namespace Cosmic::ImGuiUtil
 
     }
 
-    bool BeginMenu(const char* label, const Vector<EKeyCode>& shortcut)
+    bool BeginMenu(const char* label, const Vector<EKeyCode>& shortcut, bool open)
     {
-        if (Util::IsShortcutPressed(shortcut))
+        if (Util::IsShortcutPressed(shortcut) || open)
             ImGui::OpenPopup(label);
 
         return ImGui::BeginMenu(label);

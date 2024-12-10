@@ -1,6 +1,7 @@
 #include "cspch.hpp"
 #include "MenubarModule.hpp"
 
+#include "App/Input.hpp"
 #include "App/PersistentStackAllocator.hpp"
 
 #include "UI/ImGuiUtil.hpp"
@@ -60,9 +61,16 @@ namespace Cosmic
         }
     }
 
+    void MenubarModule::OnEvent(const IEvent& e)
+    {
+        EventDispatcher dispatcher(e);
+
+        CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
+    }
+
     void MenubarModule::RenderMenu(MenubarMenu* menu)
     {
-        if (!ImGuiUtil::BeginMenu(menu->Name, menu->Keys))
+        if (!ImGuiUtil::BeginMenu(menu->Name, menu->Keys, menu == mLayout.GetCurrentMenu()))
             return;
 
         for (MenubarEntry* entry : menu->Children)
@@ -95,6 +103,38 @@ namespace Cosmic
         }
 
         delete menu;
+    }
+
+    void MenubarModule::ExecuteKeyPress(MenubarEntry* entry)
+    {
+		bool execute = entry->Keys.empty() ? false : true;
+
+		for (EKeyCode key : entry->Keys)
+			execute = execute && Input::IsKeyPressed(key);
+
+		if (entry->IsMenu())
+		{
+			MenubarMenu* menu = (MenubarMenu*)entry;
+
+			for (MenubarEntry* child : menu->Children)
+				ExecuteKeyPress(child);
+
+			if (execute)
+				mLayout.SetCurrentMenu(menu);
+		}
+		else if (execute)
+		{
+			MenubarItem* item = (MenubarItem*)entry;
+			item->Callback();
+		}
+    }
+
+    bool MenubarModule::OnKeyPressed(const KeyPressEvent& e)
+    {
+        for (MenubarMenu* menu : mLayout.GetMenubar())
+            ExecuteKeyPress(menu);
+
+        return false;
     }
 
 }

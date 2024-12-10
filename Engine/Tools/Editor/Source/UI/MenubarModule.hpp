@@ -72,6 +72,9 @@ namespace Cosmic
         void Item(MenubarItem&& item);
 
         Vector<MenubarMenu*> GetMenubar() const { return mMenubar; }
+
+        void         SetCurrentMenu(MenubarMenu* menu) { mCurrentMenu = menu; }
+        MenubarMenu* GetCurrentMenu()                  { return mCurrentMenu; }
         
     private:
         Vector<MenubarMenu*> mMenubar;
@@ -86,12 +89,17 @@ namespace Cosmic
 
     public:
         void OnImGuiRender() override;
+        void OnEvent(const IEvent& e) override;
 
     private:
         void RenderMenu(MenubarMenu* menu);
+        void DeleteMenu(MenubarMenu* menu);
 
     private:
-        void DeleteMenu(MenubarMenu* menu);
+        void ExecuteKeyPress(MenubarEntry* entry);
+
+    private:
+        bool OnKeyPressed(const KeyPressEvent& e);
 
     private:
         MenubarLayout mLayout;
