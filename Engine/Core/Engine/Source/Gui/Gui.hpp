@@ -1,5 +1,5 @@
 #pragma once
-#include "App/Event/Events.hpp"
+#include "Event/Events.hpp"
 
 namespace Cosmic
 {

@@ -15,7 +15,7 @@ CS_MODULE_LOG_INFO(Cosmic, Gui);
 #include "Base/Types.hpp"
 #include "App/Application.hpp"
 #include "App/Window/IWindow.hpp"
-#include "App/Event/Events.hpp"
+#include "Event/Events.hpp"
 
 namespace Cosmic
 {

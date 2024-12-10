@@ -5,8 +5,8 @@
 
 #include "Renderer/OrthographicCamera.hpp"
 #include "Base/Base.hpp"
-#include "App/Event/Events.hpp"
-#include "App/Event/WindowEvents.hpp"
+#include "Event/Events.hpp"
+#include "Event/Type/WindowEvents.hpp"
 #include "Time/Time.hpp"
 #include "App/Input.hpp"
 #include "Time/DeltaTime.hpp"

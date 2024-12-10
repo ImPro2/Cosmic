@@ -6,12 +6,11 @@
 #include <algorithm>
 #include <iterator>
 #include "Base/Base.hpp"
-#include "App/Event/Events.hpp"
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"
 
-#include "App/Event/WindowEvents.hpp"
-#include "App/Event/Events.hpp"
+#include "Event/Events.hpp"
+#include "Event/Type/WindowEvents.hpp"
 
 namespace Cosmic
 {

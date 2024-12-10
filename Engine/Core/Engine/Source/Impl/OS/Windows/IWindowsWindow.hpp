@@ -4,7 +4,7 @@
 
 #include "App/Window/IWindow.hpp"
 #include "App/Window/WindowInfo.hpp"
-#include "App/Event/WindowEvents.hpp"
+#include "Event/Type/WindowEvents.hpp"
 #include "Renderer/GraphicsContext.hpp"
 #include "Base/Types.hpp"
 #include "Base/Tuples.hpp"

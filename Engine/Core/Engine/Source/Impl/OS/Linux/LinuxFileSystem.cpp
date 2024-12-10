@@ -1,5 +1,5 @@
-#include "App/Event/Events.hpp"
-#include "App/Event/FileSystemEvents.hpp"
+#include "Event/Events.hpp"
+#include "Event/Type/FileSystemEvents.hpp"
 #include "Base/Macros.hpp"
 #include "cspch.hpp"
 #include <climits>

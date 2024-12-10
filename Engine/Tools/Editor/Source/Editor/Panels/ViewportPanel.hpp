@@ -9,10 +9,9 @@
 #include "Renderer/OrthographicCameraController.hpp"
 #include "Time/DeltaTime.hpp"
 #include "Gui/Gui.hpp"
-#include "App/Event/Events.hpp"
 #include "ECS/Scene.hpp"
 
-#include "App/Event/WindowEvents.hpp"
+#include "Event/Type/WindowEvents.hpp"
 #include "Editor/Event/SceneEvents.hpp"
 #include "Editor/EditorCamera.hpp"
 

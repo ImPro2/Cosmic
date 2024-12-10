@@ -1,4 +1,5 @@
 #include "cspch.hpp"
+#include "EventSystem.hpp"
 
 CS_MODULE_LOG_INFO(Cosmic, App.Events);
 #include "Base/Base.hpp"
@@ -15,11 +16,6 @@ namespace Cosmic
 	void EventSystem::Shutdown()
 	{
 
-	}
-
-	void EventSystem::AddEvent(IEvent* e)
-	{
-		sEventQueue.push(e);
 	}
 
 	void EventSystem::DispatchEvents()

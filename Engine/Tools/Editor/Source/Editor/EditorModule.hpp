@@ -1,6 +1,5 @@
 #pragma once
 #include "App/App.hpp"
-#include "App/Event/FileSystemEvents.hpp"
 #include "App/File.hpp"
 #include "App/Path.hpp"
 #include "Base/Base.hpp"
@@ -18,6 +17,11 @@
 #include "Event/SceneEvents.hpp"
 
 #include "Editor/Action/ActionManager.hpp"
+
+#include "Event/Events.hpp"
+#include "Event/Type/FileSystemEvents.hpp"
+#include "Editor/Event/SceneEvents.hpp"
+
 
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>

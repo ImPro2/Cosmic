@@ -4,6 +4,9 @@
 #include "App/App.hpp"
 #include "EntryPoint/EntryPoint.hpp"
 
+#include "Event/Events.hpp"
+#include "Event/Type/AppEvents.hpp"
+
 namespace Cosmic
 {
 

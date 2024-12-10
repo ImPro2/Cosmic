@@ -2,7 +2,8 @@
 #include "Panels.hpp"
 
 #include "App/Path.hpp"
-#include "App/Event/FileSystemEvents.hpp"
+#include "Event/Type/WindowEvents.hpp"
+#include "Event/Type/FileSystemEvents.hpp"
 
 #include <imgui.h>
 

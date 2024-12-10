@@ -6,6 +6,3 @@
 #include "App/FileSystem.hpp"
 #include "App/Input.hpp"
 #include "App/Module.hpp"
-#include "App/Event/Events.hpp"
-#include "App/Event/AppEvents.hpp"
-#include "App/Event/WindowEvents.hpp"

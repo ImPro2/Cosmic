@@ -17,9 +17,9 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.IWindowsWindow);
 #include "Base/Tuples.hpp"
 #include "App/Window/IWindow.hpp"
 #include "App/Window/WindowInfo.hpp"
-#include "App/Event/WindowEvents.hpp"
+#include "Event/EventSystem.hpp"
+#include "Event/Type/WindowEvents.hpp"
 #include "App/KeyAndMouseCodes.hpp"
-#include "App/Event/Events.hpp"
 
 namespace Cosmic
 {
@@ -60,7 +60,7 @@ namespace Cosmic
 
         SetupCallbacks();
 
-        EventSystem::AddEvent(new WindowCreateEvent(mData, true));
+        EventSystem::DeferEvent<WindowCreateEvent>(mData, true);
     }
 
     void IWindowsDesktopWindow::SetupCallbacks()
@@ -69,23 +69,24 @@ namespace Cosmic
 
         glfwSetWindowUserPointer(mHandle, &mData);
 
-        glfwSetWindowCloseCallback(mHandle, [](GLFWwindow* window) {
+        glfwSetWindowCloseCallback(mHandle, [](GLFWwindow* window)
+		{
             DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
 
-            //data(WindowCloseEvent(data.Info, true));
-            EventSystem::AddEvent(new WindowCloseEvent(data, true));
+            EventSystem::DeferEvent<WindowCloseEvent>(data, true);
         });
 
-        glfwSetWindowSizeCallback(mHandle, [](GLFWwindow* window, int width, int height) {
+        glfwSetWindowSizeCallback(mHandle, [](GLFWwindow* window, int width, int height)
+		{
             DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
             data.Size.width  = (uint32)width;
             data.Size.height = (uint32)height;
 
-            //data(WindowResizeEvent(data.Size, data.Info, true));
-            EventSystem::AddEvent(new WindowResizeEvent(data.Size, data, true));
+            EventSystem::DeferEvent<WindowResizeEvent>(data.Size, data, true);
         });
 
-        glfwSetKeyCallback(mHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        glfwSetKeyCallback(mHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
             DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
             static int repeatCount  = 0;
 
@@ -94,55 +95,51 @@ namespace Cosmic
                 case GLFW_REPEAT:
                 {
                     repeatCount++;
-                    //data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
-                    EventSystem::AddEvent(new KeyPressEvent((EKeyCode)key, repeatCount, data, true));
+                    EventSystem::DeferEvent<KeyPressEvent>((EKeyCode)key, repeatCount, data, true);
                     break;
                 }
                 case GLFW_PRESS:
                 {
-                    //data(KeyPressEvent((EKeyCode)key, repeatCount, data.Info, true));
-                    EventSystem::AddEvent(new KeyPressEvent((EKeyCode)key, repeatCount, data, true));
+                    EventSystem::DeferEvent<KeyPressEvent>((EKeyCode)key, repeatCount, data, true);
                     break;
                 }
                 case GLFW_RELEASE:
                 {
-                    //data(KeyReleaseEvent((EKeyCode)key, data.Info, true));
-                    EventSystem::AddEvent(new KeyReleaseEvent((EKeyCode)key, data, true));
+                    EventSystem::DeferEvent<KeyReleaseEvent>((EKeyCode)key, data, true);
                     repeatCount = 0;
                     break;
                 }
             }
         });
 
-        glfwSetCharCallback(mHandle, [](GLFWwindow* window, unsigned int keycode) {
+        glfwSetCharCallback(mHandle, [](GLFWwindow* window, unsigned int keycode)
+        {
             DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
-            //data(KeyTypeEvent((char)keycode, data.Info, true));
-            EventSystem::AddEvent(new KeyTypeEvent((char)keycode, data, true));
+            EventSystem::DeferEvent<KeyTypeEvent>((char)keycode, data, true);
         });
 
-        glfwSetCursorPosCallback(mHandle, [](GLFWwindow* window, double xpos, double ypos) {
-            DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
-            //data(MouseMoveEvent({ (float32)xpos, (float32)ypos }, data.Info, true));
-            EventSystem::AddEvent(new MouseMoveEvent({ (float32)xpos, (float32)ypos }, data, true));
+        glfwSetCursorPosCallback(mHandle, [](GLFWwindow* window, double xpos, double ypos)
+		{
+			DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
+			EventSystem::DeferEvent<MouseMoveEvent>(float2 { (float32)xpos, (float32)ypos }, data, true);
         });
 
-        glfwSetScrollCallback(mHandle, [](GLFWwindow* window, double xoffset, double yoffset) {
+        glfwSetScrollCallback(mHandle, [](GLFWwindow* window, double xoffset, double yoffset)
+		{
             DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
-            //data(MouseScrollEvent((float32)yoffset, data.Info, true));
-            EventSystem::AddEvent(new MouseScrollEvent((float32)yoffset, data, true));
+            EventSystem::DeferEvent<MouseScrollEvent>((float32)yoffset, data, true);
         });
 
-        glfwSetMouseButtonCallback(mHandle, [](GLFWwindow* window, int button, int action, int mods) {
+        glfwSetMouseButtonCallback(mHandle, [](GLFWwindow* window, int button, int action, int mods)
+		{
             DesktopWindowInfo& data = *(DesktopWindowInfo*)glfwGetWindowUserPointer(window);
 
             switch (action)
             {
                 case GLFW_PRESS:
-                    //data(MouseButtonClickEvent((EMouseCode)button, data.Info, true)); break;
-                    EventSystem::AddEvent(new MouseButtonClickEvent((EMouseCode)button, data, true));
+                    EventSystem::DeferEvent<MouseButtonClickEvent>((EMouseCode)button, data, true);
                 case GLFW_RELEASE:
-                    //data(MouseButtonReleaseEvent((EMouseCode)button, data.Info, true)); break;
-                    EventSystem::AddEvent(new MouseButtonReleaseEvent((EMouseCode)button, data, true));
+                    EventSystem::DeferEvent<MouseButtonReleaseEvent>((EMouseCode)button, data, true);
             }
         });
     }
@@ -201,7 +198,7 @@ namespace Cosmic
 
         glfwSetWindowTitle(mHandle, title.c_str());
 
-        EventSystem::AddEvent(new WindowTitleEvent(title, mData, true));
+        EventSystem::DeferEvent<WindowTitleEvent>(title, mData, true);
     }
 
     void IWindowsDesktopWindow::SetVSync(bool vsync)

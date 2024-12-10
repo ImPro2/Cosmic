@@ -8,7 +8,7 @@
 #include "App/Log/Log.hpp"
 #include "App/Log/ConsoleColor.hpp"
 #include "App/Log/LogSeverity.hpp"
-#include "App/Event/LogEvents.hpp"
+#include "Event/Type/LogEvents.hpp"
 #include "Base/StringUtils.hpp"
 
 namespace Cosmic

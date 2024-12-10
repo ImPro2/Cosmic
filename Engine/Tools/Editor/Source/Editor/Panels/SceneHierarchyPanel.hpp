@@ -1,10 +1,10 @@
 #pragma once
-#include <imgui.h>
-#include <entt/entt.hpp>
+#include "Panels.hpp"
 
+#include "Event/Type/WindowEvents.hpp"
+#include "Editor/Event/EditorEvents.hpp"
 #include "Editor/Event/SceneEvents.hpp"
 #include "Editor/Event/EntityEvents.hpp"
-#include "Panels.hpp"
 
 #include "Base/Base.hpp"
 #include "App/Module.hpp"
@@ -14,10 +14,9 @@
 #include "Time/DeltaTime.hpp"
 #include "ECS/Scene.hpp"
 #include "ECS/Entity.hpp"
-#include "App/Event/Events.hpp"
-#include "App/Event/WindowEvents.hpp"
 
-#include "Editor/Event/EditorEvents.hpp"
+#include <imgui.h>
+#include <entt/entt.hpp>
 
 namespace Cosmic
 {

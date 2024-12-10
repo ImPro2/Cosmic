@@ -9,7 +9,7 @@ namespace Cosmic
 	class StackAllocator
 	{
 	public:
-		static const constexpr MaxSize = N;
+		inline static constexpr size_t MaxSize = N;
 
 	public:
 		StackAllocator()  = default;
@@ -32,29 +32,32 @@ namespace Cosmic
 		T* Allocate(Args&&... args)
 		{
 			size_t offset = sizeof(T);
-			CS_ASSERT_NOMSG(GetSize() + offset >= MaxSize);
+			CS_ASSERT_NOMSG(GetSize() + offset < MaxSize);
 
 			T* ptr = new(mTop) T(std::forward<Args>(args)...);
-			mTop += offset;
+			mTop   = static_cast<byte*>(mTop) + offset;
+
 			return ptr;
 		}
 
 		void Free()
 		{
-			memcpy(mMarker, nullptr, mTop - mMarker);
+			memset(mMarker, 0, (size_t)mTop - (size_t)mMarker);
 			mTop = mMarker;
 		}
 
 		void SetMarker(void* marker)
-		{ 
-			CS_ASSERT_NOMSG(marker > mTop && (marker - mTop) < MaxSize); // Marker is out of bounds
+		{
+			// Marker is out of bounds
+			CS_ASSERT_NOMSG(marker == nullptr || (marker > mTop && (size_t)marker - (size_t)mTop < MaxSize));
+
 			mMarker = (marker == nullptr) ? mTop : marker;
 		}
 		
 	public:
-		void*  GetTop()        { return mTop;                              }
-		void*  GetMarker()     { return mMarker;                           }
-		size_t GetSize() const { return (size_t)(mTop - mStack.GetData()); }
+		void*  GetTop()        { return mTop;                                    }
+		void*  GetMarker()     { return mMarker;                                 }
+		size_t GetSize() const { return (size_t)mTop - (size_t)mStack.GetData(); }
 
 	private:
 		StaticBuffer<N> mStack;

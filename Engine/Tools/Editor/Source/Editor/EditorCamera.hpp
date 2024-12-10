@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Types.hpp"
 #include "ECS/SceneCamera.hpp"
-#include "App/Event/Events.hpp"
+#include "Event/Events.hpp"
 
 #include <glm/glm.hpp>
 

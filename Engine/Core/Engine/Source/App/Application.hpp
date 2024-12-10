@@ -5,9 +5,8 @@
 #include "App/Window/WindowInfo.hpp"
 #include "EntryPoint/EntryPoint.hpp"
 #include "Renderer/RendererAPI.hpp"
-// #include "Renderer/RenderCommand.hpp"
-#include "App/Event/Events.hpp"
-#include "App/Event/WindowEvents.hpp"
+
+#include "Event/Events.hpp"
 
 namespace Cosmic {
 
@@ -45,16 +44,16 @@ namespace Cosmic {
         bool OnWindowClose(const WindowCloseEvent &e);
     
     public:
-        static Application* Get()              { return sInstance;     }
-        const ApplicationInfo& GetInfo() const { return mInfo;         }
-        static void Set(Application* instance) { sInstance = instance; }
-        IDesktopWindow* GetWindow()            { return mWindow.get(); }
+        static Application*    Get()                      { return sInstance;     }
+        const ApplicationInfo& GetInfo() const            { return mInfo;         }
+        static void            Set(Application* instance) { sInstance = instance; }
+        IDesktopWindow*        GetWindow()                { return mWindow.get(); }
     
     private:
-        static Application *sInstance;
-        bool mRunning = true;
-        bool mMinimized = false;
-        ApplicationInfo mInfo;
+        static Application*   sInstance;
+        bool                  mRunning   = true;
+        bool                  mMinimized = false;
+        ApplicationInfo       mInfo;
         Scope<IDesktopWindow> mWindow;
     };
 

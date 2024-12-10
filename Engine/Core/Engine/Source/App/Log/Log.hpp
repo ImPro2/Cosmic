@@ -4,12 +4,13 @@
 #include <string_view>
 
 #include "Base/Base.hpp"
-#include "App/Log/ConsoleColor.hpp"
 #include "App/OS.hpp"
 #include "App/Application.hpp"
-#include "App/Event/LogEvents.hpp"
-#include "App/Event/Events.hpp"
+
+#include "App/Log/ConsoleColor.hpp"
 #include "App/Log/LogSeverity.hpp"
+
+#include "Event/Type/LogEvents.hpp"
 
 namespace Cosmic
 {
@@ -86,7 +87,7 @@ namespace Cosmic
             LogToConsole(logData);
             LogToFile(logData);
 
-            EventSystem::AddEvent(new LogEvent(logData.Message, logData.Severity));
+            EventSystem::DeferEvent<LogEvent>(logData.Message, logData.Severity);
         }
 
         static void LogToConsole(const LogData& logData)

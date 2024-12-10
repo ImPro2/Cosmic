@@ -100,7 +100,7 @@ namespace Cosmic
             if (!entity.HasComponent<Component>())
             {
                 Component component = entity.AddComponent<Component>();
-                EventSystem::AddEvent(new ComponentAddedEvent(entity, new Component()));
+                EventSystem::DeferEvent<ComponentAddedEvent>(entity, new Component());
             }
             else
                 CS_LOG_WARN("This entity already has a {}.", name);

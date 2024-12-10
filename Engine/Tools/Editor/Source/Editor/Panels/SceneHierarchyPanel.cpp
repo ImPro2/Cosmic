@@ -356,12 +356,12 @@ namespace Cosmic
         mSelectedEntities = { mLastSelectedEntity };
         mLastSelectedEntityIndex = 0;
 
-        EventSystem::AddEvent(new EntityAddedEvent({ mLastSelectedEntity }, mScene));
+        EventSystem::DeferEvent<EntityAddedEvent>(Vector<Entity> { mLastSelectedEntity }, mScene);
     }
 
     void SceneHierarchyPanel::DeleteSelectedEntities()
     {
-        EventSystem::AddEvent(new EntityRemovedEvent(mSelectedEntities, mScene));
+        EventSystem::DeferEvent<EntityRemovedEvent>(mSelectedEntities, mScene);
 
         mSelectedEntities.clear();
         mLastSelectedEntity = {};
@@ -379,7 +379,7 @@ namespace Cosmic
 
         mSelectedEntities.insert(mSelectedEntities.end(), duplicatedEntities.begin(), duplicatedEntities.end());
 
-		EventSystem::AddEvent(new EntityAddedEvent(duplicatedEntities, mScene));
+		EventSystem::DeferEvent<EntityAddedEvent>(duplicatedEntities, mScene);
     }
 
 }

@@ -5,7 +5,7 @@
 
 CS_MODULE_LOG_INFO(Cosmic, App.Application);
 
-#include "App/Event/AppEvents.hpp"
+#include "Event/Type/AppEvents.hpp"
 #include "App/FileSystem.hpp"
 #include "App/Module.hpp"
 #include "App/OS.hpp"
@@ -14,6 +14,7 @@ CS_MODULE_LOG_INFO(Cosmic, App.Application);
 #include "Renderer/Renderer2D.hpp"
 #include "Script/ScriptEngine.hpp"
 #include "Time/Time.hpp"
+#include "App/FrameAllocator.hpp"
 
 namespace Cosmic
 {
@@ -45,6 +46,7 @@ namespace Cosmic
 
         mInfo = info;
 
+        FrameAllocator::Init();
         OS::Init();
         RenderCommand::Init(mInfo.RendererBackend);
 
@@ -69,6 +71,7 @@ namespace Cosmic
 
         OnEvent(ApplicationCloseEvent());
 
+        FrameAllocator::Shutdown();
         ScriptEngine::Shutdown();
         Gui::Shutdown();
         Renderer2D::Shutdown();
@@ -97,8 +100,7 @@ namespace Cosmic
             if (!mMinimized)
             {
                 ModuleSystem::OnUpdate();
-                EventSystem::AddEvent(new ApplicationUpdateEvent());
-                EventSystem::DispatchEvents();
+                EventSystem::DeferEvent<ApplicationUpdateEvent>();
             }
 
             if (mInfo.EnableImGui)
@@ -109,6 +111,9 @@ namespace Cosmic
             }
 
             mWindow->Update();
+
+			EventSystem::DispatchEvents();
+            FrameAllocator::Free();
         }
 
         Shutdown();
@@ -151,4 +156,4 @@ namespace Cosmic
         return true;
     }
 
-} // namespace Cosmic
+}

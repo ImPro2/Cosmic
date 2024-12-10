@@ -1,5 +1,5 @@
 #pragma once
-#include "App/Event/Events.hpp"
+#include "Event/Events.hpp"
 #include "Editor/Event/EditorEvents.hpp"
 #include "Editor/Event/SceneEvents.hpp"
 #include "Editor/Event/EntityEvents.hpp"

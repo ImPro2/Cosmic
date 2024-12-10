@@ -1,8 +1,5 @@
 #pragma once
-
-#include <functional>
-
-#include "App/Event/Events.hpp"
+#include "Event/IEvent.hpp"
 #include "Base/Base.hpp"
 #include "Base/Types.hpp"
 #include "Base/Tuples.hpp"

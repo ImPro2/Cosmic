@@ -1,8 +1,7 @@
-#include "App/KeyAndMouseCodes.hpp"
 #include "cspch.hpp"
-#include "Editor/Event/EditorSceneEvents.hpp"
 #include "EditorModule.hpp"
-#include "App/Event/Events.hpp"
+#include "App/KeyAndMouseCodes.hpp"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <entt/entt.hpp>
@@ -209,7 +208,7 @@ namespace Cosmic
             SceneSerializer serializer(mActiveScene);
             serializer.Serialize(mActiveScenePath);
 
-            EventSystem::AddEvent(new EditorSceneSavedEvent(mActiveScene));
+            EventSystem::DeferEvent<SceneSavedEvent>(mActiveScene);
         }
     }
 
@@ -219,7 +218,7 @@ namespace Cosmic
         SceneSerializer serializer(mActiveScene);
         serializer.Serialize(mActiveScenePath);
 
-        EventSystem::AddEvent(new EditorSceneSavedAsEvent(mActiveScene));
+        EventSystem::DeferEvent<SceneSavedAsEvent>(mActiveScene);
     }
 
     void EditorModule::SaveSceneAs()
@@ -237,7 +236,7 @@ namespace Cosmic
         SceneSerializer serializer(mActiveScene);
         serializer.Deserialize(mActiveScenePath);
 
-        EventSystem::AddEvent(new EditorSceneOpenedEvent(mActiveScene));
+        EventSystem::DeferEvent<SceneOpenedEvent>(mActiveScene);
     }
 
     void EditorModule::OpenScene()
