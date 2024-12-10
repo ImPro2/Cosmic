@@ -21,6 +21,7 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         AddDeferredModules();
+        RemoveDeferredModules();
 
         float32 dt = Time::GetDeltaTime();
 
@@ -46,9 +47,9 @@ namespace Cosmic
 
     void ModuleSystem::AddDeferredModules()
     {
-        while (!sDeferredModules.empty())
+        while (!sDeferredAddModules.empty())
         {
-            auto [module, insertMode] = sDeferredModules.front();
+            auto [module, insertMode] = sDeferredAddModules.front();
             
             module->OnInit();
             
@@ -58,7 +59,21 @@ namespace Cosmic
                 case EDeferredInsertMode::Back:  sModules.push_back(module);                break;
             }
 
-            sDeferredModules.pop();
+            sDeferredAddModules.pop();
+        }
+    }
+
+    void ModuleSystem::RemoveDeferredModules()
+    {
+        while (!sDeferredRemoveModules.empty())
+        {
+            Ref<IModule> module = sDeferredRemoveModules.front();
+
+            std::erase(sModules, module);
+            module->OnShutdown();
+            module.reset();
+
+            sDeferredRemoveModules.pop();
         }
     }
 

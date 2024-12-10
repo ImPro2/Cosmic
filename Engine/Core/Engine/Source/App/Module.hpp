@@ -83,7 +83,7 @@ namespace Cosmic
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
-            sDeferredModules.push({ module, EDeferredInsertMode::Back });
+            sDeferredAddModules.push({ module, EDeferredInsertMode::Back });
 
             return std::static_pointer_cast<T>(module);
         }
@@ -96,7 +96,7 @@ namespace Cosmic
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
-            sDeferredModules.push({ module, EDeferredInsertMode::Front });
+            sDeferredAddModules.push({ module, EDeferredInsertMode::Front });
 
             return std::static_pointer_cast<T>(module);
         }
@@ -117,6 +117,12 @@ namespace Cosmic
             };
 
             std::erase_if(sModules, eraseFunction);
+        }
+
+        template<typename T>
+        static void RemoveDeferred()
+        {
+            sDeferredRemoveModules.push(Get<T>());
         }
 
         template<typename T>
@@ -142,10 +148,14 @@ namespace Cosmic
         static void OnImGuiRender();
 
         static void AddDeferredModules();
+        static void RemoveDeferredModules();
 
     private:
         inline static Vector<Ref<IModule>> sModules;
-        inline static std::queue<Pair<Ref<IModule>, EDeferredInsertMode>> sDeferredModules;
+
+        inline static std::queue<Pair<Ref<IModule>, EDeferredInsertMode>> sDeferredAddModules;
+        inline static std::queue<Ref<IModule>>                            sDeferredRemoveModules;
+
         friend class Application;
     };
 

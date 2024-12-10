@@ -335,7 +335,7 @@ namespace Cosmic
             mCallback(File(mSelectedPath));
         }
 
-        ModuleSystem::Remove<FileDialogModule>();
+        ModuleSystem::RemoveDeferred<FileDialogModule>();
     }
 
 }
