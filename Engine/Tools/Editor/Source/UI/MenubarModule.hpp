@@ -13,8 +13,8 @@ namespace Cosmic
 
     struct MenubarEntry
     {
-        MenubarEntry(const char* name, const char* shortcut, std::initializer_list<EKeyCode> keys)
-            : Name(name), Shortcut(shortcut), Keys(keys)
+        MenubarEntry(const char* name, const char* shortcut, const Vector<EKeyCode>& keys, MenubarMenu* parent = nullptr)
+            : Name(name), Shortcut(shortcut), Keys(keys), Parent(Parent)
         {
         }
 
@@ -34,6 +34,11 @@ namespace Cosmic
         {
         }
 
+        MenubarItem(const MenubarItem& other)
+            : MenubarEntry(other.Name, other.Shortcut, other.Keys, other.Parent), EnabledPtr(other.EnabledPtr), Callback(other.Callback)
+        {
+        }
+
         bool IsMenu() override { return false; }
         
         bool* EnabledPtr;
@@ -47,6 +52,11 @@ namespace Cosmic
         {
         }
 
+        MenubarMenu(const MenubarMenu& other)
+            : MenubarEntry(other.Name, other.Shortcut, other.Keys, other.Parent), Children(other.Children)
+        {
+        }
+
         bool IsMenu() override { return true; }
 
         Vector<MenubarEntry*> Children;
@@ -54,17 +64,18 @@ namespace Cosmic
 
     struct MenubarLayout
     {
-        MenubarLayout();
+        MenubarLayout()                     = default;
+        MenubarLayout(const MenubarLayout&) = default;
 
-        void BeginMenu(MenubarMenu* menu);
+        void BeginMenu(MenubarMenu&& menu);
         void EndMenu();
-        void Item(MenubarItem* item);
+        void Item(MenubarItem&& item);
 
         Vector<MenubarMenu*> GetMenubar() const { return mMenubar; }
         
     private:
         Vector<MenubarMenu*> mMenubar;
-        MenubarMenu* mCurrentMenu;
+        MenubarMenu* mCurrentMenu = nullptr;
     };
 
     class MenubarModule : public IModule

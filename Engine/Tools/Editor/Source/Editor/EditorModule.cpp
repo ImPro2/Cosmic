@@ -78,32 +78,32 @@ namespace Cosmic
     {
         MenubarLayout menubar;
 
-        menubar.BeginMenu(new MenubarMenu("File", "ALT+F", { EKeyCode::LeftAlt, EKeyCode::F }));
+        menubar.BeginMenu(MenubarMenu("File", "ALT+F", { EKeyCode::LeftAlt, EKeyCode::F }));
 
-        menubar.Item(new MenubarItem("Open Scene",    "CTRL+O",       { EKeyCode::LeftControl, EKeyCode::O },                      nullptr, [this]() { OpenScene();   }));
-        menubar.Item(new MenubarItem("Save Scene",    "CTRL+S",       { EKeyCode::LeftControl, EKeyCode::S },                      nullptr, [this]() { SaveScene();   }));
-        menubar.Item(new MenubarItem("Save Scene As", "CTRL+SHIFT+S", { EKeyCode::LeftControl, EKeyCode::LeftShift, EKeyCode::S }, nullptr, [this]() { SaveSceneAs(); }));
-
-        menubar.EndMenu();
-
-        menubar.BeginMenu(new MenubarMenu("Edit", "ALT+E", { EKeyCode::LeftAlt, EKeyCode::E }));
-
-        menubar.Item(new MenubarItem("Undo", "CTRL+Z", { EKeyCode::LeftControl, EKeyCode::Z }, nullptr, [this]() { mActionManager.UndoLastAction(); }));
-        menubar.Item(new MenubarItem("Redo", "CTRL+Y", { EKeyCode::LeftControl, EKeyCode::Y }, nullptr, [this]() { mActionManager.RedoLastAction(); }));
+        menubar.Item(MenubarItem("Open Scene",    "CTRL+O",       { EKeyCode::LeftControl, EKeyCode::O },                      nullptr, [this]() { OpenScene();   }));
+        menubar.Item(MenubarItem("Save Scene",    "CTRL+S",       { EKeyCode::LeftControl, EKeyCode::S },                      nullptr, [this]() { SaveScene();   }));
+        menubar.Item(MenubarItem("Save Scene As", "CTRL+SHIFT+S", { EKeyCode::LeftControl, EKeyCode::LeftShift, EKeyCode::S }, nullptr, [this]() { SaveSceneAs(); }));
 
         menubar.EndMenu();
 
-        menubar.BeginMenu(new MenubarMenu("View", "ALT+V", { EKeyCode::LeftAlt, EKeyCode::V }));
-        menubar.BeginMenu(new MenubarMenu("Panels", "", {}));
+        menubar.BeginMenu(MenubarMenu("Edit", "ALT+E", { EKeyCode::LeftAlt, EKeyCode::E }));
 
-        menubar.Item(new MenubarItem("Show All", "", {}, nullptr, [this]() { mPanels.ShowAll(); }));
+        menubar.Item(MenubarItem("Undo", "CTRL+Z", { EKeyCode::LeftControl, EKeyCode::Z }, nullptr, [this]() { mActionManager.UndoLastAction(); }));
+        menubar.Item(MenubarItem("Redo", "CTRL+Y", { EKeyCode::LeftControl, EKeyCode::Y }, nullptr, [this]() { mActionManager.RedoLastAction(); }));
+
+        menubar.EndMenu();
+
+        menubar.BeginMenu(MenubarMenu("View", "ALT+V", { EKeyCode::LeftAlt, EKeyCode::V }));
+        menubar.BeginMenu(MenubarMenu("Panels", "", {}));
+
+        menubar.Item(MenubarItem("Show All", "", {}, nullptr, [this]() { mPanels.ShowAll(); }));
 
         for (Ref<IPanel> panel : mPanels.GetPanels())
-            menubar.Item(new MenubarItem(panel->GetPanelName().c_str(), "", {}, panel->IsOpenPtr()));
+            menubar.Item(MenubarItem(panel->GetPanelName().c_str(), "", {}, panel->IsOpenPtr()));
 
         menubar.EndMenu();
 
-        menubar.Item(new MenubarItem("Show ImGui Demo Window", "", {}, &mShowDemoWindow));
+        menubar.Item(MenubarItem("Show ImGui Demo Window", "", {}, &mShowDemoWindow));
 
         menubar.EndMenu();
 

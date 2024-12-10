@@ -6,7 +6,7 @@ namespace Cosmic
 
 	class Application;
 
-	class FrameAllocator
+	class FrameStackAllocator
 	{
 	public:
 		inline static constexpr size_t StackSize = 1024 * 1024;

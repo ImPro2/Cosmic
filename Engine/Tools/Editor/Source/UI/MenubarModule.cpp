@@ -1,30 +1,29 @@
 #include "cspch.hpp"
 #include "MenubarModule.hpp"
 
+#include "App/PersistentStackAllocator.hpp"
+
 #include "UI/ImGuiUtil.hpp"
 #include "imgui.h"
 
 namespace Cosmic
 {
 
-    MenubarLayout::MenubarLayout()
+    void MenubarLayout::BeginMenu(MenubarMenu&& menu)
     {
-        mCurrentMenu = nullptr;
-    }
+        MenubarMenu* ptr = PersistentStackAllocator::Allocate<MenubarMenu>(std::move(menu));
 
-    void MenubarLayout::BeginMenu(MenubarMenu* menu)
-    {
         if (mCurrentMenu == nullptr)
         {
-            menu->Parent = nullptr;
-            mMenubar.emplace_back(menu);            
-            mCurrentMenu = menu;
+            ptr->Parent = nullptr;
+            mMenubar.emplace_back(ptr);
+            mCurrentMenu = ptr;
         }
         else
         {
-            menu->Parent = mCurrentMenu;
-            mCurrentMenu->Children.push_back(menu);
-            mCurrentMenu = menu;
+            ptr->Parent = mCurrentMenu;
+            mCurrentMenu->Children.push_back(ptr);
+            mCurrentMenu = ptr;
         }
     }
 
@@ -33,9 +32,10 @@ namespace Cosmic
         mCurrentMenu = (MenubarMenu*)mCurrentMenu->Parent;
     }
 
-    void MenubarLayout::Item(MenubarItem* item)
+    void MenubarLayout::Item(MenubarItem&& item)
     {
-        mCurrentMenu->Children.push_back(item);
+        MenubarItem* ptr = PersistentStackAllocator::Allocate<MenubarItem>(std::move(item));
+        mCurrentMenu->Children.push_back(ptr);
     }
 
     MenubarModule::MenubarModule(const MenubarLayout& layout)
