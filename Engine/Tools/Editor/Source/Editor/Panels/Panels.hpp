@@ -5,7 +5,7 @@
 #include "App/Module.hpp"
 #include "Renderer/Framebuffer.hpp"
 #include "ECS/Scene.hpp"
-#include "Editor/Layout/Layout.hpp"
+#include "UI/Layout/Layout.hpp"
 
 namespace Cosmic
 {

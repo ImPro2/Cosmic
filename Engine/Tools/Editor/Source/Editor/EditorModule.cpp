@@ -34,10 +34,14 @@ namespace Cosmic
         mPanels.Init();
 
         SetupMenuBar();
+
+        mLayoutManager.Init();
     }
 
     void EditorModule::OnShutdown()
     {
+        mLayoutManager.Shutdown();
+
         CS_PROFILE_FN();
     }
 

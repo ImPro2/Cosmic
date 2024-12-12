@@ -2,7 +2,8 @@
 #include "Layout.hpp"
 #include "Editor/EditorModule.hpp"
 #include "Editor/Panels/Panels.hpp"
-#include "Editor/Layout/LayoutManager.hpp"
+#include "UI/Layout/LayoutManager.hpp"
+#include "UI/DockspaceModule.hpp"
 
 #include "Editor/Panels/Panels.hpp"
 #include "Editor/Panels/ConsolePanel.hpp"
@@ -37,6 +38,18 @@ namespace Cosmic
         static DockNode* AllocateDockNode(Args&&... args)
         {
             return PersistentStackAllocator::Allocate<DockNode>(std::forward<Args>(args)...);
+        }
+
+        // Breadth-first
+        template<typename Callback>
+        static void IterateDockNode(DockNode* node, Callback fn)
+        {
+            fn(node);
+
+            if (node->Child1)
+                IterateDockNode(node->Child1, fn);
+            if (node->Child2)
+                IterateDockNode(node->Child2, fn);
         }
 
     }
@@ -147,8 +160,6 @@ namespace Cosmic
 	{
 		mName = "Default";
 
-        const Ref<EditorModule>& editorModule = ModuleSystem::Get<EditorModule>();
-
         const Ref<IPanel>& consolePanel        = ModuleSystem::Get<ConsolePanel>();    
         const Ref<IPanel>& viewportPanel       = ModuleSystem::Get<ViewportPanel>();
         const Ref<IPanel>& inspectorPanel      = ModuleSystem::Get<InspectorPanel>();
@@ -171,8 +182,6 @@ namespace Cosmic
                 )
             )
 		);
-
-        Load();
 	}
 
 	void Layout::ConstructFromCurrentLayout()
@@ -183,7 +192,48 @@ namespace Cosmic
 
     void Layout::Load()
     {
-        
+        ImGuiID dockspaceID = ImGui::GetID(ModuleSystem::Get<DockspaceModule>()->GetDockspaceName().c_str());
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+        ImGui::DockBuilderRemoveNode(dockspaceID);
+        ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
+
+        mRoot->ID = (DockNodeID)dockspaceID;
+
+        Utils::IterateDockNode(mRoot, [](DockNode* node)
+        {
+			if (!node->Child1)
+				return;
+
+			ImGuiDir splitDir = Utils::EDockSplitDirToImGuiDir(node->SplitDir);
+
+            if (node->SplitDir != EDockSplitDir::Stack)
+            {
+                ImGuiID* child1ID = (ImGuiID*)node->Child1;
+                ImGuiID* child2ID = (ImGuiID*)node->Child2;
+
+                ImGui::DockBuilderSplitNode((ImGuiID)node->ID, splitDir, node->SplitPercent, child1ID, child2ID);
+            }
+            else
+            {
+                node->Child1->ID = node->ID;
+            }
+
+            if (node->Child1)
+            {
+				if (Ref<IPanel> panel = node->Child1->Panel.Own())
+                    ImGui::DockBuilderDockWindow(panel->GetPanelName().c_str(), node->Child1->ID);
+            }
+
+            if (node->Child2)
+            {
+				if (Ref<IPanel> panel = node->Child2->Panel.Own())
+                    ImGui::DockBuilderDockWindow(panel->GetPanelName().c_str(), node->Child2->ID);
+            }
+		});
+
+        ImGui::DockBuilderFinish(dockspaceID);
     }
 
 }

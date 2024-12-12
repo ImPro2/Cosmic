@@ -22,7 +22,7 @@
 #include "Event/Type/FileSystemEvents.hpp"
 #include "Editor/Event/SceneEvents.hpp"
 
-#include "Editor/Layout/LayoutManager.hpp"
+#include "UI/Layout/LayoutManager.hpp"
 
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
