@@ -16,7 +16,7 @@
 namespace Cosmic
 {
 
-    class Scene
+    class Scene : public IRefCounted
     {
     public:
         Scene();

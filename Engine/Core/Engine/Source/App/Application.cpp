@@ -15,8 +15,8 @@ CS_MODULE_LOG_INFO(Cosmic, App.Application);
 #include "Script/ScriptEngine.hpp"
 #include "Time/Time.hpp"
 
-#include "App/FrameStackAllocator.hpp"
-#include "App/PersistentStackAllocator.hpp"
+#include "Memory/FrameStackAllocator.hpp"
+#include "Memory/PersistentStackAllocator.hpp"
 
 namespace Cosmic
 {

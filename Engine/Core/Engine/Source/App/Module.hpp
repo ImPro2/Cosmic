@@ -8,6 +8,7 @@
 #include "Base/Base.hpp"
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"
+#include "Memory/Memory.hpp"
 
 #include "Event/Events.hpp"
 #include "Event/Type/WindowEvents.hpp"
@@ -19,7 +20,7 @@ namespace Cosmic
     class ModuleSystem;
 
     // class to be inherited from
-    class IModule
+    class IModule : public IRefCounted
     {
     public:
         virtual void OnInit()                 { };
@@ -58,7 +59,7 @@ namespace Cosmic
             module->mName = typeid(T).name();
             module->OnInit();
 
-            return std::static_pointer_cast<T>(module);
+            return module.As<T>();
         }
 
         template<typename T, typename ... Args>
@@ -72,33 +73,33 @@ namespace Cosmic
             module->mName = typeid(T).name();
             module->OnInit();
 
-            return std::static_pointer_cast<T>(module);
+            return module.As<T>();
         }
 
         template<typename T, typename ... Args>
         static Ref<T> AddDeferred(Args&& ... args)
         {
-            if (Get<T>().get())
+            if (Get<T>())
                 return Get<T>();
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             sDeferredAddModules.push({ module, EDeferredInsertMode::Back });
 
-            return std::static_pointer_cast<T>(module);
+            return module.As<T>();
         }
 
         template<typename T, typename ... Args>
         static Ref<T> AddFrontDeferred(Args&& ... args)
         {
-            if (Get<T>().get())
+            if (Get<T>())
                 return Get<T>();
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
             sDeferredAddModules.push({ module, EDeferredInsertMode::Front });
 
-            return std::static_pointer_cast<T>(module);
+            return module.As<T>();
         }
 
         template<typename T>
@@ -109,7 +110,7 @@ namespace Cosmic
                 if (module->mName == typeid(T).name())
                 {
                     module->OnShutdown();
-                    module.reset();
+                    module.Release();
                     return true;
                 }
 
@@ -133,7 +134,7 @@ namespace Cosmic
             for (Ref<IModule> module : sModules)
             {
                 if (module->GetName() == name)
-                    return std::static_pointer_cast<T>(module);
+                    return module.As<T>();
             }
 
             return Ref<T>(nullptr);

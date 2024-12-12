@@ -1,5 +1,6 @@
 #pragma once
 #include "Project.hpp"
+#include "Memory/StrongRef.hpp"
 
 namespace Cosmic
 {

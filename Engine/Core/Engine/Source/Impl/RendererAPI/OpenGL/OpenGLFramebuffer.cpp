@@ -148,7 +148,7 @@ namespace Cosmic
 
     void OpenGLFramebuffer::ClearAttachment(uint32 attachmentIndex, int32 value)
     {
-        const Ref<OpenGLTexture2D>& texture = std::static_pointer_cast<OpenGLTexture2D>(mTextures[attachmentIndex]);
+        const Ref<OpenGLTexture2D>& texture = mTextures[attachmentIndex].As<OpenGLTexture2D>();
 
         GL_CALL(glClearTexImage(texture->GetRendererID(), 0, texture->GetDataFormat(), GL_INT, &value));
     }
@@ -158,7 +158,7 @@ namespace Cosmic
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mRendererID));
         GL_CALL(glReadBuffer(Utils::IndexToOpenGLColorAttachmentIndex(attachmentIndex)));
 
-        const Ref<OpenGLTexture2D> attachment = std::static_pointer_cast<OpenGLTexture2D>(mTextures[attachmentIndex]);
+        const Ref<OpenGLTexture2D> attachment = mTextures[attachmentIndex].As<OpenGLTexture2D>();
 
         float32 pixelData;
 

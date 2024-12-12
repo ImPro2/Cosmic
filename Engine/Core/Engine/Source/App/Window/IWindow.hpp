@@ -4,21 +4,16 @@
 #include "Base/Base.hpp"
 #include "Base/Tuples.hpp"
 #include "Renderer/GraphicsContext.hpp"
+#include "Memory/ScopedPtr.hpp"
 
 namespace Cosmic {
 
-	using WindowHandle = void *;
+	using WindowHandle = void*;
 
 	class IWindow {
 	public:
 		IWindow()          = default;
 		virtual ~IWindow() = default;
-
-		template <typename T>
-		Scope<T> As()
-		{
-			return Scope<T>(reinterpret_cast<T*>(this));
-		}
 	};
 
 	class IDesktopWindow : public IWindow

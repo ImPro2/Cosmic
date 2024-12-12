@@ -1,6 +1,7 @@
 #pragma once
 #include "Base/Types.hpp"
 #include "App/Path.hpp"
+#include "Memory/StrongRef.hpp"
 
 #define CS_INVALID_ASSET_HANDLE 0
 
@@ -32,7 +33,7 @@ namespace Cosmic
 		Path        FilePath; // rel to assets dir
 	};
 
-	class IAsset
+	class IAsset : public IRefCounted
 	{
 	public:
 		inline EAssetType  GetAssetType()    const     { return mAssetType;              }

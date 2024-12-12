@@ -1,5 +1,6 @@
 #pragma once
 #include "Asset/IAsset.hpp"
+#include "Memory/StrongRef.hpp"
 
 namespace Cosmic
 {

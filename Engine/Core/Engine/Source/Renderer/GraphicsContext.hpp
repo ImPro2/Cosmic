@@ -1,5 +1,6 @@
 #pragma once
 #include "Base/Base.hpp"
+#include "Memory/ScopedPtr.hpp"
 
 namespace Cosmic
 {

@@ -40,7 +40,7 @@ namespace Cosmic
             for (Ref<IPanel> panel : mPanels)
             {
                 if (panel->GetName() == name)
-                    return std::static_pointer_cast<T>(panel);
+                    return panel.As<T>();
             }
         }
 

@@ -2,7 +2,7 @@
 #include "MenubarModule.hpp"
 
 #include "App/Input.hpp"
-#include "App/PersistentStackAllocator.hpp"
+#include "Memory/PersistentStackAllocator.hpp"
 
 #include "UI/ImGuiUtil.hpp"
 #include "imgui.h"

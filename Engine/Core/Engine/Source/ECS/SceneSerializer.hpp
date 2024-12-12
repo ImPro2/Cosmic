@@ -5,6 +5,7 @@
 #include "ECS/Scene.hpp"
 #include "ECS/Entity.hpp"
 #include "ECS/Components.hpp"
+#include "Memory/StrongRef.hpp"
 
 namespace Cosmic
 {

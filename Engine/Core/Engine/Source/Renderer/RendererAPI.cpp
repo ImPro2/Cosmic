@@ -40,7 +40,7 @@ namespace Cosmic
 
         switch (api)
         {
-            case ERendererAPI::OpenGL:  return CreateScope<OpenGLRendererAPI>(api); break;
+			case ERendererAPI::OpenGL:  return CreateScope<OpenGLRendererAPI>(api); break;
             case ERendererAPI::DirectX:
             case ERendererAPI::Vulkan:
             case ERendererAPI::Metal:

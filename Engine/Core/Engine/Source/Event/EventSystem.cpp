@@ -22,7 +22,7 @@ namespace Cosmic
 	{
 		while (!sEventQueue.empty())
 		{
-			IEvent* e = sEventQueue.front();
+			FramePtr<IEvent> e = sEventQueue.front();
 			Application::Get()->OnEvent(*e);
 			sEventQueue.pop();
 		}

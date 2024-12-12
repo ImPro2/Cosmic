@@ -3,6 +3,7 @@
 #include "App/FileSystem.hpp"
 #include "App/Path.hpp"
 #include "App/File.hpp"
+#include "Memory/StrongRef.hpp"
 
 namespace Cosmic
 {
@@ -15,7 +16,7 @@ namespace Cosmic
 		Path AssetsDirectory;
 	};
 
-	class Project
+	class Project : public IRefCounted
 	{
 	public:
 		Project() = default;

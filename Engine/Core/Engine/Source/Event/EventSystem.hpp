@@ -1,6 +1,6 @@
 #pragma once
 #include "IEvent.hpp"
-#include "App/FrameStackAllocator.hpp"
+#include "Memory/FramePtr.hpp"
 
 #include <queue>
 
@@ -13,7 +13,7 @@ namespace Cosmic
         template<typename T, typename... Args>
         static void DeferEvent(Args&&... args)
         {
-            sEventQueue.push(FrameStackAllocator::Allocate<T>(std::forward<Args>(args)...));
+            sEventQueue.push(CreateFramePtr<T>(std::forward<Args>(args)...).As<IEvent>());
         }
         
     private:
@@ -22,7 +22,7 @@ namespace Cosmic
         static void DispatchEvents();
 
     private:
-        inline static std::queue<IEvent*> sEventQueue;
+        inline static std::queue<FramePtr<IEvent>> sEventQueue;
         friend class Application;
     };
 

@@ -10,7 +10,7 @@ namespace Cosmic
 	void AssetLoader::Init()
 	{
 		mLoaderMap[EAssetType::Scene]     = CreateScope<SceneLoader>();
-		mLoaderMap[EAssetType::Texture2D] = CreateScope<Texture2DLoader>();
+		mLoaderMap[EAssetType::Texture2D] = std::move(CreateScope<Texture2DLoader>());
 	}
 
 	void AssetLoader::Shutdown()

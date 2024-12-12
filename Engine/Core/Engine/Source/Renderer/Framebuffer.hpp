@@ -1,6 +1,7 @@
 #pragma once
 #include "Base/Base.hpp"
 #include "Texture.hpp"
+#include "Memory/StrongRef.hpp"
 
 #include <initializer_list>
 
@@ -75,7 +76,7 @@ namespace Cosmic
 
     };
 
-    class Framebuffer
+    class Framebuffer : public IRefCounted
     {
     public:
         Framebuffer(const FramebufferInfo& info);

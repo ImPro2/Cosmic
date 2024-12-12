@@ -1,5 +1,6 @@
 #pragma once
 #include "Base/Base.hpp"
+#include "Memory/StrongRef.hpp"
 
 namespace Cosmic
 {
@@ -75,7 +76,7 @@ namespace Cosmic
         ETextureFormat        Format;
     };
 
-    class Texture2D
+    class Texture2D : public IRefCounted
     {
     public:
         Texture2D(const String& filePath, const Texture2DInfo& info);

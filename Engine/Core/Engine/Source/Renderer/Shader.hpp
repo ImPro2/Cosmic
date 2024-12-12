@@ -2,27 +2,20 @@
 #include <glm/glm.hpp>
 
 #include "Base/Base.hpp"
+#include "Memory/StrongRef.hpp"
 
 namespace Cosmic
 {
 
     enum class EShaderDataType
     {
-        Float,
-        Float2,
-        Float3,
-        Float4,
-        Int,
-        Int2,
-        Int3,
-        Int4,
-        Mat2,
-        Mat3,
-        Mat4,
+        Float, Float2, Float3, Float4,
+        Int,   Int2,   Int3,   Int4,
+        Mat2,  Mat3,   Mat4,
         Bool
     };
 
-    class Shader
+    class Shader : public IRefCounted
     {
     public:
         Shader(const String& filePath);

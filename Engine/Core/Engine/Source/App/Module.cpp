@@ -71,7 +71,7 @@ namespace Cosmic
 
             std::erase(sModules, module);
             module->OnShutdown();
-            module.reset();
+            module.Release();
 
             sDeferredRemoveModules.pop();
         }

@@ -3,6 +3,7 @@
 
 #include "Base/Base.hpp"
 #include "Renderer/Shader.hpp"
+#include "Memory/StrongRef.hpp"
 
 namespace Cosmic
 {
@@ -49,7 +50,7 @@ namespace Cosmic
         Stream   // The data store contents will be modified once and used at most a few times.
     };
 
-    class VertexBuffer
+    class VertexBuffer : public IRefCounted
     {
     public:
         VertexBuffer(void* vertices, uint32 size, EBufferUsage usage);
@@ -73,7 +74,7 @@ namespace Cosmic
         VertexBufferLayout mLayout;
     };
 
-    class IndexBuffer
+    class IndexBuffer : public IRefCounted
     {
     public:
         IndexBuffer(uint32* indices, uint32 count, EBufferUsage usage);
