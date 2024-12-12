@@ -4,6 +4,8 @@
 namespace Cosmic
 {
 
+	class DockspaceModule;
+
 	class LayoutManager
 	{
 	public:
@@ -24,8 +26,17 @@ namespace Cosmic
 		const Vector<Layout>& GetLayouts() const { return mLayouts; }
 
 	private:
+		bool SwitchLayout() const { return mSwitchLayout != nullptr; }
+		Layout& GetSwitchLayout();
+
+	private:
 		Vector<Layout> mLayouts;
 		Layout*        mCurrentLayout;
+		Layout*        mSwitchLayout;
+
+		int32          mCurrentLayoutIndex = 0;
+
+		friend class DockspaceModule;
 	};
 
 }

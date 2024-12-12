@@ -8,15 +8,14 @@ namespace Cosmic
 
 	void LayoutManager::Init()
 	{
-		Layout layout;
-		layout.ConstructDefaultLayout();
-
-		mCurrentLayout = &layout;
-
 		mLayouts.reserve(10);
-		mLayouts.push_back(layout);
-	}
+		mLayouts.emplace_back();
 
+		mCurrentLayout = &mLayouts[mCurrentLayoutIndex++];
+		mSwitchLayout  = mCurrentLayout;
+
+		mCurrentLayout->ConstructDefaultLayout();
+	}
 
 	void LayoutManager::Shutdown()
 	{
@@ -31,16 +30,22 @@ namespace Cosmic
 		}
 
 		mCurrentLayout = &layout;
-		layout.Load();
+		mSwitchLayout  = &layout;
 	}
 
 	void LayoutManager::SaveCurrentLayout(const String& name)
 	{
-		Layout layout;
-		layout.ConstructFromCurrentLayout();
+		mLayouts.emplace_back();
+		mCurrentLayout = &mLayouts[mCurrentLayoutIndex++];
 
-		mLayouts.push_back(layout);
-		mCurrentLayout = &layout;
+		mCurrentLayout->ConstructFromCurrentLayout();
+	}
+
+	Layout& LayoutManager::GetSwitchLayout()
+	{
+		Layout& layout = *mSwitchLayout;
+		mSwitchLayout  = nullptr;
+		return layout;
 	}
 
 }

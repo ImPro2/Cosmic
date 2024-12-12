@@ -75,14 +75,14 @@ namespace Cosmic
     {
         DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
 
-        Split(dir, splitPercent, child1, child2Ptr);
+        return Split(dir, splitPercent, child1, child2Ptr);
     }
 
     DockNode* DockNode::Split(EDockSplitDir dir, float32 splitPercent, DockNode&& child1, DockNode* child2)
     {
         DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
 
-        Split(dir, splitPercent, child1Ptr, child2);
+        return Split(dir, splitPercent, child1Ptr, child2);
     }
 
     DockNode* DockNode::Split(EDockSplitDir dir, float32 splitPercent, DockNode&& child1, DockNode&& child2)
@@ -90,7 +90,7 @@ namespace Cosmic
         DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
         DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
 
-        Split(dir, splitPercent, child1Ptr, child2Ptr);
+        return Split(dir, splitPercent, child1Ptr, child2Ptr);
     }
 
     DockNode* DockNode::Stack(DockNode* child1, DockNode* child2)
@@ -108,14 +108,14 @@ namespace Cosmic
     {
         DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
 
-        Stack(child1, child2Ptr);
+        return Stack(child1, child2Ptr);
     }
 
     DockNode* DockNode::Stack(DockNode&& child1, DockNode* child2)
     {
         DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
 
-        Stack(child1Ptr, child2);
+        return Stack(child1Ptr, child2);
     }
 
     DockNode* DockNode::Stack(DockNode&& child1, DockNode&& child2)
@@ -123,38 +123,8 @@ namespace Cosmic
         DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
         DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
 
-        Stack(child1Ptr, child2Ptr);
+        return Stack(child1Ptr, child2Ptr);
     }
-
-#if 0
-    DockNode::DockNode(DockNode* parent, EDockSplitDir split, float32 splitPercent, DockNode* child1, DockNode* child2)
-        : SplitDir(split), SplitPercent(splitPercent), Child1(child1), Child2(child2)
-    {
-        if (split != EDockSplitDir::Stack)
-        {
-            ImGuiDir dir = Utils::EDockSplitDirToImGuiDir(split);
-            ImGuiID parentID;
-
-            ImGuiID* child1ID = (ImGuiID*)child1->ID;
-            ImGuiID* child2ID = (ImGuiID*)child2->ID;
-
-            if (parent)
-                parentID = parent->ID;
-            else
-            {
-                const String& dockspaceName = ModuleSystem::Get<EditorModule>()->GetLayoutManager().GetDockspaceName();
-				parentID = ImGui::GetID(dockspaceName.c_str());
-            }
-
-			ImGui::DockBuilderSplitNode(parentID, dir, splitPercent, child1ID, child2ID);
-        }
-        else
-        {
-
-        }
-
-    }
-#endif
 
 	void Layout::ConstructDefaultLayout()
 	{
@@ -203,33 +173,39 @@ namespace Cosmic
 
         Utils::IterateDockNode(mRoot, [](DockNode* node)
         {
-			if (!node->Child1)
-				return;
-
 			ImGuiDir splitDir = Utils::EDockSplitDirToImGuiDir(node->SplitDir);
 
-            if (node->SplitDir != EDockSplitDir::Stack)
+            switch (node->SplitDir)
             {
-                ImGuiID* child1ID = (ImGuiID*)node->Child1;
-                ImGuiID* child2ID = (ImGuiID*)node->Child2;
+				case EDockSplitDir::None:
+				{
+					if (Ref<IPanel> panel = node->Panel.Own())
+						ImGui::DockBuilderDockWindow(panel->GetPanelName().c_str(), node->ID);
 
-                ImGui::DockBuilderSplitNode((ImGuiID)node->ID, splitDir, node->SplitPercent, child1ID, child2ID);
-            }
-            else
-            {
-                node->Child1->ID = node->ID;
-            }
+					break;
+				}
+				case EDockSplitDir::Left:
+				case EDockSplitDir::Right:
+				case EDockSplitDir::Up:
+				case EDockSplitDir::Down:
+				{
+                    ImGuiID child1ID;
+                    ImGuiID child2ID;
 
-            if (node->Child1)
-            {
-				if (Ref<IPanel> panel = node->Child1->Panel.Own())
-                    ImGui::DockBuilderDockWindow(panel->GetPanelName().c_str(), node->Child1->ID);
-            }
+					ImGui::DockBuilderSplitNode((ImGuiID)node->ID, splitDir, node->SplitPercent, &child1ID, &child2ID);
 
-            if (node->Child2)
-            {
-				if (Ref<IPanel> panel = node->Child2->Panel.Own())
-                    ImGui::DockBuilderDockWindow(panel->GetPanelName().c_str(), node->Child2->ID);
+                    node->Child1->ID = child1ID;
+                    node->Child2->ID = child2ID;
+
+					break;
+				}
+				case EDockSplitDir::Stack:
+				{
+					node->Child1->ID = node->ID;
+                    node->Child2->ID = node->ID;
+
+					break;
+				}
             }
 		});
 

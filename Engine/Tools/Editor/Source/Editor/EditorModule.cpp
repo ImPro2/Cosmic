@@ -38,7 +38,7 @@ namespace Cosmic
 
         mLayoutManager.Init();
 
-        ModuleSystem::Add<DockspaceModule>();
+        ModuleSystem::AddFront<DockspaceModule>();
     }
 
     void EditorModule::OnShutdown()
@@ -69,7 +69,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        SetupDockSpace();
+        //SetupDockSpace();
 
         if (mShowDemoWindow)
             ImGui::ShowDemoWindow(&mShowDemoWindow);

@@ -15,6 +15,9 @@ namespace Cosmic
 		const String& GetDockspaceName() const { return sDockspaceName; }
 
 	private:
+		void LoadLayout();
+
+	private:
 		inline static const String sDockspaceName = "Editor Dockspace";
 	};
 

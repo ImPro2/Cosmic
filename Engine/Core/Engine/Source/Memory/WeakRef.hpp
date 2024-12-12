@@ -17,7 +17,7 @@ namespace Cosmic
         }
 
         WeakRef(const StrongRef<T, Allocator>& ref)
-            : mPtr(ref.Ptr())
+            : mPtr((T*)ref.Ptr())
         {
         }
 
@@ -28,7 +28,7 @@ namespace Cosmic
 
         WeakRef& operator=(const StrongRef<T, Allocator>& ref)
         {
-            mPtr = ref.Ptr();
+            mPtr = (T*)ref.Ptr();
             return *this;
         }
 

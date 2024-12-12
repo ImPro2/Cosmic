@@ -10,6 +10,7 @@ namespace Cosmic
 
 	enum class EDockSplitDir
 	{
+		None,
 		Left, Up, Right, Down,
 		Stack
 	};
@@ -18,6 +19,7 @@ namespace Cosmic
 	{
 		DockNode()                = default;
 		DockNode(const DockNode&) = default;
+		DockNode(DockNode&&)      = default;
 		DockNode(const WeakRef<IPanel>& panel);
 
 		static DockNode* Split(EDockSplitDir dir, float32 splitPercent, DockNode*  child1, DockNode*  child2);
@@ -33,11 +35,11 @@ namespace Cosmic
 		DockNodeID      ID;
 		WeakRef<IPanel> Panel;
 
-		EDockSplitDir   SplitDir;
-		float32         SplitPercent;
+		EDockSplitDir   SplitDir     = EDockSplitDir::None;
+		float32         SplitPercent = 0.0f;
 
-		DockNode*       Child1;
-		DockNode*       Child2;
+		DockNode*       Child1       = nullptr;
+		DockNode*       Child2       = nullptr;
 	};
 
 	class Layout
@@ -53,9 +55,17 @@ namespace Cosmic
 	public:
 		void Load();
 
+	public:
+		const String& GetName() const { return mName; }
+
 	private:
 		String    mName;
 		DockNode* mRoot;
 	};
+
+	inline bool operator==(const Layout& left, const Layout& right)
+	{
+		return (left.GetName() == right.GetName());
+	}
 
 }
