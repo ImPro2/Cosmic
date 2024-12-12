@@ -34,22 +34,16 @@ namespace Cosmic
         mPanels.Init();
 
         SetupMenuBar();
-
-        CS_LOG_INFO("Successfully initialized editor.");
     }
 
     void EditorModule::OnShutdown()
     {
         CS_PROFILE_FN();
-
-        CS_LOG_INFO("Sucessfully shut editor down.");
     }
 
     void EditorModule::OnUpdate(Dt dt)
     {
         CS_PROFILE_FN();
-
-        RenderCommand::Clear();
     }
 
     void EditorModule::OnEvent(const IEvent& e)

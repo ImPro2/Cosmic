@@ -5,6 +5,7 @@
 #include "App/Module.hpp"
 #include "Renderer/Framebuffer.hpp"
 #include "ECS/Scene.hpp"
+#include "Editor/Layout/Layout.hpp"
 
 namespace Cosmic
 {
@@ -16,14 +17,20 @@ namespace Cosmic
         IPanel(const String& name) : mPanelName(name) { }
 
     public:
-        void  Show(bool open)              { mOpen = open;      }
-        bool  IsOpen()               const { return mOpen;      }
-        bool* IsOpenPtr()                  { return &mOpen;     }
-        const String& GetPanelName() const { return mPanelName; }
+        void  Show(bool open)              { mOpen = open;       }
+        bool  IsOpen()               const { return mOpen;       }
+        bool* IsOpenPtr()                  { return &mOpen;      }
+        const String& GetPanelName() const { return mPanelName;  }
+
+        DockNodeID GetDockNodeID()   const { return mDockNodeID; }
+
+    public:
+        void SetDockNodeID(DockNodeID id)  { mDockNodeID = id;   }
 
     protected:
-        bool mOpen = true;
-        String mPanelName = "";
+        bool       mOpen      = true;
+        String     mPanelName = "";
+        DockNodeID mDockNodeID;
     };
 
     class Panels

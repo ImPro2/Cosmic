@@ -22,6 +22,7 @@
 #include "Event/Type/FileSystemEvents.hpp"
 #include "Editor/Event/SceneEvents.hpp"
 
+#include "Editor/Layout/LayoutManager.hpp"
 
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
@@ -47,13 +48,19 @@ namespace Cosmic
         void NewScene();
 
     public:
-        const Ref<Scene>& GetActiveScene() const { return mActiveScene; }
-        Ref<Scene>        GetActiveScene()       { return mActiveScene; }
+        const Ref<Scene>&    GetActiveScene()     const { return mActiveScene;     }
+        Ref<Scene>           GetActiveScene()           { return mActiveScene;     }
 
-        const String& GetActiveScenePath() const { return mActiveScenePath; }
+        const String&        GetActiveScenePath() const { return mActiveScenePath; }
 
-        const Panels& GetPanels() const { return mPanels; }
-        Panels&       GetPanels()       { return mPanels; }
+        const Panels&        GetPanels()          const { return mPanels;          }
+        Panels&              GetPanels()                { return mPanels;          }
+
+        const ActionManager& GetActionManager()   const { return mActionManager;   }
+        ActionManager&       GetActionManager()         { return mActionManager;   }
+
+        const LayoutManager& GetLayoutManager()   const { return mLayoutManager;   }
+        LayoutManager&       GetLayoutManager()         { return mLayoutManager;   }
 
     private:
         void SetupMenuBar();
@@ -70,6 +77,7 @@ namespace Cosmic
 
         Panels        mPanels;
         ActionManager mActionManager;
+        LayoutManager mLayoutManager;
 
         bool mSetupDefaultLayout = true;
         bool mShowDemoWindow = false;
