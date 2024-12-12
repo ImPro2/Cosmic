@@ -14,7 +14,7 @@ namespace Cosmic
 
 	public:
 		void SwitchLayout(Layout& layout);
-		void SaveCurrentLayout(const String& name);
+		void SaveCurrentLayout();
 
 	public:
 		Layout&       GetCurrentLayout()       { return *mCurrentLayout; }
@@ -30,12 +30,16 @@ namespace Cosmic
 		bool SwitchLayout();
 		Layout& GetSwitchLayout();
 
+		bool SaveLayout();
+
 	private:
 		Vector<Layout> mLayouts;
 		Layout*        mCurrentLayout;
 		Layout*        mSwitchLayout;
 
 		int32          mCurrentLayoutIndex = 0;
+
+		bool mSaveLayout = false;
 
 		friend class DockspaceModule;
 	};

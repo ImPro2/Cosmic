@@ -48,8 +48,10 @@ namespace Cosmic
 	class Layout
 	{
 	public:
-		Layout()              = default;
-		Layout(const Layout&) = default;
+		Layout(const String& name = "")
+			: mName(name)
+		{
+		}
 
 	public:
 		void ConstructDefaultLayout();

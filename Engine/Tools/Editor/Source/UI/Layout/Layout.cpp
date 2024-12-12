@@ -40,7 +40,7 @@ namespace Cosmic
             return PersistentStackAllocator::Allocate<DockNode>(std::forward<Args>(args)...);
         }
 
-        WeakRef<IPanel> GetPanelFromWindowName(const String& name)
+        Ref<IPanel> GetPanelFromWindowName(const String& name)
         {
             for (Ref<IPanel> panel : ModuleSystem::Get<EditorModule>()->GetPanels().GetPanels())
             {
@@ -50,31 +50,40 @@ namespace Cosmic
         }
 
         template<typename Callback>
-        static DockNode* IterateImGuiDockNode(ImGuiDockNode* node, DockNode* currNode, Callback fn)
+        static DockNode* IterateImGuiDockNode(ImGuiDockNode* node, DockNode* currNode, Callback fn, DockNode* parent = nullptr)
         {
-            if (!currNode)
-                currNode = AllocateDockNode();
+			currNode = AllocateDockNode();
+            currNode->Parent = parent;
 
             fn(node, currNode);
 
             if (node->ChildNodes[0])
-                IterateImGuiDockNode(node->ChildNodes[0], currNode->Child1, fn);
+                currNode->Child1 = IterateImGuiDockNode(node->ChildNodes[0], currNode->Child1, fn, currNode);
             if (node->ChildNodes[1])
-                IterateImGuiDockNode(node->ChildNodes[1], currNode->Child2, fn);
+                currNode->Child2 = IterateImGuiDockNode(node->ChildNodes[1], currNode->Child2, fn, currNode);
 
             return currNode;
         }
 
         // Breadth-first
         template<typename Callback>
-        static void IterateDockNode(DockNode* node, Callback fn)
+        static bool IterateDockNode(DockNode* node, Callback fn)
         {
-            fn(node);
+            bool exit = fn(node);
+
+            if (exit)
+                return true;
 
             if (node->Child1)
-                IterateDockNode(node->Child1, fn);
+                exit = IterateDockNode(node->Child1, fn);
+
+            if (exit)
+                return true;
+
             if (node->Child2)
-                IterateDockNode(node->Child2, fn);
+                exit = IterateDockNode(node->Child2, fn);
+
+            return exit;
         }
 
     }
@@ -181,49 +190,70 @@ namespace Cosmic
 
 	void Layout::ConstructFromCurrentLayout()
 	{
-		mName = "Custom";
-
         ImGuiID dockspaceID = ImGui::GetID(ModuleSystem::Get<DockspaceModule>()->GetDockspaceName().c_str());
 
-        ImGuiDockNode* root = ImGui::DockBuilderGetCentralNode(dockspaceID);
+        ImGuiContext*  ctx  = ImGui::GetCurrentContext();
+        ImGuiDockNode* root = (ImGuiDockNode*)ctx->DockContext.Nodes.GetVoidPtr(dockspaceID);
 
-        mRoot = Utils::IterateImGuiDockNode(root, nullptr, [&](ImGuiDockNode* node, DockNode* currNode)
+        Vector<Ref<IPanel>> panels = ModuleSystem::Get<EditorModule>()->GetPanels().GetOpenPanels();
+        
+		mRoot = Utils::IterateImGuiDockNode(root, nullptr, [&](ImGuiDockNode* node, DockNode* currNode)
 		{
 			currNode->ID = node->ID;
 
 			if (node->IsLeafNode())
 			{
-                currNode->Panel = Utils::GetPanelFromWindowName(node->HostWindow->Name);
+                Ref<IPanel> panel = Utils::GetPanelFromWindowName(node->VisibleWindow->Name);
+                currNode->Panel = panel;
+
+                panels.erase(std::find(panels.begin(), panels.end(), panel));
 			}
             else
             {
                 if (node->IsSplitNode())
                 {
-					ImVec2 child1Size = node->ChildNodes[0]->SizeRef;
-					ImVec2 child2Size = node->ChildNodes[1]->SizeRef;
+                    ImVec2 child1Size = node->ChildNodes[0]->SizeRef;
+                    ImVec2 child2Size = node->ChildNodes[1]->SizeRef;
 
                     switch (node->SplitAxis)
                     {
+						case ImGuiAxis_None:
+						{
+							currNode->SplitDir = EDockSplitDir::Stack;
+							break;
+						}
 						case ImGuiAxis_X:
 						{
-							currNode->SplitDir     = EDockSplitDir::Up;
-                            currNode->SplitPercent = child1Size.y / (child1Size.y + child2Size.y);
+							currNode->SplitDir     = EDockSplitDir::Left;
+                            currNode->SplitPercent = child1Size.x / (child1Size.x + child2Size.x);
 							break;
 						}
 						case ImGuiAxis_Y:
                         {
-                            currNode->SplitDir = EDockSplitDir::Right;
-                            currNode->SplitPercent = child1Size.x / (child1Size.x + child2Size.x);
+                            currNode->SplitDir = EDockSplitDir::Up;
+                            currNode->SplitPercent = child1Size.y / (child1Size.y + child2Size.y);
                             break;
                         }
                     }
                 }
-                else
-                {
-                    currNode->SplitDir = EDockSplitDir::Stack;
-                }
             }
 		});
+
+        for (Ref<IPanel> panel : panels)
+        {
+            ImGuiWindow* window = ImGui::FindWindowByName(panel->GetPanelName().c_str());
+
+            Utils::IterateDockNode(mRoot, [&](DockNode* node) -> bool
+			{
+				if (window->DockId == node->ID)
+				{
+                    node->Parent->Child2 = DockNode::Stack(node->Parent->Child2, DockNode(panel));
+                    return true;
+                }
+
+                return false;
+			});
+        }
 	}
 
     void Layout::Load()
@@ -237,7 +267,7 @@ namespace Cosmic
 
         mRoot->ID = (DockNodeID)dockspaceID;
 
-        Utils::IterateDockNode(mRoot, [](DockNode* node)
+        Utils::IterateDockNode(mRoot, [](DockNode* node) -> bool
         {
             switch (node->SplitDir)
             {
@@ -273,6 +303,8 @@ namespace Cosmic
 					break;
 				}
             }
+
+			return false;
 		});
 
         ImGui::DockBuilderFinish(dockspaceID);

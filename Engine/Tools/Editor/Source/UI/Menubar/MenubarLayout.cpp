@@ -43,7 +43,7 @@ namespace Cosmic
 
         menubar.BeginMenu(MenubarMenu("Layouts", "", { }));
 
-        menubar.Item(MenubarItem("Custom Layout...", "", {}, nullptr, [&]() { }));
+        menubar.Item(MenubarItem("Custom Layout...", "", {}, nullptr, [&]() { layoutManager.SaveCurrentLayout(); }));
         menubar.Separator();
 
         for (Layout& layout : layoutManager.GetLayouts())

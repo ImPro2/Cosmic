@@ -1,6 +1,8 @@
 #include "cspch.hpp"
 #include "LayoutManager.hpp"
 
+#include "UI/Layout/CustomLayoutModule.hpp"
+
 CS_MODULE_LOG_INFO(Editor, UI.Layout.LayoutManager);
 
 namespace Cosmic
@@ -32,12 +34,15 @@ namespace Cosmic
 		mSwitchLayout = &layout;
 	}
 
-	void LayoutManager::SaveCurrentLayout(const String& name)
+	void LayoutManager::SaveCurrentLayout()
 	{
-		mLayouts.emplace_back();
-		mCurrentLayout = &mLayouts[mCurrentLayoutIndex++];
+		ModuleSystem::Add<CustomLayoutModule>()->OnNameEntered([this](const String& name)
+		{
+			mLayouts.emplace_back(name);
 
-		mCurrentLayout->ConstructFromCurrentLayout();
+			mCurrentLayout = &mLayouts[mCurrentLayoutIndex++];
+			mSaveLayout    = true;
+		});
 	}
 
 	bool LayoutManager::SwitchLayout()
@@ -59,6 +64,17 @@ namespace Cosmic
 		mSwitchLayout  = nullptr;
 
 		return layout;
+	}
+
+	bool LayoutManager::SaveLayout()
+	{
+		if (mSaveLayout)
+		{
+			mSaveLayout = false;
+			return true;
+		}
+
+		return false;
 	}
 
 }

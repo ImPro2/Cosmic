@@ -39,9 +39,22 @@ namespace Cosmic
         ImGui::PopStyleVar(3);
         ImGuiIO& io = ImGui::GetIO();
         ImGuiID dockspaceID = ImGui::GetID(sDockspaceName.c_str());
+
+        LayoutManager& layoutManager = ModuleSystem::Get<EditorModule>()->GetLayoutManager();
+
+        if (layoutManager.SaveLayout())
+        {
+            Layout& layout = layoutManager.GetCurrentLayout();
+            layout.ConstructFromCurrentLayout();
+        }
+
         ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);
 
-        LoadLayout();
+        if (layoutManager.SwitchLayout())
+        {
+            Layout& layout = layoutManager.GetSwitchLayout();
+            layout.Load();
+        }
         
         ImGui::End();
 	}
@@ -50,11 +63,6 @@ namespace Cosmic
     {
         LayoutManager& layoutManager = ModuleSystem::Get<EditorModule>()->GetLayoutManager();
 
-        if (layoutManager.SwitchLayout())
-        {
-            Layout& layout = layoutManager.GetSwitchLayout();
-            layout.Load();
-        }
     }
 
 }

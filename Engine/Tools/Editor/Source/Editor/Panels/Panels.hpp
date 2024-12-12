@@ -51,6 +51,20 @@ namespace Cosmic
             }
         }
 
+        Vector<Ref<IPanel>> GetOpenPanels() const
+        {
+            Vector<Ref<IPanel>> panels;
+            panels.reserve(mPanels.size());
+
+            for (Ref<IPanel> panel : mPanels)
+            {
+                if (panel->IsOpen())
+                    panels.push_back(panel);
+            }
+
+            return panels;
+        }
+
         const Vector<Ref<IPanel>>& GetPanels() const { return mPanels; }
 
     private:

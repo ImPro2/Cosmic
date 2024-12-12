@@ -169,4 +169,10 @@ namespace Cosmic
         T* mPtr;
     };
 
+    template<class T, class Allocator>
+    inline bool operator==(const StrongRef<T, Allocator>& left, const StrongRef<T, Allocator>& right)
+    {
+        return left.Ptr() == right.Ptr();
+    }
+
 }
