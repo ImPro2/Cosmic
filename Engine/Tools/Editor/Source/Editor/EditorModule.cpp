@@ -32,12 +32,11 @@ namespace Cosmic
         CS_PROFILE_FN();
         
         mActiveScene = CreateRef<Scene>();
+
         mPanels.Init();
-
-        ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
-
         mLayoutManager.Init();
 
+        ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
         ModuleSystem::AddFront<DockspaceModule>();
     }
 

@@ -23,6 +23,9 @@ namespace Cosmic
         Vector<EKeyCode> Keys;
 
         MenubarMenu* Parent;
+
+        // Adds separator after
+        bool Separator = false;
     };
 
     struct MenubarItem : public MenubarEntry
@@ -71,6 +74,7 @@ namespace Cosmic
         void BeginMenu(MenubarMenu&& menu);
         void EndMenu();
         void Item(MenubarItem&& item);
+        void Separator();
 
         Vector<MenubarMenu*> GetMenubar() const { return mMenubar; }
 

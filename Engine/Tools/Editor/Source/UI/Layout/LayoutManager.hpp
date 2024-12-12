@@ -23,10 +23,11 @@ namespace Cosmic
 		Layout&       GetDefaultLayout()       { return mLayouts[0];     }
 		const Layout& GetDefaultLayout() const { return mLayouts[0];     }
 
+		Vector<Layout>&       GetLayouts()       { return mLayouts; }
 		const Vector<Layout>& GetLayouts() const { return mLayouts; }
 
 	private:
-		bool SwitchLayout() const { return mSwitchLayout != nullptr; }
+		bool SwitchLayout();
 		Layout& GetSwitchLayout();
 
 	private:

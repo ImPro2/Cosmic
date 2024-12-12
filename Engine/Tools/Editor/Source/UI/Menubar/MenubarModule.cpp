@@ -60,6 +60,9 @@ namespace Cosmic
                 if (ImGuiUtil::MenuItem(item->Name, item->Shortcut, item->Keys, item->EnabledPtr) && item->Callback)
                     item->Callback();
             }
+
+            if (entry->Separator)
+                ImGui::Separator();
         }
 
         ImGui::EndMenu();

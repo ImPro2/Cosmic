@@ -12,6 +12,7 @@ namespace Cosmic
 
         ActionManager& actionManager = editorModule->GetActionManager();
         Panels&        panels        = editorModule->GetPanels();
+        LayoutManager& layoutManager = editorModule->GetLayoutManager();
 
         MenubarLayout menubar;
 
@@ -37,6 +38,19 @@ namespace Cosmic
 
         for (Ref<IPanel> panel : panels.GetPanels())
             menubar.Item(MenubarItem(panel->GetPanelName().c_str(), "", {}, panel->IsOpenPtr()));
+
+        menubar.EndMenu();
+
+        menubar.BeginMenu(MenubarMenu("Layouts", "", { }));
+
+        menubar.Item(MenubarItem("Custom Layout...", "", {}, nullptr, [&]() { }));
+        menubar.Separator();
+
+        for (Layout& layout : layoutManager.GetLayouts())
+        {
+            bool loaded = layout.IsLoaded();
+            menubar.Item(MenubarItem(layout.GetName().c_str(), "", {}, &loaded, [&]() { layoutManager.SwitchLayout(layout); }));
+        }
 
         menubar.EndMenu();
 
@@ -74,6 +88,11 @@ namespace Cosmic
     {
         MenubarItem* ptr = PersistentStackAllocator::Allocate<MenubarItem>(std::move(item));
         mCurrentMenu->Children.push_back(ptr);
+    }
+
+    void MenubarLayout::Separator()
+    {
+        mCurrentMenu->Children[mCurrentMenu->Children.size() - 1]->Separator = true;
     }
 
 }

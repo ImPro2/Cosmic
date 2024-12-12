@@ -29,8 +29,7 @@ namespace Cosmic
 			return;
 		}
 
-		mCurrentLayout = &layout;
-		mSwitchLayout  = &layout;
+		mSwitchLayout = &layout;
 	}
 
 	void LayoutManager::SaveCurrentLayout(const String& name)
@@ -41,10 +40,24 @@ namespace Cosmic
 		mCurrentLayout->ConstructFromCurrentLayout();
 	}
 
+	bool LayoutManager::SwitchLayout()
+	{
+		if (mSwitchLayout == mCurrentLayout)
+			mSwitchLayout = nullptr;
+
+		return mSwitchLayout != nullptr;
+	}
+
 	Layout& LayoutManager::GetSwitchLayout()
 	{
-		Layout& layout = *mSwitchLayout;
+		mCurrentLayout->mIsLoaded = false;
+
+		Layout& layout   = *mSwitchLayout;
+		layout.mIsLoaded = true;
+
+		mCurrentLayout = mSwitchLayout;
 		mSwitchLayout  = nullptr;
+
 		return layout;
 	}
 

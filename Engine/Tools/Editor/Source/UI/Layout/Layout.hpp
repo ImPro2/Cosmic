@@ -43,6 +43,8 @@ namespace Cosmic
 		DockNode*       Child2       = nullptr;
 	};
 
+	class LayoutManager;
+
 	class Layout
 	{
 	public:
@@ -57,11 +59,15 @@ namespace Cosmic
 		void Load();
 
 	public:
-		const String& GetName() const { return mName; }
+		const String& GetName()  const { return mName;     }
+		bool          IsLoaded() const { return mIsLoaded; }
 
 	private:
 		String    mName;
 		DockNode* mRoot;
+		bool      mIsLoaded = false;
+
+		friend class LayoutManager;
 	};
 
 	inline bool operator==(const Layout& left, const Layout& right)
