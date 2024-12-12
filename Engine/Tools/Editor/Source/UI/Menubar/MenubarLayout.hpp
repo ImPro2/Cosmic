@@ -1,15 +1,13 @@
 #pragma once
-#include "App/KeyAndMouseCodes.hpp"
-#include "App/Module.hpp"
+#include "Base/Base.hpp"
 #include "App/KeyAndMouseCodes.hpp"
 
-#include <imgui.h>
-#include <initializer_list>
+#include <functional>
 
 namespace Cosmic
 {
 
-    struct MenubarMenu;
+	struct MenubarMenu;
 
     struct MenubarEntry
     {
@@ -62,8 +60,11 @@ namespace Cosmic
         Vector<MenubarEntry*> Children;
     };
 
-    struct MenubarLayout
+    class MenubarLayout
     {
+    public:
+        static MenubarLayout Default();
+
         MenubarLayout()                     = default;
         MenubarLayout(const MenubarLayout&) = default;
 
@@ -79,30 +80,6 @@ namespace Cosmic
     private:
         Vector<MenubarMenu*> mMenubar;
         MenubarMenu* mCurrentMenu = nullptr;
-    };
-
-    class MenubarModule : public IModule
-    {
-    public:
-        MenubarModule(const MenubarLayout& layout);
-        virtual ~MenubarModule();
-
-    public:
-        void OnImGuiRender() override;
-        void OnEvent(const IEvent& e) override;
-
-    private:
-        void RenderMenu(MenubarMenu* menu);
-        void DeleteMenu(MenubarMenu* menu);
-
-    private:
-        void ExecuteKeyPress(MenubarEntry* entry);
-
-    private:
-        bool OnKeyPressed(const KeyPressEvent& e);
-
-    private:
-        MenubarLayout mLayout;
     };
 
 }

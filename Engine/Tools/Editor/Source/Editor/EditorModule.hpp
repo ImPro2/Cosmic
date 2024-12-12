@@ -62,8 +62,9 @@ namespace Cosmic
         const LayoutManager& GetLayoutManager()   const { return mLayoutManager;   }
         LayoutManager&       GetLayoutManager()         { return mLayoutManager;   }
 
+        bool* GetShowImGuiDemoWindowPtr() { return &mShowDemoWindow; }
+
     private:
-        void SetupMenuBar();
         void SetupDockSpace();
         void SetupDefaultDockLayout();
 

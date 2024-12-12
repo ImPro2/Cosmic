@@ -4,40 +4,13 @@
 #include "App/Input.hpp"
 #include "Memory/PersistentStackAllocator.hpp"
 
+#include "Editor/EditorModule.hpp"
+
 #include "UI/ImGuiUtil.hpp"
 #include "imgui.h"
 
 namespace Cosmic
 {
-
-    void MenubarLayout::BeginMenu(MenubarMenu&& menu)
-    {
-        MenubarMenu* ptr = PersistentStackAllocator::Allocate<MenubarMenu>(std::move(menu));
-
-        if (mCurrentMenu == nullptr)
-        {
-            ptr->Parent = nullptr;
-            mMenubar.emplace_back(ptr);
-            mCurrentMenu = ptr;
-        }
-        else
-        {
-            ptr->Parent = mCurrentMenu;
-            mCurrentMenu->Children.push_back(ptr);
-            mCurrentMenu = ptr;
-        }
-    }
-
-    void MenubarLayout::EndMenu()
-    {
-        mCurrentMenu = (MenubarMenu*)mCurrentMenu->Parent;
-    }
-
-    void MenubarLayout::Item(MenubarItem&& item)
-    {
-        MenubarItem* ptr = PersistentStackAllocator::Allocate<MenubarItem>(std::move(item));
-        mCurrentMenu->Children.push_back(ptr);
-    }
 
     MenubarModule::MenubarModule(const MenubarLayout& layout)
         : mLayout(layout)

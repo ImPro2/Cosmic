@@ -20,8 +20,9 @@ CS_MODULE_LOG_INFO(Editor, EditorModule);
 #include "Panels/ContentBrowserPanel.hpp"
 
 #include "UI/FileDialog.hpp"
-#include "UI/MenubarModule.hpp"
+#include "UI/Menubar/MenubarModule.hpp"
 #include "UI/ImGuiUtil.hpp"
+#include "UI/DockspaceModule.hpp"
 
 namespace Cosmic
 {
@@ -33,9 +34,11 @@ namespace Cosmic
         mActiveScene = CreateRef<Scene>();
         mPanels.Init();
 
-        SetupMenuBar();
+        ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
 
         mLayoutManager.Init();
+
+        ModuleSystem::Add<DockspaceModule>();
     }
 
     void EditorModule::OnShutdown()
@@ -70,42 +73,6 @@ namespace Cosmic
 
         if (mShowDemoWindow)
             ImGui::ShowDemoWindow(&mShowDemoWindow);
-    }
-
-    void EditorModule::SetupMenuBar()
-    {
-        MenubarLayout menubar;
-
-        menubar.BeginMenu(MenubarMenu("File", "ALT+F", { EKeyCode::LeftAlt, EKeyCode::F }));
-
-        menubar.Item(MenubarItem("Open Scene",    "CTRL+O",       { EKeyCode::LeftControl, EKeyCode::O },                      nullptr, [this]() { OpenScene();   }));
-        menubar.Item(MenubarItem("Save Scene",    "CTRL+S",       { EKeyCode::LeftControl, EKeyCode::S },                      nullptr, [this]() { SaveScene();   }));
-        menubar.Item(MenubarItem("Save Scene As", "CTRL+SHIFT+S", { EKeyCode::LeftControl, EKeyCode::LeftShift, EKeyCode::S }, nullptr, [this]() { SaveSceneAs(); }));
-
-        menubar.EndMenu();
-
-        menubar.BeginMenu(MenubarMenu("Edit", "ALT+E", { EKeyCode::LeftAlt, EKeyCode::E }));
-
-        menubar.Item(MenubarItem("Undo", "CTRL+Z", { EKeyCode::LeftControl, EKeyCode::Z }, nullptr, [this]() { mActionManager.UndoLastAction(); }));
-        menubar.Item(MenubarItem("Redo", "CTRL+Y", { EKeyCode::LeftControl, EKeyCode::Y }, nullptr, [this]() { mActionManager.RedoLastAction(); }));
-
-        menubar.EndMenu();
-
-        menubar.BeginMenu(MenubarMenu("View", "ALT+V", { EKeyCode::LeftAlt, EKeyCode::V }));
-        menubar.BeginMenu(MenubarMenu("Panels", "", {}));
-
-        menubar.Item(MenubarItem("Show All", "", {}, nullptr, [this]() { mPanels.ShowAll(); }));
-
-        for (Ref<IPanel> panel : mPanels.GetPanels())
-            menubar.Item(MenubarItem(panel->GetPanelName().c_str(), "", {}, panel->IsOpenPtr()));
-
-        menubar.EndMenu();
-
-        menubar.Item(MenubarItem("Show ImGui Demo Window", "", {}, &mShowDemoWindow));
-
-        menubar.EndMenu();
-
-        ModuleSystem::Add<MenubarModule>(menubar);
     }
 
     void EditorModule::SetupDockSpace()
