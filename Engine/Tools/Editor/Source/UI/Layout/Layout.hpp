@@ -38,6 +38,7 @@ namespace Cosmic
 		EDockSplitDir   SplitDir     = EDockSplitDir::None;
 		float32         SplitPercent = 0.0f;
 
+		DockNode*       Parent       = nullptr;
 		DockNode*       Child1       = nullptr;
 		DockNode*       Child2       = nullptr;
 	};

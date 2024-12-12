@@ -38,8 +38,16 @@ namespace Cosmic
             return *this;
         }
 
-        WeakRef(StrongRef<T, Allocator>&&)            = delete;
-        WeakRef& operator=(StrongRef<T, Allocator>&&) = delete;
+        WeakRef(StrongRef<T, Allocator>&& ref)
+            : mPtr((T*)ref.Ptr())
+        {
+        }
+
+        WeakRef& operator=(StrongRef<T, Allocator>&& ref)
+        {
+            mPtr = (T*)ref.Ptr();
+            return *this;
+        }
 
         WeakRef(WeakRef&& other)
             : mPtr(other.mPtr)
