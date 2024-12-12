@@ -18,6 +18,10 @@ namespace Cosmic
         virtual ~MenubarModule();
 
     public:
+        MenubarLayout& GetLayout()             { return mLayout; }
+        const MenubarLayout& GetLayout() const { return mLayout; }
+
+    public:
         void OnImGuiRender() override;
         void OnEvent(const IEvent& e) override;
 

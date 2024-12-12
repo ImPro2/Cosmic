@@ -57,7 +57,7 @@ namespace Cosmic
             {
                 MenubarItem* item = (MenubarItem*)entry;
                 
-                if (ImGuiUtil::MenuItem(item->Name, item->Shortcut, item->Keys, item->EnabledPtr) && item->Callback)
+                if (ImGuiUtil::MenuItem(item->Name, item->Shortcut, item->Keys, item->EnabledPtr, item->Enabled) && item->Callback)
                     item->Callback();
             }
 

@@ -95,4 +95,42 @@ namespace Cosmic
         mCurrentMenu->Children[mCurrentMenu->Children.size() - 1]->Separator = true;
     }
 
+    static MenubarEntry* IterMenu(MenubarMenu* menu, const String& name)
+    {
+        if (menu->Name == name)
+            return menu;
+
+        for (MenubarEntry* child : menu->Children)
+        {
+            if (child->Name == name)
+                return child;
+            else if (child->IsMenu())
+                IterMenu((MenubarMenu*)child, name);
+        }
+
+        return nullptr;
+    }
+
+    MenubarItem* MenubarLayout::GetItem(const String& name)
+    {
+        for (MenubarMenu* menu : mMenubar)
+        {
+            if (MenubarItem* item = (MenubarItem*)IterMenu(menu, name))
+                return item;
+        }
+
+        return nullptr;
+    }
+
+	MenubarMenu* MenubarLayout::GetMenu(const String& name)
+    {
+        for (MenubarMenu* menu : mMenubar)
+        {
+            if (MenubarMenu* item = (MenubarMenu*)IterMenu(menu, name))
+                return item;
+        }
+
+        return nullptr;
+    }
+
 }

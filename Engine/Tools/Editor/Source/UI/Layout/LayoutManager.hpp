@@ -33,6 +33,9 @@ namespace Cosmic
 		bool SaveLayout();
 
 	private:
+		void UpdateMenubar();
+
+	private:
 		Vector<Layout> mLayouts;
 		Layout*        mCurrentLayout;
 		Layout*        mSwitchLayout;

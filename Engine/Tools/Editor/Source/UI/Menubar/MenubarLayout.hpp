@@ -30,18 +30,19 @@ namespace Cosmic
 
     struct MenubarItem : public MenubarEntry
     {
-        MenubarItem(const char* name, const char* shortcut, const std::initializer_list<EKeyCode> keys, bool* enabledPtr = nullptr, std::function<void()> callback = {})
-            : MenubarEntry(name, shortcut, keys), EnabledPtr(enabledPtr), Callback(callback)
+        MenubarItem(const char* name, const char* shortcut, const std::initializer_list<EKeyCode> keys, bool* enabledPtr = nullptr, std::function<void()> callback = {}, bool enabled = false)
+            : MenubarEntry(name, shortcut, keys), EnabledPtr(enabledPtr), Callback(callback), Enabled(Enabled)
         {
         }
 
         MenubarItem(const MenubarItem& other)
-            : MenubarEntry(other.Name, other.Shortcut, other.Keys, other.Parent), EnabledPtr(other.EnabledPtr), Callback(other.Callback)
+            : MenubarEntry(other.Name, other.Shortcut, other.Keys, other.Parent), EnabledPtr(other.EnabledPtr), Callback(other.Callback), Enabled(Enabled)
         {
         }
 
         bool IsMenu() override { return false; }
         
+        bool  Enabled;
         bool* EnabledPtr;
         std::function<void()> Callback;
     };
@@ -80,6 +81,9 @@ namespace Cosmic
 
         void         SetCurrentMenu(MenubarMenu* menu) { mCurrentMenu = menu; }
         MenubarMenu* GetCurrentMenu()                  { return mCurrentMenu; }
+
+        MenubarItem* GetItem(const String& name);
+        MenubarMenu* GetMenu(const String& name);
         
     private:
         Vector<MenubarMenu*> mMenubar;

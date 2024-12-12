@@ -2,6 +2,7 @@
 #include "LayoutManager.hpp"
 
 #include "UI/Layout/CustomLayoutModule.hpp"
+#include "UI/Menubar/MenubarModule.hpp"
 
 CS_MODULE_LOG_INFO(Editor, UI.Layout.LayoutManager);
 
@@ -41,7 +42,12 @@ namespace Cosmic
 			mLayouts.emplace_back(name);
 
 			mCurrentLayout = &mLayouts[mCurrentLayoutIndex++];
+			mSwitchLayout  = mCurrentLayout;
 			mSaveLayout    = true;
+
+			mCurrentLayout->mIsLoaded = true;
+
+			UpdateMenubar();
 		});
 	}
 
@@ -75,6 +81,29 @@ namespace Cosmic
 		}
 
 		return false;
+	}
+
+	void LayoutManager::UpdateMenubar()
+	{
+		MenubarLayout& menubar = ModuleSystem::Get<MenubarModule>()->GetLayout();
+
+		MenubarMenu* menu = menubar.GetMenu("Layouts");
+		menubar.SetCurrentMenu(menu);
+
+		menu->Children.clear();
+
+        menubar.Item(MenubarItem("Custom Layout...", "", {}, nullptr, [&]() { SaveCurrentLayout(); }));
+        menubar.Separator();
+
+		for (Layout& layout : mLayouts)
+		{
+			if (layout != *mCurrentLayout)
+				layout.mIsLoaded = false;
+
+			menubar.Item(MenubarItem(layout.GetName().c_str(), "", {}, &layout.mIsLoaded, [&]() { SwitchLayout(layout); }));
+		}
+
+		menubar.SetCurrentMenu(nullptr);
 	}
 
 }

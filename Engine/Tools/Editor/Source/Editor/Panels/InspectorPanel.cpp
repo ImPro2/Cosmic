@@ -34,9 +34,9 @@ namespace Cosmic
                 RenderComponents(selectedEntities[0]);
             else
                 ImGui::Text("No entity selected.");
-
-            ImGui::End();
         }
+
+		ImGui::End();
     }
 
     template<typename Component, typename Callback>
