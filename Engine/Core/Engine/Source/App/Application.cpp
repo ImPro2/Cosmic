@@ -15,8 +15,7 @@ CS_MODULE_LOG_INFO(Cosmic, App.Application);
 #include "Script/ScriptEngine.hpp"
 #include "Time/Time.hpp"
 
-#include "Memory/FrameStackAllocator.hpp"
-#include "Memory/PersistentStackAllocator.hpp"
+#include "Memory/Allocations.hpp"
 
 namespace Cosmic
 {
@@ -48,8 +47,7 @@ namespace Cosmic
 
         mInfo = info;
 
-        FrameStackAllocator::Init();
-        PersistentStackAllocator::Init();
+        Allocations::Init();
         OS::Init();
         RenderCommand::Init(mInfo.RendererBackend);
 
@@ -74,9 +72,7 @@ namespace Cosmic
 
         OnEvent(ApplicationCloseEvent());
 
-        PersistentStackAllocator::Free();
-        PersistentStackAllocator::Shutdown();
-        FrameStackAllocator::Shutdown();
+        Allocations::Shutdown();
         ScriptEngine::Shutdown();
         Gui::Shutdown();
         Renderer2D::Shutdown();
@@ -95,6 +91,8 @@ namespace Cosmic
     void Application::Run()
     {
         CS_PROFILE_FN();
+
+		TimeUnit lastTime = Time::GetTime();
 
         while (mRunning)
         {
@@ -118,7 +116,7 @@ namespace Cosmic
             mWindow->Update();
 
 			EventSystem::DispatchEvents();
-            FrameStackAllocator::Free();
+            Allocations::EndFrame();
         }
 
         Shutdown();

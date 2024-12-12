@@ -1,10 +1,11 @@
 #pragma once
 #include "Memory/StackAllocator.hpp"
+#include "Memory/DefaultAllocator.hpp"
 
 namespace Cosmic
 {
 
-	class Application;
+	class Allocations;
 
 	class FrameStackAllocator
 	{
@@ -15,7 +16,7 @@ namespace Cosmic
 		template<typename T, typename... Args>
 		static T* Allocate(Args&&... args)
 		{
-			return sAllocator.Allocate<T>(std::forward<Args>(args)...);
+			return sAllocator->Allocate<T>(std::forward<Args>(args)...);
 		}
 
 	private:
@@ -25,9 +26,9 @@ namespace Cosmic
 		static void Free();
 
 	private:
-		inline static StackAllocator<StackSize> sAllocator;
+		inline static StrongRef<StackAllocator<StackSize>, DefaultAllocator> sAllocator;
 
-		friend class Application;
+		friend class Allocations;
 	};
 
 }

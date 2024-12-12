@@ -16,7 +16,7 @@ namespace Cosmic
         {
         }
 
-        WeakRef(const Ref<T, Allocator>& ref)
+        WeakRef(const StrongRef<T, Allocator>& ref)
             : mPtr(ref.Ptr())
         {
         }
@@ -26,7 +26,7 @@ namespace Cosmic
         {
         }
 
-        WeakRef& operator=(const Ref<T, Allocator>& ref)
+        WeakRef& operator=(const StrongRef<T, Allocator>& ref)
         {
             mPtr = ref.Ptr();
             return *this;
@@ -38,8 +38,8 @@ namespace Cosmic
             return *this;
         }
 
-        WeakRef(Ref<T, Allocator>&&)            = delete;
-        WeakRef& operator=(Ref<T, Allocator>&&) = delete;
+        WeakRef(StrongRef<T, Allocator>&&)            = delete;
+        WeakRef& operator=(StrongRef<T, Allocator>&&) = delete;
 
         WeakRef(WeakRef&& other)
             : mPtr(other.mPtr)
@@ -56,9 +56,9 @@ namespace Cosmic
         }
 
     public:
-        Ref<T, Allocator> Own()
+        StrongRef<T, Allocator> Own()
         {
-			return Ref<T, Allocator>(mPtr);
+			return StrongRef<T, Allocator>(mPtr);
         }
 
     public:

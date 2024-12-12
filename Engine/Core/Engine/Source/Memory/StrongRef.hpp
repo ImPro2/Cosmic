@@ -19,39 +19,39 @@ namespace Cosmic
         mutable uint32 mRefCount = 0;
     };
 
-    template<class T, class Allocator = DefaultAllocator>
-    class Ref
+    template<class T, class Allocator>
+    class StrongRef
     {
     public:
         // Default constructor & destructor
 
-        Ref(T* ptr = nullptr)
+        StrongRef(T* ptr = nullptr)
             : mPtr(ptr)
         {
 			IncRef();
         }
 
-        ~Ref()
+        ~StrongRef()
         {
             DecRef();
         }
 
         // Copy constructors & assignments
 
-        Ref(const Ref& other)
+        StrongRef(const StrongRef& other)
             : mPtr(other.mPtr)
         {
             IncRef();
         }
 
         template<class T2>
-        Ref(const Ref<T2>& other)
+        StrongRef(const StrongRef<T2, Allocator>& other)
             : mPtr((T*)other.mPtr)
         {
             IncRef();
         }
 
-		Ref& operator=(std::nullptr_t)
+		StrongRef& operator=(std::nullptr_t)
         {
             DecRef();
             mPtr = nullptr;
@@ -59,7 +59,7 @@ namespace Cosmic
             return *this;
         }
 
-        Ref& operator=(const Ref& other)
+        StrongRef& operator=(const StrongRef& other)
         {
             other.IncRef();
             DecRef();
@@ -69,7 +69,7 @@ namespace Cosmic
         }
 
         template<class T2>
-        Ref& operator=(const Ref<T2, Allocator>& other)
+        StrongRef& operator=(const StrongRef<T2, Allocator>& other)
         {
             other.IncRef();
             DecRef();
@@ -80,20 +80,20 @@ namespace Cosmic
 
         // Move constructors & assignments
 
-        Ref(Ref&& other)
+        StrongRef(StrongRef&& other)
             : mPtr(other.mPtr)
         {
             other.mPtr = nullptr;
         }
 
         template<class T2>
-        Ref(Ref<T2, Allocator>&& other)
+        StrongRef(StrongRef<T2, Allocator>&& other)
             : mPtr(other.mPtr)
         {
             other.mPtr = nullptr;
         }
 
-        Ref& operator=(Ref&& other)
+        StrongRef& operator=(StrongRef&& other)
         {
             mPtr       = other.mPtr;
             other.mPtr = nullptr;
@@ -102,7 +102,7 @@ namespace Cosmic
         }
 
         template<class T2>
-        Ref& operator=(Ref<T2, Allocator>&& other)
+        StrongRef& operator=(StrongRef<T2, Allocator>&& other)
         {
             mPtr       = (T*)other.mPtr;
             other.mPtr = nullptr;
@@ -129,9 +129,9 @@ namespace Cosmic
         }
 
         template<class T2>
-        Ref<T2> As() const
+        StrongRef<T2, Allocator> As() const
         {
-            return Ref<T2>(*this);
+            return StrongRef<T2, Allocator>(*this);
         }
 
     public:
@@ -164,17 +164,9 @@ namespace Cosmic
 
     private:
         template<class, class>
-        friend class Ref;
+        friend class StrongRef;
 
         T* mPtr;
     };
-
-    // Create Ref with DefaultAllocator
-
-    template<class T, typename... Args>
-    constexpr Ref<T, DefaultAllocator> CreateRef(Args&&... args)
-    {
-        return Ref<T, DefaultAllocator>(DefaultAllocator::Allocate<T>(std::forward<Args>(args)...));
-    }
 
 }

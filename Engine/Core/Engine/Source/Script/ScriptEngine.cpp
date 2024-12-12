@@ -23,6 +23,7 @@ namespace Cosmic
 
 		sScriptingData->ScriptAssemblyPath = scriptAssemblyPath;
 		
+#if 0
 		sScriptingData->ScriptAssembly = OS::LoadDynamicLibrary(sScriptingData->ScriptAssemblyPath.c_str());
 
 		const char* scriptInitFnName = "CSInit";
@@ -31,12 +32,13 @@ namespace Cosmic
 		ScriptInitFn scriptInitFn = (ScriptInitFn)OS::RetrieveFunctionFromDynamicLibrary(scriptInitFnName, sScriptingData->ScriptAssembly);
 
 		scriptInitFn(Application::Get());
+#endif
 	}
 
 	void ScriptEngine::Shutdown()
 	{
-		CS_ASSERT(sScriptingData->ScriptAssembly, "Invalid scripting assembly.");
-		OS::FreeDynamicLibrary(sScriptingData->ScriptAssembly);
+		//CS_ASSERT(sScriptingData->ScriptAssembly, "Invalid scripting assembly.");
+		//OS::FreeDynamicLibrary(sScriptingData->ScriptAssembly);
 
 		delete sScriptingData;
 		sScriptingData = nullptr;

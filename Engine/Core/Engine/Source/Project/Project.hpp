@@ -3,7 +3,7 @@
 #include "App/FileSystem.hpp"
 #include "App/Path.hpp"
 #include "App/File.hpp"
-#include "Memory/StrongRef.hpp"
+#include "Memory/SmartPtrs.hpp"
 
 namespace Cosmic
 {

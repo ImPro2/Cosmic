@@ -1,18 +1,23 @@
 #pragma once
 #include "Base/Types.hpp"
 #include "Base/StaticBuffer.hpp"
+#include "Memory/IAllocator.hpp"
 
 namespace Cosmic
 {
 
 	template<size_t N>
-	class StackAllocator
+	class StackAllocator : public IAllocator
 	{
 	public:
 		inline static constexpr size_t MaxSize = N;
 
 	public:
-		StackAllocator()  = default;
+		StackAllocator(const String& name)
+			: IAllocator(name)
+		{
+		}
+
 		~StackAllocator() = default;
 
 	public:
@@ -22,7 +27,7 @@ namespace Cosmic
 			SetMarker(marker);
 		}
 
-		void Shutdown()
+		void Shutdown() override
 		{
 			mStack.~StaticBuffer();
 		}
@@ -37,13 +42,18 @@ namespace Cosmic
 			T* ptr = new(mTop) T(std::forward<Args>(args)...);
 			mTop   = static_cast<byte*>(mTop) + offset;
 
+			OnAllocation(sizeof(T));
+
 			return ptr;
 		}
 
 		void Free()
 		{
-			memset(mMarker, 0, (size_t)mTop - (size_t)mMarker);
+			size_t size = (size_t)mTop - (size_t)mMarker;
+			memset(mMarker, 0, size);
 			mTop = mMarker;
+
+			OnFree(size);
 		}
 
 		void SetMarker(void* marker)

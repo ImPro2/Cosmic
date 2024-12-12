@@ -1,21 +1,34 @@
 #pragma once
+#include "HeapAllocator.hpp"
 
 namespace Cosmic
 {
 
+	class Allocations;
+
 	class DefaultAllocator
 	{
 	public:
-		template<class T, typename... Args>
+		template<typename T, typename... Args>
 		static T* Allocate(Args&&... args)
 		{
-			return new T(std::forward<Args>(args)...);
+			return sAllocator->Allocate<T>(std::forward<Args>(args)...);
 		}
 
-		static void Free(void* ptr)
+		template<typename T>
+		static void Free(T* ptr)
 		{
-			delete ptr;
+			sAllocator->Free(ptr);
 		}
+
+	private:
+		static void Init();
+		static void Shutdown();
+
+	private:
+		inline static StrongRef<HeapAllocator, DefaultAllocator> sAllocator;
+
+		friend class Allocations;
 	};
 
 }

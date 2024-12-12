@@ -1,8 +1,12 @@
 #pragma once
 #include "Memory/StackAllocator.hpp"
+#include "Memory/DefaultAllocator.hpp"
+#include "Memory/SmartPtrs.hpp"
 
 namespace Cosmic
 {
+
+	class Allocations;
 
 	class PersistentStackAllocator
 	{
@@ -13,7 +17,7 @@ namespace Cosmic
 		template<typename T, typename... Args>
 		static T* Allocate(Args&&... args)
 		{
-			return sAllocator.Allocate<T>(std::forward<Args>(args)...);
+			return sAllocator->Allocate<T>(std::forward<Args>(args)...);
 		}
 
 		static void Free();
@@ -24,9 +28,9 @@ namespace Cosmic
 		static void Shutdown();
 
 	private:
-		inline static StackAllocator<StackSize> sAllocator;
+		inline static StrongRef<StackAllocator<StackSize>, DefaultAllocator> sAllocator;
 
-		friend class Application;
+		friend class Allocations;
 	};
 
 }
