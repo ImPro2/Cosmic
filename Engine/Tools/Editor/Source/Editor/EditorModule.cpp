@@ -2,6 +2,8 @@
 #include "EditorModule.hpp"
 #include "App/KeyAndMouseCodes.hpp"
 
+#include "Project/ProjectSerializer.hpp"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <entt/entt.hpp>
@@ -38,6 +40,8 @@ namespace Cosmic
 
         ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
         ModuleSystem::AddFront<DockspaceModule>();
+
+        NewProject();
     }
 
     void EditorModule::OnShutdown()
@@ -163,6 +167,54 @@ namespace Cosmic
             return true;
         }
         return false;
+    }
+
+    void EditorModule::SaveProject()
+    {
+        const ProjectInfo& info = mActiveProject->GetInfo();
+
+        if (info.ProjectFilePath.GetAbsolutePath() == "" || !FileSystem::Exists(info.ProjectFilePath))
+        {
+            SaveProjectAs();
+            return;
+        }
+
+        ProjectManager::SaveActiveProject(info.ProjectFilePath);
+        EventSystem::DeferEvent<ProjectSavedEvent>(mActiveProject);
+    }
+
+    void EditorModule::SaveProjectAs()
+    {
+        ModuleSystem::AddFront<FileDialogModule>()->SetSaveFileCallback("NewProject.cosmic", { "Cosmic Project (*.cosmic)" }, [this](File saveFile)
+		{
+			SaveProjectAs(saveFile);
+		});
+    }
+
+    void EditorModule::SaveProjectAs(File file)
+    {
+        ProjectManager::SaveActiveProject(file);
+        EventSystem::DeferEvent<ProjectSavedAsEvent>(mActiveProject);
+    }
+
+    void EditorModule::OpenProject()
+    {
+        ModuleSystem::AddFront<FileDialogModule>()->SetOpenFileCallback("Cosmic Project", { ".cosmic" }, [this](File file)
+		{
+			OpenProject(file);
+		});
+    }
+
+    void EditorModule::OpenProject(File file)
+    {
+        mActiveProject = ProjectManager::LoadProject(file);
+        EventSystem::DeferEvent<ProjectOpenedEvent>(mActiveProject);
+    }
+
+    void EditorModule::NewProject()
+    {
+        mActiveProject = ProjectManager::NewProject();
+        EventSystem::DeferEvent<ProjectNewEvent>(mActiveProject);
     }
 
     void EditorModule::SaveScene()

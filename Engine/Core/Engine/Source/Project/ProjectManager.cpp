@@ -7,7 +7,10 @@ namespace Cosmic
 
     Ref<Project> ProjectManager::NewProject()
     {
-        sActiveProject = CreateRef<Project>();
+        ProjectInfo info;
+        info.AssetsDirectory = "Assets";
+
+        sActiveProject = CreateRef<Project>(info);
         return sActiveProject;
     }
 
@@ -19,10 +22,13 @@ namespace Cosmic
         return sActiveProject;
     }
      
-    void ProjectManager::SaveActiveProject()
+    void ProjectManager::SaveActiveProject(const Path& path)
     {
+        if (!path.GetString().empty())
+			sActiveProject->GetInfo().ProjectFilePath = path;
+
         ProjectSerializer serializer(sActiveProject);
-        serializer.Serialize(sActiveProject->GetInfo().ProjectFilePath.GetAbsolutePath());
+        serializer.Serialize(sActiveProject->GetInfo().ProjectFilePath);
     }
 
 }

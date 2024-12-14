@@ -21,6 +21,9 @@ namespace Cosmic
         }
 
     public:
+        operator Path() const { return mAbsolutePath; }
+
+    public:
         const String GetName();
         const String GetExtension();
         const String GetNameAndExtension();

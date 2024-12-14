@@ -23,9 +23,8 @@ namespace Cosmic
         YAML::Emitter out;
         out << YAML::BeginMap;
 
-        out << YAML::Key << "Project Name" << YAML::Value << info.ProjectName;
-        out << YAML::Key << "Start Scene Path" << YAML::Value << info.StartScenePath.GetAbsolutePath().GetString();
-        out << YAML::Key << "Assets Directory" << YAML::Value << info.AssetsDirectory.GetString();
+        out << YAML::Key << "StartScenePath"  << YAML::Value << info.StartScenePath.GetAbsolutePath().GetString();
+        out << YAML::Key << "AssetsDirectory" << YAML::Value << info.AssetsDirectory.GetString();
 
         out << YAML::EndMap;
 
@@ -50,9 +49,8 @@ namespace Cosmic
         }
 
         info.ProjectFilePath = path;
-        info.ProjectName     = file["Project Name"].as<String>();
-        info.StartScenePath  = Path(file["Start Scene Path"].as<String>());
-        info.AssetsDirectory = file["Assets Directory"].as<String>();
+        info.StartScenePath  = Path(file["StartScenePath"].as<String>());
+        info.AssetsDirectory = file["AssetsDirectory"].as<String>();
 
         return true;
     }

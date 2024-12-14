@@ -10,9 +10,8 @@ namespace Cosmic
 
 	struct ProjectInfo
 	{
-        String ProjectName;
 		File ProjectFilePath;
-        File StartScenePath;
+		File StartScenePath;
 		Path AssetsDirectory;
 	};
 
@@ -25,6 +24,16 @@ namespace Cosmic
 	public:
 		const ProjectInfo& GetInfo() const { return mInfo; }
 		ProjectInfo&       GetInfo()       { return mInfo; }
+
+		String GetName() const
+		{
+			return mInfo.ProjectFilePath.GetAbsolutePath().GetBase();
+		}
+
+		Path GetParentPath() const
+		{
+			return FileSystem::GetParentDirectory(mInfo.ProjectFilePath);
+		}
 
 	private:
 		ProjectInfo mInfo;

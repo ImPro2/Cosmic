@@ -11,10 +11,14 @@
 #include "ECS/Components.hpp"
 #include "Script/NativeScript.hpp"
 
+#include "Project/Project.hpp"
+#include "Project/ProjectManager.hpp"
+
 #include "Panels/Panels.hpp"
 #include "Panels/ViewportPanel.hpp"
 #include "Event/EditorEvents.hpp"
 #include "Event/SceneEvents.hpp"
+#include "Event/ProjectEvents.hpp"
 
 #include "Editor/Action/ActionManager.hpp"
 
@@ -40,6 +44,13 @@ namespace Cosmic
         void OnImGuiRender()          override;
 
     public:
+        void SaveProject();
+        void SaveProjectAs();
+        void SaveProjectAs(File file);
+        void OpenProject(File file);
+        void OpenProject();
+        void NewProject();
+
         void SaveScene();
         void SaveSceneAs(File file);
         void SaveSceneAs();
@@ -73,6 +84,8 @@ namespace Cosmic
         bool OnFileModified(const FileModifiedEvent& e);
 
     private:
+        Ref<Project> mActiveProject;
+
         Ref<Scene> mActiveScene;
         String     mActiveScenePath;
 
