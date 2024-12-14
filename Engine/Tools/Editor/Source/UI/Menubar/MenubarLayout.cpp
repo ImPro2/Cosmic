@@ -18,9 +18,16 @@ namespace Cosmic
 
         menubar.BeginMenu(MenubarMenu("File", "ALT+F", { EKeyCode::LeftAlt, EKeyCode::F }));
 
-        menubar.Item(MenubarItem("Open Scene",    "CTRL+O",       { EKeyCode::LeftControl, EKeyCode::O },                      nullptr, [&]() { editorModule->OpenScene();   }));
-        menubar.Item(MenubarItem("Save Scene",    "CTRL+S",       { EKeyCode::LeftControl, EKeyCode::S },                      nullptr, [&]() { editorModule->SaveScene();   }));
-        menubar.Item(MenubarItem("Save Scene As", "CTRL+SHIFT+S", { EKeyCode::LeftControl, EKeyCode::LeftShift, EKeyCode::S }, nullptr, [&]() { editorModule->SaveSceneAs(); }));
+        menubar.Item(MenubarItem("New Project...",     "", {}, nullptr, [=]() { editorModule->NewProject();    }));
+        menubar.Item(MenubarItem("Open Project",       "", {}, nullptr, [=]() { editorModule->OpenProject();   }));
+        menubar.Item(MenubarItem("Save Project",       "", {}, nullptr, [=]() { editorModule->SaveProject();   }));
+        menubar.Item(MenubarItem("Save Project As...", "", {}, nullptr, [=]() { editorModule->SaveProjectAs(); }));
+
+        menubar.Separator();
+
+        menubar.Item(MenubarItem("Open Scene",       "CTRL+O",       { EKeyCode::LeftControl, EKeyCode::O },                      nullptr, [=]() { editorModule->OpenScene();   }));
+        menubar.Item(MenubarItem("Save Scene",       "CTRL+S",       { EKeyCode::LeftControl, EKeyCode::S },                      nullptr, [=]() { editorModule->SaveScene();   }));
+        menubar.Item(MenubarItem("Save Scene As...", "CTRL+SHIFT+S", { EKeyCode::LeftControl, EKeyCode::LeftShift, EKeyCode::S }, nullptr, [=]() { editorModule->SaveSceneAs(); }));
 
         menubar.EndMenu();
 

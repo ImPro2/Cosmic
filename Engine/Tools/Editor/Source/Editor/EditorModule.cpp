@@ -9,6 +9,7 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <filesystem>
 
 CS_MODULE_LOG_INFO(Editor, EditorModule);
 
@@ -36,7 +37,7 @@ namespace Cosmic
         mActiveScene = CreateRef<Scene>();
 
         mPanels.Init();
-        mLayoutManager.Init("Engine/Tools/Editor/Assets/EditorLayouts.yaml");
+        mLayoutManager.Init(FileSystem::GetCurrentWorkingDirectory() / "Engine/Tools/Editor/Assets/EditorLayouts.yaml");
 
         ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
         ModuleSystem::AddFront<DockspaceModule>();
@@ -78,76 +79,6 @@ namespace Cosmic
             ImGui::ShowDemoWindow(&mShowDemoWindow);
     }
 
-    void EditorModule::SetupDockSpace()
-    {
-        ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
-        ImGuiWindowFlags windowFlags = 0;// = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-        static bool open = true;
-        ImGui::Begin("Editor Dockspace", &open, windowFlags);
-
-        ImGui::PopStyleVar(3);
-        ImGuiIO& io = ImGui::GetIO();
-        ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
-        ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);
-        
-        if (mSetupDefaultLayout)
-        {
-            mSetupDefaultLayout = false;
-            SetupDefaultDockLayout();
-        }
-
-        ImGui::End();
-    }
-
-    void EditorModule::SetupDefaultDockLayout()
-    {
-        ImGuiID dockspaceID = ImGui::GetID("Editor Dockspace");
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-        if (viewport->Size.x == 0 || viewport->Size.y == 0)
-        {
-            mSetupDefaultLayout = true;
-            return;
-        }
-        
-        ImGui::DockBuilderRemoveNode(dockspaceID);
-        ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
-        ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
-
-        const Ref<ConsolePanel>&        consolePanel        = mPanels.GetPanel<ConsolePanel>();    
-        const Ref<ViewportPanel>&       viewportPanel       = mPanels.GetPanel<ViewportPanel>();
-        const Ref<InspectorPanel>&      inspectorPanel      = mPanels.GetPanel<InspectorPanel>();
-        const Ref<SceneHierarchyPanel>& sceneHierarchyPanel = mPanels.GetPanel<SceneHierarchyPanel>();
-        const Ref<ContentBrowserPanel>& contentBrowserPanel = mPanels.GetPanel<ContentBrowserPanel>();
-
-        ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockspaceID, ImGuiDir_Left, 0.4f, nullptr, &dockspaceID);
-        ImGuiID dockIdRight = dockspaceID;
-        ImGuiID dockIdSceneHierarchy = ImGui::DockBuilderSplitNode(dockIdLeft, ImGuiDir_Up, 0.5f, nullptr, &dockIdLeft);
-        ImGuiID dockIdInspector = dockIdLeft;
-        ImGuiID dockIdViewport = ImGui::DockBuilderSplitNode(dockIdRight, ImGuiDir_Up, 0.7f, nullptr, &dockIdRight);
-        ImGuiID dockIdConsole = dockIdRight;
-        ImGuiID dockIdContentBrowser = dockIdConsole;
-
-        ImGui::DockBuilderDockWindow(consolePanel->GetPanelName().c_str(),        dockIdConsole);
-        ImGui::DockBuilderDockWindow(viewportPanel->GetPanelName().c_str(),       dockIdViewport);
-        ImGui::DockBuilderDockWindow(inspectorPanel->GetPanelName().c_str(),      dockIdInspector);
-        ImGui::DockBuilderDockWindow(sceneHierarchyPanel->GetPanelName().c_str(), dockIdSceneHierarchy);
-        ImGui::DockBuilderDockWindow(contentBrowserPanel->GetPanelName().c_str(), dockIdContentBrowser);
-    
-        ImGui::DockBuilderFinish(dockspaceID);
-    }
-
     bool EditorModule::OnKeyPressed(const KeyPressEvent& e)
     {
         bool control = Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl);
@@ -173,19 +104,23 @@ namespace Cosmic
     {
         const ProjectInfo& info = mActiveProject->GetInfo();
 
-        if (info.ProjectFilePath.GetAbsolutePath() == "" || !FileSystem::Exists(info.ProjectFilePath))
+        if (!FileSystem::Exists(info.ProjectFilePath))
         {
             SaveProjectAs();
             return;
         }
 
         ProjectManager::SaveActiveProject(info.ProjectFilePath);
+        SetWindowTitle();
+
         EventSystem::DeferEvent<ProjectSavedEvent>(mActiveProject);
     }
 
     void EditorModule::SaveProjectAs()
     {
-        ModuleSystem::AddFront<FileDialogModule>()->SetSaveFileCallback("NewProject.cosmic", { "Cosmic Project (*.cosmic)" }, [this](File saveFile)
+        auto fileDialogModule = ModuleSystem::AddFront<FileDialogModule>();
+
+        fileDialogModule->SetSaveFileCallback("NewProject.cosmic", { "Cosmic Project (*.cosmic)" }, [this](File saveFile)
 		{
 			SaveProjectAs(saveFile);
 		});
@@ -194,12 +129,16 @@ namespace Cosmic
     void EditorModule::SaveProjectAs(File file)
     {
         ProjectManager::SaveActiveProject(file);
+        SetWindowTitle();
+
         EventSystem::DeferEvent<ProjectSavedAsEvent>(mActiveProject);
     }
 
     void EditorModule::OpenProject()
     {
-        ModuleSystem::AddFront<FileDialogModule>()->SetOpenFileCallback("Cosmic Project", { ".cosmic" }, [this](File file)
+        auto fileDialogModule = ModuleSystem::AddFront<FileDialogModule>();
+
+        fileDialogModule->SetOpenFileCallback("Cosmic Project", { ".cosmic" }, [this](File file)
 		{
 			OpenProject(file);
 		});
@@ -208,12 +147,16 @@ namespace Cosmic
     void EditorModule::OpenProject(File file)
     {
         mActiveProject = ProjectManager::LoadProject(file);
+        SetWindowTitle();
+
         EventSystem::DeferEvent<ProjectOpenedEvent>(mActiveProject);
     }
 
     void EditorModule::NewProject()
     {
         mActiveProject = ProjectManager::NewProject();
+        SetWindowTitle();
+
         EventSystem::DeferEvent<ProjectNewEvent>(mActiveProject);
     }
 
@@ -239,7 +182,7 @@ namespace Cosmic
 
     void EditorModule::SaveSceneAs()
     {
-        Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(".");
+        Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>();
         
         fileDialogModule->SetSaveFileCallback("Scene.cscene", { "Cosmic Scene (*.cscene)" }, [this](File file) { SaveSceneAs(file); });
     }
@@ -262,13 +205,23 @@ namespace Cosmic
             serializer.Serialize(mActiveScenePath);
         }
 
-        Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>(Path("Engine/Tools/Editor"));
+        Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>();
         fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { OpenScene(file); });
     }
 
     void EditorModule::NewScene()
     {
         CS_NOT_IMPLEMENTED();    
+    }
+
+    void EditorModule::SetWindowTitle()
+    {
+        String prjPath = mActiveProject->GetInfo().ProjectFilePath.GetAbsolutePath();
+
+        if (prjPath.empty())
+            prjPath = "Unsaved Project";
+
+        Application::Get()->GetWindow()->SetTitle(std::format("Cosmic Editor - {}", prjPath));
     }
 
 }

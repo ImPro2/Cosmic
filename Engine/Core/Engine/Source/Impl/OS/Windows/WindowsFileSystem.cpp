@@ -159,6 +159,23 @@ namespace Cosmic
     }
 
 
+    Path FileSystem::GetExecutableDirectory()
+    {
+        char buf[1024];
+
+        GetModuleFileNameA(nullptr, buf, 1024);
+
+        return String(buf);
+    }
+
+    Path FileSystem::GetCurrentWorkingDirectory()
+    {
+        String cwd = std::filesystem::current_path().string();
+		Utils::ReplaceAll(cwd, "\\", "/");
+
+        return cwd;
+    }
+
     Vector<Path> FileSystem::ListDirectoryContents(const Path& parentDir)
     {
         HANDLE           hFind;

@@ -40,6 +40,9 @@ namespace Cosmic
     FileDialogModule::FileDialogModule(const Path& dir)
         : mDirectory(dir)
     {
+        if (mDirectory.GetString().empty())
+            mDirectory = FileSystem::GetCurrentWorkingDirectory() / "Engine/Tools/Editor";
+
         memset(mFileInputBuffer, 0, 256);
         memset(mSearchInputBuffer, 0, 256);
         memset(mDirectoryInputBuffer, 0, 256);

@@ -4,6 +4,7 @@
 #include "ProjectSerializer.hpp"
 
 #include <mutex>
+#include <fstream>
 #include <yaml-cpp/yaml.h>
 
 CS_MODULE_LOG_INFO(Cosmic, Project.ProjectSerializer);
@@ -28,8 +29,9 @@ namespace Cosmic
 
         out << YAML::EndMap;
 
-        File file = File(path);
-        file.Write(out.c_str());
+        std::ofstream fout(path);
+        fout << out.c_str();
+        fout.close();
     }
 
     bool ProjectSerializer::Deserialize(const Path& path)

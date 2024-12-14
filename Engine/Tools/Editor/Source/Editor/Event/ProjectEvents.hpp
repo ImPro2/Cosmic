@@ -7,20 +7,20 @@ namespace Cosmic
 
 	struct IProjectEvent : public IEvent
 	{
-		IProjectEvent(const Ref<Project>& project)
+		IProjectEvent(const WeakRef<Project>& project)
 			: mProject(project)
 		{
 		}
 
-		const Ref<Project>& GetProject() const { return mProject; }
+		const WeakRef<Project>& GetProject() const { return mProject; }
 
 	private:
-		Ref<Project> mProject;
+		WeakRef<Project> mProject;
 	};
 
 	struct ProjectSavedEvent : public IProjectEvent
 	{
-		ProjectSavedEvent(const Ref<Project>& project)
+		ProjectSavedEvent(const WeakRef<Project>& project)
 			: IProjectEvent(project)
 		{
 		}
@@ -30,7 +30,7 @@ namespace Cosmic
 
 	struct ProjectSavedAsEvent : public IProjectEvent
 	{
-		ProjectSavedAsEvent(const Ref<Project>& project)
+		ProjectSavedAsEvent(const WeakRef<Project>& project)
 			: IProjectEvent(project)
 		{
 		}
@@ -40,7 +40,7 @@ namespace Cosmic
 
 	struct ProjectOpenedEvent : public IProjectEvent
 	{
-		ProjectOpenedEvent(const Ref<Project>& project)
+		ProjectOpenedEvent(const WeakRef<Project>& project)
 			: IProjectEvent(project)
 		{
 		}
@@ -50,7 +50,7 @@ namespace Cosmic
 
 	struct ProjectNewEvent : public IProjectEvent
 	{
-		ProjectNewEvent(const Ref<Project>& project)
+		ProjectNewEvent(const WeakRef<Project>& project)
 			: IProjectEvent(project)
 		{
 		}

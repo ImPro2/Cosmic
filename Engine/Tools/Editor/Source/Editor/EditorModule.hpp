@@ -76,12 +76,11 @@ namespace Cosmic
         bool* GetShowImGuiDemoWindowPtr() { return &mShowDemoWindow; }
 
     private:
-        void SetupDockSpace();
-        void SetupDefaultDockLayout();
-
-    private:
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnFileModified(const FileModifiedEvent& e);
+
+    private:
+        void SetWindowTitle();
 
     private:
         Ref<Project> mActiveProject;

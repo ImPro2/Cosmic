@@ -15,7 +15,8 @@ namespace Cosmic
     class FileDialogModule : public IModule
     {
     public:
-        FileDialogModule(const Path& dir);
+        // Defaults to cwd/Engine/Tools/Editor
+        FileDialogModule(const Path& dir = "");
     
     public:
         void OnInit() override;

@@ -11,7 +11,7 @@ namespace Cosmic
         static Ref<Project> NewProject();
         static Ref<Project> LoadProject(const Path& path);
         
-		static void SaveActiveProject(const Path& path);
+		static void SaveActiveProject(const Path& path = "");
 
 		static Ref<Project> GetActiveProject() { return sActiveProject; }
 

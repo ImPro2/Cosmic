@@ -15,6 +15,9 @@ namespace Cosmic
         static void Shutdown();
 
     public:
+        static Path GetExecutableDirectory();
+        static Path GetCurrentWorkingDirectory();
+
         static Vector<Path> ListDirectoryContents(const Path& parentDir);
 
         static bool IsFile(const Path& path);
