@@ -19,6 +19,27 @@
 namespace Cosmic
 {
 
+    const char* EDockSplitDirToStr(EDockSplitDir dir)
+    {
+		switch (dir)
+		{
+			case EDockSplitDir::Down:  return "Down";
+			case EDockSplitDir::Left:  return "Left";
+			case EDockSplitDir::Up:    return "Up";
+			case EDockSplitDir::Right: return "Right";
+			case EDockSplitDir::Stack: return "Stack";
+		}
+    }
+
+    EDockSplitDir EDockSplitDirFromStr(const char* str)
+    {
+        if      (strcmp(str, "Down")  == 0) return EDockSplitDir::Down;
+        else if (strcmp(str, "Left")  == 0) return EDockSplitDir::Left;
+        else if (strcmp(str, "Up")    == 0) return EDockSplitDir::Up;
+        else if (strcmp(str, "Right") == 0) return EDockSplitDir::Right;
+        else if (strcmp(str, "Stack") == 0) return EDockSplitDir::Stack;
+    }
+
     namespace Utils
     {
 
@@ -34,12 +55,6 @@ namespace Cosmic
             }
         }
 
-        template<typename... Args>
-        static DockNode* AllocateDockNode(Args&&... args)
-        {
-            return PersistentStackAllocator::Allocate<DockNode>(std::forward<Args>(args)...);
-        }
-
         Ref<IPanel> GetPanelFromWindowName(const String& name)
         {
             for (Ref<IPanel> panel : ModuleSystem::Get<EditorModule>()->GetPanels().GetPanels())
@@ -52,7 +67,7 @@ namespace Cosmic
         template<typename Callback>
         static DockNode* IterateImGuiDockNode(ImGuiDockNode* node, DockNode* currNode, Callback fn, DockNode* parent = nullptr)
         {
-			currNode = AllocateDockNode();
+			currNode = DockNode::Allocate();
             currNode->Parent = parent;
 
             fn(node, currNode);
@@ -65,7 +80,6 @@ namespace Cosmic
             return currNode;
         }
 
-        // Breadth-first
         template<typename Callback>
         static bool IterateDockNode(DockNode* node, Callback fn)
         {
@@ -95,7 +109,7 @@ namespace Cosmic
 
     DockNode* DockNode::Split(EDockSplitDir dir, float32 splitPercent, DockNode* child1, DockNode* child2)
     {
-        DockNode* node = Utils::AllocateDockNode();
+        DockNode* node = Allocate();
 
         node->Child1       = child1;
         node->Child2       = child2;
@@ -107,29 +121,29 @@ namespace Cosmic
 
     DockNode* DockNode::Split(EDockSplitDir dir, float32 splitPercent, DockNode* child1, DockNode&& child2)
     {
-        DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
+        DockNode* child2Ptr = Allocate(std::move(child2));
 
         return Split(dir, splitPercent, child1, child2Ptr);
     }
 
     DockNode* DockNode::Split(EDockSplitDir dir, float32 splitPercent, DockNode&& child1, DockNode* child2)
     {
-        DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
+        DockNode* child1Ptr = Allocate(std::move(child1));
 
         return Split(dir, splitPercent, child1Ptr, child2);
     }
 
     DockNode* DockNode::Split(EDockSplitDir dir, float32 splitPercent, DockNode&& child1, DockNode&& child2)
     {
-        DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
-        DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
+        DockNode* child1Ptr = Allocate(std::move(child1));
+        DockNode* child2Ptr = Allocate(std::move(child2));
 
         return Split(dir, splitPercent, child1Ptr, child2Ptr);
     }
 
     DockNode* DockNode::Stack(DockNode* child1, DockNode* child2)
     {
-        DockNode* node = Utils::AllocateDockNode();
+        DockNode* node = Allocate();
 
         node->SplitDir = EDockSplitDir::Stack;
         node->Child1   = child1;
@@ -140,22 +154,22 @@ namespace Cosmic
 
     DockNode* DockNode::Stack(DockNode* child1, DockNode&& child2)
     {
-        DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
+        DockNode* child2Ptr = Allocate(std::move(child2));
 
         return Stack(child1, child2Ptr);
     }
 
     DockNode* DockNode::Stack(DockNode&& child1, DockNode* child2)
     {
-        DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
+        DockNode* child1Ptr = Allocate(std::move(child1));
 
         return Stack(child1Ptr, child2);
     }
 
     DockNode* DockNode::Stack(DockNode&& child1, DockNode&& child2)
     {
-        DockNode* child1Ptr = Utils::AllocateDockNode(std::move(child1));
-        DockNode* child2Ptr = Utils::AllocateDockNode(std::move(child2));
+        DockNode* child1Ptr = Allocate(std::move(child1));
+        DockNode* child2Ptr = Allocate(std::move(child2));
 
         return Stack(child1Ptr, child2Ptr);
     }
@@ -188,6 +202,11 @@ namespace Cosmic
 		);
 	}
 
+    void Layout::IterDockNodes(IterDockNodeCallback callback)
+    {
+        Utils::IterateDockNode(mRoot, callback);
+    }
+
 	void Layout::ConstructFromCurrentLayout()
 	{
         ImGuiID dockspaceID = ImGui::GetID(ModuleSystem::Get<DockspaceModule>()->GetDockspaceName().c_str());
@@ -201,7 +220,7 @@ namespace Cosmic
 		{
 			currNode->ID = node->ID;
 
-			if (node->IsLeafNode())
+			if (node->IsLeafNode() && node->VisibleWindow)
 			{
                 Ref<IPanel> panel = Utils::GetPanelFromWindowName(node->VisibleWindow->Name);
                 currNode->Panel = panel;

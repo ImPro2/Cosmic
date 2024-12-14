@@ -46,6 +46,7 @@ namespace Cosmic
         {
             Layout& layout = layoutManager.GetCurrentLayout();
             layout.ConstructFromCurrentLayout();
+            layoutManager.SerializeLayouts();
         }
 
         ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);

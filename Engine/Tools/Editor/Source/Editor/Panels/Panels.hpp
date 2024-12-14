@@ -65,6 +65,17 @@ namespace Cosmic
             return panels;
         }
 
+        Ref<IPanel> FindPanelByName(const String& name) const
+        {
+            for (Ref<IPanel> panel : mPanels)
+            {
+                if (name == panel->GetPanelName())
+                    return panel;
+            }
+
+            return Ref<IPanel>(nullptr);
+        }
+
         const Vector<Ref<IPanel>>& GetPanels() const { return mPanels; }
 
     private:

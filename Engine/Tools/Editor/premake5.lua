@@ -30,5 +30,6 @@ project "Editor"
 		"%{IncludeDir.ImGui}",
         "%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.EnTT}",
-		"%{IncludeDir.FontAwesome}"
+		"%{IncludeDir.FontAwesome}",
+		"%{IncludeDir.YamlCPP}"
 	}

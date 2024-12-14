@@ -1,0 +1,64 @@
+- Layout:
+    Name: Default
+    Root:
+      ID: 0
+      SplitMode: Left
+      SplitPercent: 0.400000006
+      Child 1:
+        ID: 0
+        SplitMode: Up
+        SplitPercent: 0.5
+        Child 1:
+          ID: 3344098048
+          PanelName: Scene Hierarchy
+        Child 2:
+          ID: 3340737972
+          PanelName: Inspector
+      Child 2:
+        ID: 0
+        SplitMode: Up
+        SplitPercent: 0.699999988
+        Child 1:
+          ID: 1154475640
+          PanelName: Viewport
+        Child 2:
+          ID: 0
+          SplitMode: Stack
+          Child 1:
+            ID: 0
+            PanelName: Content Browser
+          Child 2:
+            ID: 3435973836
+            PanelName: Console
+- Layout:
+    Name: asdf
+    Root:
+      ID: 3144757673
+      SplitMode: Left
+      SplitPercent: 0.247261345
+      Child 1:
+        ID: 1
+        PanelName: Scene Hierarchy
+      Child 2:
+        ID: 2
+        SplitMode: Up
+        SplitPercent: 0.699164331
+        Child 1:
+          ID: 5
+          SplitMode: Left
+          SplitPercent: 0.592708349
+          Child 1:
+            ID: 3
+            PanelName: Viewport
+          Child 2:
+            ID: 4
+            PanelName: Inspector
+        Child 2:
+          ID: 0
+          SplitMode: Stack
+          Child 1:
+            ID: 6
+            PanelName: Content Browser
+          Child 2:
+            ID: 3435973836
+            PanelName: Console

@@ -3,21 +3,30 @@
 
 #include "UI/Layout/CustomLayoutModule.hpp"
 #include "UI/Menubar/MenubarModule.hpp"
+#include "UI/Layout/LayoutSerializer.hpp"
 
 CS_MODULE_LOG_INFO(Editor, UI.Layout.LayoutManager);
 
 namespace Cosmic
 {
 
-	void LayoutManager::Init()
+	void LayoutManager::Init(const Path& savePath)
 	{
-		mLayouts.reserve(10);
-		mLayouts.emplace_back();
+		mSavePath = savePath;
 
-		mCurrentLayout = &mLayouts[mCurrentLayoutIndex++];
+		LayoutSerializer serializer(mLayouts);
+		serializer.Deserialize(mSavePath);
+
+		// Default layout
+		if (mLayouts.empty())
+		{
+			mLayouts.reserve(10);
+			mLayouts.emplace_back("Default");
+			mLayouts[0].ConstructDefaultLayout();
+		}
+
+		mCurrentLayout = &mLayouts[mCurrentLayoutIndex];
 		mSwitchLayout  = mCurrentLayout;
-
-		mCurrentLayout->ConstructDefaultLayout();
 	}
 
 	void LayoutManager::Shutdown()
@@ -41,7 +50,7 @@ namespace Cosmic
 		{
 			mLayouts.emplace_back(name);
 
-			mCurrentLayout = &mLayouts[mCurrentLayoutIndex++];
+			mCurrentLayout = &mLayouts[++mCurrentLayoutIndex];
 			mSwitchLayout  = mCurrentLayout;
 			mSaveLayout    = true;
 
@@ -49,6 +58,12 @@ namespace Cosmic
 
 			UpdateMenubar();
 		});
+	}
+
+	void LayoutManager::SerializeLayouts()
+	{
+		LayoutSerializer serializer(mLayouts);
+		serializer.Serialize(mSavePath);
 	}
 
 	bool LayoutManager::SwitchLayout()

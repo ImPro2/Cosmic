@@ -1,5 +1,6 @@
 #pragma once
 #include "UI/Layout/Layout.hpp"
+#include "App/Path.hpp"
 
 namespace Cosmic
 {
@@ -9,12 +10,13 @@ namespace Cosmic
 	class LayoutManager
 	{
 	public:
-		void Init();
+		void Init(const Path& savePath = "");
 		void Shutdown();
 
 	public:
 		void SwitchLayout(Layout& layout);
 		void SaveCurrentLayout();
+		void SerializeLayouts();
 
 	public:
 		Layout&       GetCurrentLayout()       { return *mCurrentLayout; }
@@ -25,6 +27,8 @@ namespace Cosmic
 
 		Vector<Layout>&       GetLayouts()       { return mLayouts; }
 		const Vector<Layout>& GetLayouts() const { return mLayouts; }
+
+		const Path& GetSavePath() const { return mSavePath; }
 
 	private:
 		bool SwitchLayout();
@@ -41,6 +45,8 @@ namespace Cosmic
 		Layout*        mSwitchLayout;
 
 		int32          mCurrentLayoutIndex = 0;
+
+		Path           mSavePath;
 
 		bool mSaveLayout = false;
 

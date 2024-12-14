@@ -34,7 +34,7 @@ namespace Cosmic
         mActiveScene = CreateRef<Scene>();
 
         mPanels.Init();
-        mLayoutManager.Init();
+        mLayoutManager.Init("Engine/Tools/Editor/Assets/EditorLayouts.yaml");
 
         ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
         ModuleSystem::AddFront<DockspaceModule>();

@@ -1,6 +1,9 @@
 #pragma once
 #include "Base/Base.hpp"
 #include "Memory/SmartPtrs.hpp"
+#include "Memory/PersistentStackAllocator.hpp"
+
+#include <functional>
 
 namespace Cosmic
 {
@@ -15,8 +18,17 @@ namespace Cosmic
 		Stack
 	};
 
+	const char*   EDockSplitDirToStr(EDockSplitDir dir);
+	EDockSplitDir EDockSplitDirFromStr(const char* str);
+
 	struct DockNode
 	{
+		template<typename... Args>
+		static DockNode* Allocate(Args&&... args)
+		{
+            return PersistentStackAllocator::Allocate<DockNode>(std::forward<Args>(args)...);
+		}
+
 		DockNode()                = default;
 		DockNode(const DockNode&) = default;
 		DockNode(DockNode&&)      = default;
@@ -45,6 +57,8 @@ namespace Cosmic
 
 	class LayoutManager;
 
+	using IterDockNodeCallback = std::function<bool(DockNode*)>;
+
 	class Layout
 	{
 	public:
@@ -54,6 +68,9 @@ namespace Cosmic
 		}
 
 	public:
+		void IterDockNodes(IterDockNodeCallback callback);
+
+	public:
 		void ConstructDefaultLayout();
 		void ConstructFromCurrentLayout();
 
@@ -61,6 +78,11 @@ namespace Cosmic
 		void Load();
 
 	public:
+		void SetRootNode(DockNode* root) { mRoot = root; }
+		void SetName(const String& name) { mName = name; }
+
+	public:
+		DockNode*     GetRootNode()    { return mRoot;     }
 		const String& GetName()  const { return mName;     }
 		bool          IsLoaded() const { return mIsLoaded; }
 
