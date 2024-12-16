@@ -13,9 +13,8 @@ namespace Cosmic
 
     EditorApp::EditorApp(const StartupArguments& args)
     {
-        ApplicationInfo info    = {};
-        info.StartupArgs        = args;
-        info.ScriptAssemblyPath = "C:/Dev/Cosmic/bin/Debug-windows-x86_64/SandboxScript/SandboxScript.dll";
+        ApplicationInfo info = {};
+        info.StartupArgs     = args;
 
         Init(info);
     }

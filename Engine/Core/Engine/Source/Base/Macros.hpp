@@ -46,6 +46,16 @@
 
 #endif
 
+// DLL Exporting
+
+#if defined(CS_COMPILER_MSVC)
+#   define CS_DLLEXPORT __declspec(dllexport)
+#   define CS_DLLIMPORT __declspec(dllimport)
+#elif defined(CS_COMPILER_GCC)
+#   define CS_DLLEXPORT
+#   define CS_DLLIMPORT
+#endif
+
 // Debug/Assertions
 
 #if defined(CS_COMPILER_MSVC)

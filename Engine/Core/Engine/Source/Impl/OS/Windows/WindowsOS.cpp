@@ -549,20 +549,20 @@ namespace Cosmic
 
         SetDllDirectoryA(parentDir.c_str());
 
-        HINSTANCE library = LoadLibraryA(path.GetString().c_str());
+        HMODULE library = LoadLibraryA(path.GetString().c_str());
 
         return (void*)library;
     }
 
     void OS::FreeDynamicLibrary(void* library)
     {
-        FreeLibrary((HINSTANCE)library);
+        FreeLibrary((HMODULE)library);
     }
 
     void* OS::RetrieveFunctionFromDynamicLibrary(const char* name, void* library)
     {
         void* function = (void*)GetProcAddress(static_cast<HINSTANCE>(library), name);
-        
+
         return function;
     }
 

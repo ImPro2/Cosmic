@@ -12,6 +12,5 @@ namespace Cosmic
         virtual void OnInstantiate() override;        
     };
 
-    Ref<NativeScript> CSInstantiatePlayerScript(Entity entity);
     
 }

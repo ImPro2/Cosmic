@@ -4,6 +4,8 @@
 #include "Time/DeltaTime.hpp"
 #include "Memory/SmartPtrs.hpp"
 
+#include "Script/NativeScriptMacros.hpp"
+
 namespace Cosmic
 {
 
@@ -57,6 +59,6 @@ namespace Cosmic
         friend class Scene;
     };
 
-    typedef Ref<NativeScript> (*InstantiateNativeScriptCallback)(Entity entity);
+    typedef NativeScript* (*InstantiateNativeScriptCallback)(Entity entity);
 
 }

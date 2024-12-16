@@ -2,6 +2,8 @@
 #include "ProjectManager.hpp"
 #include "ProjectSerializer.hpp"
 
+#include "Script/NativeScriptEngine.hpp"
+
 namespace Cosmic
 {
 
@@ -18,6 +20,8 @@ namespace Cosmic
     {
         ProjectSerializer serializer(sActiveProject);
         serializer.Deserialize(path);
+
+        NativeScriptEngine::LoadScriptAssembly(sActiveProject->GetInfo().ScriptAssemblyPath.GetAbsolutePath());
         
         return sActiveProject;
     }

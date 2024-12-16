@@ -12,7 +12,7 @@ namespace Cosmic
 	class NativeScriptEngine
 	{
 	public:
-		static void Init(const Path& scriptAssemblyPath = "");
+		static void Init(const Path& scriptAssemblyPath);
 		static void Shutdown();
 
 	public:
@@ -24,8 +24,7 @@ namespace Cosmic
 		static Ref<NativeScript> InstantiateScriptInstance(const String& className, Entity entity);
 		static void              DestroyScriptInstance(Ref<NativeScript>& instance);
 
-	private:
-		static void LoadScriptAssembly();
+		static void LoadScriptAssembly(const Path& scriptAssemblyPath = "");
 
 	private:
 		inline static Path  sScriptAssemblyPath;

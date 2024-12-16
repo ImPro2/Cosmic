@@ -1,5 +1,6 @@
 #include "cspch.hpp"
 #include "PlayerScript.hpp"
+#include "Memory/DefaultAllocator.hpp"
 
 CS_MODULE_LOG_INFO(SandboxProject, PlayerScript);
 
@@ -13,12 +14,9 @@ namespace Cosmic
 
     void PlayerScript::OnInstantiate()
     {
-        CS_LOG_INFO("OnInstantiate");
-    }
-    
-    Ref<NativeScript> CSInstantiatePlayerScript(Entity entity)
-    {
-        return CreateRef<PlayerScript>(entity);
+        Application* instance = Application::Get();
     }
 
 }
+
+CS_NATIVE_SCRIPT(PlayerScript);

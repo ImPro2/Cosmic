@@ -8,10 +8,9 @@ namespace Cosmic
 
 	void NativeScriptEngine::Init(const Path& scriptAssemblyPath)
 	{
-		sScriptAssemblyPath = scriptAssemblyPath;
+		LoadScriptAssembly(scriptAssemblyPath);
 
-		if (!sScriptAssemblyPath.GetString().empty())
-			LoadScriptAssembly();
+
 	}
 
 	void NativeScriptEngine::Shutdown()
@@ -33,10 +32,11 @@ namespace Cosmic
 
 	Ref<NativeScript> NativeScriptEngine::InstantiateScriptInstance(const String& className, Entity entity)
 	{
+
 		if (sCallbackMap.find(className) == sCallbackMap.end())
 			RegisterScriptClass(className);
 
-		Ref<NativeScript> instance = sCallbackMap[className](entity);
+		Ref<NativeScript> instance = Ref<NativeScript>(sCallbackMap[className](entity));
 		instance->OnInstantiate();
 
 		sScriptInstances.push_back(instance);
@@ -54,11 +54,19 @@ namespace Cosmic
 		instance.Release();
 	}
 
-	void NativeScriptEngine::LoadScriptAssembly()
+	void NativeScriptEngine::LoadScriptAssembly(const Path& scriptAssemblyPath)
 	{
+		sScriptAssemblyPath = scriptAssemblyPath;
+
+		if (sScriptAssemblyPath.GetString().empty())
+			return;
+
 		sScriptAssembly = OS::LoadDynamicLibrary(sScriptAssemblyPath);
 
 		CS_ASSERT(sScriptAssembly, "Unable to load script assembly {}", sScriptAssemblyPath.GetString().c_str());
+
+		auto initFn = (void(*)(Application*))OS::RetrieveFunctionFromDynamicLibrary("CSInit", sScriptAssembly);
+		initFn(Application::Get());
 	}
 
 }

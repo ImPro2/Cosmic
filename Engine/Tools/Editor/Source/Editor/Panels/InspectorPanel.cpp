@@ -311,6 +311,9 @@ namespace Cosmic
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
             ImGui::InputText("##InputScript", (char*)className.c_str(), className.size(), ImGuiInputTextFlags_CallbackResize, callback, (void*)&className);
             ImGui::SameLine();
+
+            if (ImGui::Button("Bind"))
+                component.ShouldLoad = true;
             
             ImGui::SameLine();
             if (ImGui::Button("Create"))

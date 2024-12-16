@@ -17,7 +17,7 @@ namespace Cosmic {
         DesktopWindowInfo WindowInfo         = DesktopWindowInfo();
         ERendererAPI      RendererBackend    = PlatformNativeRendererAPI();
         bool              EnableImGui        = true;
-        String            ScriptAssemblyPath = "SandboxScript.dll";
+        String            ScriptAssemblyPath = "";
     };
     
     class Application

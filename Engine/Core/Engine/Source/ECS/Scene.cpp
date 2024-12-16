@@ -55,10 +55,14 @@ namespace Cosmic
 
 		mRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 		{
-            if (!nsc.Instance)
-                nsc.Instance = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
+			if (!nsc.Instance && nsc.ShouldLoad)
+			{
+                nsc.Instance   = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
+                nsc.ShouldLoad = false;
+			}
 
-			nsc.Instance->OnUpdate(Time::GetDeltaTime());
+            if (nsc.Instance)
+				nsc.Instance->OnUpdate(Time::GetDeltaTime());
 		});
 
         Camera*   mainCamera          = nullptr;
@@ -108,10 +112,14 @@ namespace Cosmic
 
         mRegistry.view<NativeScriptComponent>().each([this](auto entity, auto& nsc)
         {
-            if (!nsc.Instance)
-                nsc.Instance = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
+			if (!nsc.Instance && nsc.ShouldLoad)
+			{
+                nsc.Instance   = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
+                nsc.ShouldLoad = false;
+			}
 
-			nsc.Instance->OnUpdate(Time::GetDeltaTime());
+            if (nsc.Instance)
+				nsc.Instance->OnUpdate(Time::GetDeltaTime());
         });
 
         // Render SpriteRendererComponents
