@@ -10,7 +10,7 @@
 
 CS_MODULE_LOG_INFO(Editor, Panels.InspectorPanel);
 
-#include "Script/ScriptEngine.hpp"
+#include "Script/NativeScriptEngine.hpp"
 
 namespace Cosmic
 {
@@ -312,10 +312,6 @@ namespace Cosmic
             ImGui::InputText("##InputScript", (char*)className.c_str(), className.size(), ImGuiInputTextFlags_CallbackResize, callback, (void*)&className);
             ImGui::SameLine();
             
-            if (ImGui::Button("Load"))
-            {
-                component.Bind(className);
-            }
             ImGui::SameLine();
             if (ImGui::Button("Create"))
             {

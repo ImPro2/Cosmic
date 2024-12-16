@@ -12,7 +12,7 @@ CS_MODULE_LOG_INFO(Cosmic, App.Application);
 #include "Gui/Gui.hpp"
 #include "Renderer/RenderCommand.hpp"
 #include "Renderer/Renderer2D.hpp"
-#include "Script/ScriptEngine.hpp"
+#include "Script/NativeScriptEngine.hpp"
 #include "Time/Time.hpp"
 
 #include "Memory/Allocations.hpp"
@@ -58,10 +58,10 @@ namespace Cosmic
         Renderer2D::Init();
         Gui::Init();
         FileSystem::Init(String("./"));
-        // ScriptEngine::Init(mInfo.ScriptAssemblyPath);
+
+        NativeScriptEngine::Init(mInfo.ScriptAssemblyPath);
 
         OnEvent(ApplicationInitEvent(mInfo));
-        // EventSystem::AddEvent(new ApplicationInitEvent(mInfo));
 
         Run();
     }   
@@ -73,7 +73,7 @@ namespace Cosmic
         OnEvent(ApplicationCloseEvent());
 
         Allocations::Shutdown();
-        ScriptEngine::Shutdown();
+        NativeScriptEngine::Shutdown();
         Gui::Shutdown();
         Renderer2D::Shutdown();
         RenderCommand::Shutdown();

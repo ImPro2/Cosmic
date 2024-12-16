@@ -2,13 +2,21 @@
 #include "ECS/Entity.hpp"
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"
+#include "Memory/SmartPtrs.hpp"
 
 namespace Cosmic
 {
 
-    class NativeScript
+    class NativeScriptEngine;
+
+    class NativeScript : public IRefCounted
     {
     public:
+        NativeScript(Entity entity)
+            : mEntity(entity)
+        {
+        }
+
         virtual ~NativeScript() { }
 
     public:
@@ -37,7 +45,7 @@ namespace Cosmic
         }
 
     protected:
-        virtual void OnCreate()      { }
+        virtual void OnInstantiate() { }
         virtual void OnDestroy()     { }
         virtual void OnUpdate(Dt dt) { }
 
@@ -45,16 +53,10 @@ namespace Cosmic
         Entity mEntity;
 
     private:
+        friend class NativeScriptEngine;
         friend class Scene;
     };
 
-    typedef NativeScript* (*InstantiateNativeScriptCallback)();
-    typedef void(*DestroyNativeScriptCallback)(NativeScript*);
-
-    struct NativeScriptCallbacks
-    {
-        InstantiateNativeScriptCallback InstantiateScript;
-        DestroyNativeScriptCallback     DestroyScript;
-    };
+    typedef Ref<NativeScript> (*InstantiateNativeScriptCallback)(Entity entity);
 
 }

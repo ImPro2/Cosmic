@@ -2,6 +2,7 @@
 #include "App/Log/ConsoleColor.hpp"
 #include "Base/Singleton.hpp"
 #include "Base/Base.hpp"
+#include "App/Path.hpp"
 
 namespace Cosmic
 {
@@ -23,7 +24,7 @@ namespace Cosmic
         static String OpenFileDialog(const char* filter);
         static String SaveFileDialog(const char* filter);
 
-        static void* LoadDynamicLibrary(const char* path);
+        static void* LoadDynamicLibrary(const Path& path);
         static void  FreeDynamicLibrary(void* library);
         static void* RetrieveFunctionFromDynamicLibrary(const char* name, void* library);
     };

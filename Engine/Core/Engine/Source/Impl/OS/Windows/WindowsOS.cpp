@@ -16,7 +16,6 @@
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsOS);
 
-
 #include "App/Log/Log.hpp"
 #include "App/Log/ConsoleColor.hpp"
 #include "Base/Base.hpp"
@@ -24,6 +23,7 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsOS);
 #include "App/Application.hpp"
 #include "App/Window/IWindow.hpp"
 #include "IWindowsWindow.hpp"
+#include "App/FileSystem.hpp"
 
 namespace Cosmic
 {
@@ -543,11 +543,13 @@ namespace Cosmic
         return "";
     }
 
-    void* OS::LoadDynamicLibrary(const char* path)
+    void* OS::LoadDynamicLibrary(const Path& path)
     {
-        SetDllDirectoryA("C:\\Dev\\Cosmic\\bin\\Debug-windows-x86_64\\SandboxScript\\");
+		String parentDir = StringUtils::Replace(FileSystem::GetParentDirectory(path).GetString(), '/', '\\');
 
-        HINSTANCE library = LoadLibraryA(path);
+        SetDllDirectoryA(parentDir.c_str());
+
+        HINSTANCE library = LoadLibraryA(path.GetString().c_str());
 
         return (void*)library;
     }

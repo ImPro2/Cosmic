@@ -52,20 +52,14 @@ namespace Cosmic
     void Scene::OnUpdate(Dt dt)
     {
         // Update scripts
-        {
-            mRegistry.view<NativeScriptComponent, TransformComponent>().each([=](auto entity, auto& nsc, auto& transform)
-            {
-                //auto a = entt::type_seq<TransformComponent>();
-                if (!nsc.Instance && nsc.Bound)
-                {
-                    nsc.Instance          = nsc.ScriptCallbacks.InstantiateScript();
-                    nsc.Instance->mEntity = Entity{ entity, &mRegistry };
-                    nsc.Instance->OnCreate();
-                }
-                if (nsc.Bound)
-                    nsc.Instance->OnUpdate(Time::GetDeltaTime());
-            });
-        }
+
+		mRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+		{
+            if (!nsc.Instance)
+                nsc.Instance = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
+
+			nsc.Instance->OnUpdate(Time::GetDeltaTime());
+		});
 
         Camera*   mainCamera          = nullptr;
         glm::mat4 mainCameraTransform = glm::mat4(1.0f);
@@ -112,16 +106,12 @@ namespace Cosmic
     {
         // Update scripts
 
-        mRegistry.view<NativeScriptComponent, TransformComponent>().each([this](auto entity, auto& nsc, auto& transform)
+        mRegistry.view<NativeScriptComponent>().each([this](auto entity, auto& nsc)
         {
-            if (!nsc.Instance && nsc.Bound)
-            {
-                nsc.Instance = nsc.ScriptCallbacks.InstantiateScript();
-                nsc.Instance->mEntity = Entity{ entity, &mRegistry };
-                nsc.Instance->OnCreate();
-            }
-            if (nsc.Bound)
-                nsc.Instance->OnUpdate(Time::GetDeltaTime());
+            if (!nsc.Instance)
+                nsc.Instance = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
+
+			nsc.Instance->OnUpdate(Time::GetDeltaTime());
         });
 
         // Render SpriteRendererComponents

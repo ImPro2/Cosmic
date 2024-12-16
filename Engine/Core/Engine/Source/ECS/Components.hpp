@@ -9,7 +9,7 @@
 #include "Base/Base.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "Script/NativeScript.hpp"
-#include "Script/ScriptEngine.hpp"
+#include "Script/NativeScriptEngine.hpp"
 #include "Time/DeltaTime.hpp"
 #include "Time/Time.hpp"
 
@@ -148,27 +148,16 @@ namespace Cosmic
 
     struct NativeScriptComponent : public IComponent
     {
-        NativeScript*         Instance        = nullptr;
-        NativeScriptCallbacks ScriptCallbacks = {};
-        String                ClassName       = "";
-        bool                  Bound           = false;
+        Ref<NativeScript> Instance  = nullptr;
+        String            ClassName = "";
 
-        void Bind(const String& className)
-        {
-            ScriptCallbacks = ScriptEngine::AddNativeScript(className);
-            Bound = true;
-            ClassName = className;
-        }
+        NativeScriptComponent()                             = default;
+        NativeScriptComponent(const NativeScriptComponent&) = default;
 
         void Reset() override
         {
-            Instance = nullptr;
-            
-            ScriptCallbacks.InstantiateScript = []() -> NativeScript* { return nullptr; };
-            ScriptCallbacks.DestroyScript     = [](NativeScript* instance) { };
-
+            Instance  = nullptr;
             ClassName = "";
-            Bound = false;
         }
 
         CS_COMPONENT_TYPE(EComponentType::NativeScript);
