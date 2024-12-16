@@ -164,4 +164,22 @@ namespace Cosmic
         return true;
     }
 
+    void Application::Set(Application* instance)
+    {
+        sInstance = instance;
+
+        Log::sInstance                = sInstance->mLogInstance;
+        FileSystem::sInstance         = sInstance->mFileSystemInstance;
+        ModuleSystem::sInstance       = sInstance->mModuleSystemInstance;
+        EventSystem::sInstance        = sInstance->mEventSystemInstance;
+        Gui::sInstance                = sInstance->mGuiInstance;
+        ProjectManager::sInstance     = sInstance->mProjectManagerInstance;
+        RenderCommand::sAPI           = sInstance->mRendererAPIInstance;
+        Renderer2D::sInstance         = sInstance->mRenderer2DInstance;
+        NativeScriptEngine::sInstance = sInstance->mNativeScriptEngineInstance;
+        Time::sInstance               = sInstance->mTimeInstance;
+
+        Allocations::SetInstance(sInstance->mAllocationsInstance);
+    }
+
 }

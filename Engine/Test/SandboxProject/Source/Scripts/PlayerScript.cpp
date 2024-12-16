@@ -15,8 +15,12 @@ namespace Cosmic
 
     void PlayerScript::OnInstantiate()
     {
-        Application* instance = Application::Get();
-        CS_LOG_INFO("hi");
+        CS_LOG_INFO("OnInstantiate");
+    }
+
+    void PlayerScript::OnUpdate(Dt dt)
+    {
+        CS_LOG_INFO("OnUpdate: {}ms", Time::GetFPS().InSeconds());
     }
 
 }

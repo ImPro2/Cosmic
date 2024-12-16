@@ -50,6 +50,8 @@ namespace Cosmic
 
 		static void EndFrame();
 
+		static void SetInstance(const PersistentRef<Allocations>& instance);
+
 	public:
 		static const AllocationStatistics& GetStatistics() { return sInstance->mStatistics;  }
 

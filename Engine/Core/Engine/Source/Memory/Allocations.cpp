@@ -53,6 +53,15 @@ namespace Cosmic
 		FrameStackAllocator::Free();
 	}
 
+	void Allocations::SetInstance(const PersistentRef<Allocations>& instance)
+	{
+		sInstance = instance;
+
+		DefaultAllocator::sAllocator         = sInstance->mAllocators[0];
+		FrameStackAllocator::sAllocator      = sInstance->mAllocators[1];
+		PersistentStackAllocator::sAllocator = sInstance->mAllocators[2];
+	}
+
 	void Allocations::OnAllocation(size_t size)
 	{
 		sInstance->mStatistics.TotalAllocatedMemory += size;

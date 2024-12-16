@@ -10,6 +10,7 @@ namespace Cosmic
 
     public:
         virtual void OnInstantiate() override;        
+        virtual void OnUpdate(Dt dt) override;
     };
 
     

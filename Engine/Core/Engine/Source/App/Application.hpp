@@ -58,8 +58,10 @@ namespace Cosmic {
     public:
         static Application*    Get()                      { return sInstance;     }
         const ApplicationInfo& GetInfo() const            { return mInfo;         }
-        static void            Set(Application* instance) { sInstance = instance; }
         IDesktopWindow*        GetWindow()                { return mWindow.Ptr(); }
+
+    public:
+        static void Set(Application* instance);
     
     private:
         static Application*   sInstance;
