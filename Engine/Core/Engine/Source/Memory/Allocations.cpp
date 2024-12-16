@@ -22,9 +22,9 @@ namespace Cosmic
 		}
 	}
 
-	Ref<Allocations> Allocations::Init()
+	PersistentRef<Allocations> Allocations::Init()
 	{
-		sInstance = Ref<Allocations>(new Allocations());
+		sInstance = PersistentRef<Allocations>(new Allocations());
 
 		sInstance->mStatistics.TotalAllocatedMemory = 0;
 		sInstance->mStatistics.TotalFreedMemory     = 0;

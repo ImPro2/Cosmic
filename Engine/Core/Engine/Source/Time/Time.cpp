@@ -6,9 +6,9 @@
 namespace Cosmic
 {
 
-    Ref<Time> Time::Init()
+    PersistentRef<Time> Time::Init()
     {
-        sInstance = CreateRef<Time>();
+        sInstance = CreatePersistentRef<Time>();
 
         return sInstance;
     }

@@ -19,13 +19,13 @@ namespace Cosmic
 		static Ref<Project> GetActiveProject() { return sInstance->mActiveProject; }
 
 	private:
-		static Ref<ProjectManager> Init();
-		static void                Shutdown();
+		static PersistentRef<ProjectManager> Init();
+		static void                          Shutdown();
 
 	private:
 		Ref<Project> mActiveProject;
 
-		inline static Ref<ProjectManager> sInstance;
+		inline static PersistentRef<ProjectManager> sInstance;
 
 		friend class Application;
 	};

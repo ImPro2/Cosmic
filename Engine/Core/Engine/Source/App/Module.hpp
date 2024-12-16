@@ -141,8 +141,8 @@ namespace Cosmic
         }
 
     private:
-        static Ref<ModuleSystem> Init();
-        static void              Shutdown();
+        static PersistentRef<ModuleSystem> Init();
+        static void                        Shutdown();
 
         static void OnUpdate();
         static void OnEvent(const IEvent& e);
@@ -157,9 +157,10 @@ namespace Cosmic
         std::queue<Pair<Ref<IModule>, EDeferredInsertMode>> mDeferredAddModules;
         std::queue<Ref<IModule>>                            mDeferredRemoveModules;
 
-        inline static Ref<ModuleSystem> sInstance;
+        inline static PersistentRef<ModuleSystem> sInstance;
 
         friend class Application;
     };
+
 
 }

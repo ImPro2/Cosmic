@@ -68,17 +68,17 @@ namespace Cosmic {
         ApplicationInfo       mInfo;
         Scope<IDesktopWindow> mWindow;
 
-        Ref<Log>                mLogInstance;
-        Ref<FileSystem>         mFileSystemInstance;
-        Ref<ModuleSystem>       mModuleSystemInstance;
-        Ref<EventSystem>        mEventSystemInstance;
-        Ref<Gui>                mGuiInstance;
-        Ref<Allocations>        mAllocationsInstance;
-        Ref<ProjectManager>     mProjectManagerInstance;
-        Ref<RendererAPI>        mRendererAPIInstance;
-        Ref<Renderer2D>         mRenderer2DInstance;
-        Ref<NativeScriptEngine> mNativeScriptEngineInstance;
-        Ref<Time>               mTimeInstance;
+        PersistentRef<Log>                mLogInstance;
+        PersistentRef<FileSystem>         mFileSystemInstance;
+        PersistentRef<ModuleSystem>       mModuleSystemInstance;
+        PersistentRef<EventSystem>        mEventSystemInstance;
+        PersistentRef<Gui>                mGuiInstance;
+        PersistentRef<Allocations>        mAllocationsInstance;
+        PersistentRef<ProjectManager>     mProjectManagerInstance;
+        PersistentRef<RendererAPI>        mRendererAPIInstance;
+        PersistentRef<Renderer2D>         mRenderer2DInstance;
+        PersistentRef<NativeScriptEngine> mNativeScriptEngineInstance;
+        PersistentRef<Time>               mTimeInstance;
     };
 
 }

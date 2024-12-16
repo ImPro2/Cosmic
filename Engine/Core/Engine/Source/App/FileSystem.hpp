@@ -15,8 +15,8 @@ namespace Cosmic
     class FileSystem : public IRefCounted
     {
     private:
-        static Ref<FileSystem> Init(const Path& fileSystemWatcherPath);
-        static void            Shutdown();
+        static PersistentRef<FileSystem> Init(const Path& fileSystemWatcherPath);
+        static void                      Shutdown();
 
     public:
         static Path GetExecutableDirectory();
@@ -47,7 +47,7 @@ namespace Cosmic
         std::thread mFileSystemWatcherThread;
         Path        mFileSystemWatcherDirectory;
 
-        inline static Ref<FileSystem> sInstance;
+        inline static PersistentRef<FileSystem> sInstance;
 
         friend class Application;
     };

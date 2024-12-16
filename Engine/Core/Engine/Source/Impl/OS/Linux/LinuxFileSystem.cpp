@@ -24,9 +24,9 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Linux.LinuxFileSystem)
 namespace Cosmic
 {
 
-    Ref<FileSystem> FileSystem::Init(const Path& fileSystemWatcherPath)
+    PersistentRef<FileSystem> FileSystem::Init(const Path& fileSystemWatcherPath)
     {
-        sInstance = CreateRef<FileSystem>();
+        sInstance = CreatePersistentRef<FileSystem>();
 
         sInstance->mFileSystemWatcherDirectory = fileSystemWatcherPath;
         sInstance->mFileSystemWatcherThread = std::thread(&FileSystem::FileSystemWatcherThread);

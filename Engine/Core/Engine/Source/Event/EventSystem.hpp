@@ -18,15 +18,15 @@ namespace Cosmic
         }
         
     private:
-        static Ref<EventSystem> Init();
-        static void             Shutdown();
+        static PersistentRef<EventSystem> Init();
+        static void                       Shutdown();
 
         static void DispatchEvents();
 
     private:
         std::queue<FramePtr<IEvent>> mEventQueue;
 
-        inline static Ref<EventSystem> sInstance;
+        inline static PersistentRef<EventSystem> sInstance;
 
         friend class Application;
     };

@@ -27,8 +27,8 @@ namespace Cosmic
 	class Log : public IRefCounted
 	{
 	private:
-		static Ref<Log> Init();
-		static void     Shutdown();
+		static PersistentRef<Log> Init();
+		static void               Shutdown();
 
 	public:
 		static const Vector<LogData>& GetLogData() { return sInstance->mLogData; }
@@ -89,7 +89,7 @@ namespace Cosmic
 
 	private:
 		Vector<LogData> mLogData;
-		inline static Ref<Log> sInstance;
+		inline static PersistentRef<Log> sInstance;
 
 		friend class Application;
 	};

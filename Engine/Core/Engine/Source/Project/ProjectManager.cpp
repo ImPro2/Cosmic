@@ -8,9 +8,9 @@
 namespace Cosmic
 {
 
-    Ref<ProjectManager> ProjectManager::Init()
+    PersistentRef<ProjectManager> ProjectManager::Init()
     {
-        sInstance = CreateRef<ProjectManager>();
+        sInstance = CreatePersistentRef<ProjectManager>();
 
         return sInstance;
     }

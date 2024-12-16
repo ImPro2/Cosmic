@@ -11,11 +11,11 @@ CS_MODULE_LOG_INFO(Cosmic, Renderer.Renderer2D);
 namespace Cosmic
 {
 
-    Ref<Renderer2D> Renderer2D::Init()
+    PersistentRef<Renderer2D> Renderer2D::Init()
     {
         CS_PROFILE_FN();
 
-        sInstance = CreateRef<Renderer2D>();
+        sInstance = CreatePersistentRef<Renderer2D>();
 
         sInstance->mData.QuadVertexBuffer = CreateVertexBuffer(nullptr, sInstance->mData.MaxVertices * sizeof(QuadVertex), EBufferUsage::Dynamic);
         sInstance->mData.QuadVertexBuffer->SetLayout({

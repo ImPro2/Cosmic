@@ -46,7 +46,7 @@ namespace Cosmic
         inline static ERendererAPI sAPI;
     };
 
-    ERendererAPI     PlatformNativeRendererAPI();
-    Ref<RendererAPI> CreateRendererAPI(ERendererAPI api);
+    ERendererAPI               PlatformNativeRendererAPI();
+    PersistentRef<RendererAPI> CreateRendererAPI(ERendererAPI api);
 
 }

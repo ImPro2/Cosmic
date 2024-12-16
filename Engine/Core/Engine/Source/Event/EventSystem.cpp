@@ -8,9 +8,9 @@ CS_MODULE_LOG_INFO(Cosmic, App.Events);
 namespace Cosmic
 {
 
-	Ref<EventSystem> EventSystem::Init()
+	PersistentRef<EventSystem> EventSystem::Init()
 	{
-		sInstance = CreateRef<EventSystem>();
+		sInstance = CreatePersistentRef<EventSystem>();
 
 		return sInstance;
 	}

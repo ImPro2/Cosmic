@@ -14,8 +14,8 @@ namespace Cosmic
 	class NativeScriptEngine : public IRefCounted
 	{
 	private:
-		static Ref<NativeScriptEngine> Init(const Path& scriptAssemblyPath);
-		static void                    Shutdown();
+		static PersistentRef<NativeScriptEngine> Init(const Path& scriptAssemblyPath);
+		static void                              Shutdown();
 
 	public:
 		static void OnUpdate(Dt dt);
@@ -35,7 +35,7 @@ namespace Cosmic
 		UnorderedMap<String, InstantiateNativeScriptCallback> mCallbackMap;       // class name - callbacks
 		Vector<Ref<NativeScript>>                             mScriptInstances;
 
-		inline static Ref<NativeScriptEngine> sInstance;
+		inline static PersistentRef<NativeScriptEngine> sInstance;
 
 		friend class Application;
 	};

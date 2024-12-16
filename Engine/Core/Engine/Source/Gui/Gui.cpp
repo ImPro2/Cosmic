@@ -76,11 +76,11 @@ namespace Cosmic
         //colors[ImGuiCol_Border] = colorFromBytes(10, 200, 10);
     }
 
-    Ref<Gui> Gui::Init()
+    PersistentRef<Gui> Gui::Init()
     {
         CS_PROFILE_FN();
 
-        sInstance = CreateRef<Gui>();
+        sInstance = CreatePersistentRef<Gui>();
     
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();

@@ -11,8 +11,8 @@ namespace Cosmic
     class RenderCommand
     {
     private:
-        static Ref<RendererAPI> Init(ERendererAPI api);
-        static void             Shutdown();
+        static PersistentRef<RendererAPI> Init(ERendererAPI api);
+        static void                       Shutdown();
 
     public:
         static void SetViewport(uint32 x, uint32 y, uint32 width, uint32 height);
@@ -21,7 +21,7 @@ namespace Cosmic
         static void Render(EPrimitiveTopology primitiveTopology, uint32 count);
 
     private:
-        inline static Ref<RendererAPI> sAPI;
+        inline static PersistentRef<RendererAPI> sAPI;
 
         friend class Application;
     };

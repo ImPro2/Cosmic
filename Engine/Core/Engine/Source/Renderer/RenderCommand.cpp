@@ -7,7 +7,7 @@
 namespace Cosmic
 {
 
-    Ref<RendererAPI> RenderCommand::Init(ERendererAPI api)
+    PersistentRef<RendererAPI> RenderCommand::Init(ERendererAPI api)
     {
         CS_PROFILE_FN();
 

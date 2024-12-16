@@ -5,9 +5,9 @@
 namespace Cosmic
 {
 
-	Ref<Log> Log::Init()
+	PersistentRef<Log> Log::Init()
 	{
-		sInstance = CreateRef<Log>();
+		sInstance = CreatePersistentRef<Log>();
 		return sInstance;
 	}
 

@@ -45,8 +45,8 @@ namespace Cosmic
 		}
 
 	private:
-		static Ref<Allocations> Init();
-		static void             Shutdown();
+		static PersistentRef<Allocations> Init();
+		static void                       Shutdown();
 
 		static void EndFrame();
 
@@ -61,7 +61,7 @@ namespace Cosmic
 		AllocationStatistics    mStatistics;
 		Vector<Ref<IAllocator>> mAllocators;
 
-		inline static Ref<Allocations> sInstance;
+		inline static PersistentRef<Allocations> sInstance;
 
 		friend class IAllocator;
 		friend class Application;

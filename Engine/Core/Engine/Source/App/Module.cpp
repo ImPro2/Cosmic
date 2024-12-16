@@ -4,11 +4,11 @@
 namespace Cosmic
 {
 
-    Ref<ModuleSystem> ModuleSystem::Init()
+    PersistentRef<ModuleSystem> ModuleSystem::Init()
     {
         CS_PROFILE_FN();
 
-        sInstance = CreateRef<ModuleSystem>();
+        sInstance = CreatePersistentRef<ModuleSystem>();
 
         return sInstance;
     }

@@ -13,8 +13,8 @@ namespace Cosmic
         static void BlockEvents(bool block) { sInstance->mBlockEvents = block; }
 
     private:
-        static Ref<Gui> Init();
-        static void     Shutdown();
+        static PersistentRef<Gui> Init();
+        static void               Shutdown();
 
         static void OnEvent(IEvent* e);
 
@@ -26,7 +26,7 @@ namespace Cosmic
         bool mInitialized = false;
         bool mBlockEvents = true;
 
-        inline static Ref<Gui> sInstance;
+        inline static PersistentRef<Gui> sInstance;
 
         friend class Application;
     };

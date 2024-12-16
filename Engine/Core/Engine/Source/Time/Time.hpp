@@ -21,8 +21,8 @@ namespace Cosmic
         static TimeUnit  GetAverageFPS()    { return sInstance->mAverageFramesPerSecond; }
 
     private:
-        static Ref<Time> Init();
-        static void      Shutdown();
+        static PersistentRef<Time> Init();
+        static void                Shutdown();
 
         static void Update();
 
@@ -32,7 +32,7 @@ namespace Cosmic
         TimeUnit  mFramesPerSecond;
         TimeUnit  mAverageFramesPerSecond;
 
-        inline static Ref<Time> sInstance;
+        inline static PersistentRef<Time> sInstance;
 
         friend class Application;
     };

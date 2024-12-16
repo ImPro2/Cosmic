@@ -25,8 +25,8 @@ namespace Cosmic
     class Renderer2D : public IRefCounted
     {
     private:
-        static Ref<Renderer2D> Init();
-        static void            Shutdown();
+        static PersistentRef<Renderer2D> Init();
+        static void                      Shutdown();
 
     public:
         static void BeginScene(const Camera& camera, const glm::mat4& transform);
@@ -90,7 +90,7 @@ namespace Cosmic
 
         Renderer2DData mData;
 
-        inline static Ref<Renderer2D> sInstance;
+        inline static PersistentRef<Renderer2D> sInstance;
 
         friend class Application;
     };

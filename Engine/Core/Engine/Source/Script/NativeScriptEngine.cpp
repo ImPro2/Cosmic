@@ -8,9 +8,9 @@ CS_MODULE_LOG_INFO(Cosmic, Script.NativeScriptEngine);
 namespace Cosmic
 {
 
-	Ref<NativeScriptEngine> NativeScriptEngine::Init(const Path& scriptAssemblyPath)
+	PersistentRef<NativeScriptEngine> NativeScriptEngine::Init(const Path& scriptAssemblyPath)
 	{
-		sInstance = CreateRef<NativeScriptEngine>();
+		sInstance = CreatePersistentRef<NativeScriptEngine>();
 
 		LoadScriptAssembly(scriptAssemblyPath);
 
