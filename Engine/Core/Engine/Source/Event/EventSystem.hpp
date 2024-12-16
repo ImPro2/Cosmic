@@ -1,28 +1,33 @@
 #pragma once
 #include "IEvent.hpp"
 #include "Memory/FramePtr.hpp"
+#include "Memory/SmartPtrs.hpp"
 
 #include <queue>
 
 namespace Cosmic
 {
 
-    class EventSystem
+    class EventSystem : public IRefCounted
     {
     public:
         template<typename T, typename... Args>
         static void DeferEvent(Args&&... args)
         {
-            sEventQueue.push(CreateFramePtr<T>(std::forward<Args>(args)...).As<IEvent>());
+            sInstance->mEventQueue.push(CreateFramePtr<T>(std::forward<Args>(args)...).As<IEvent>());
         }
         
     private:
-        static void Init();
-        static void Shutdown();
+        static Ref<EventSystem> Init();
+        static void             Shutdown();
+
         static void DispatchEvents();
 
     private:
-        inline static std::queue<FramePtr<IEvent>> sEventQueue;
+        std::queue<FramePtr<IEvent>> mEventQueue;
+
+        inline static Ref<EventSystem> sInstance;
+
         friend class Application;
     };
 

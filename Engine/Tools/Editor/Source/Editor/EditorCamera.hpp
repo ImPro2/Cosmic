@@ -2,6 +2,7 @@
 #include "Base/Types.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "Event/Events.hpp"
+#include "Event/Type/WindowEvents.hpp"
 
 #include <glm/glm.hpp>
 

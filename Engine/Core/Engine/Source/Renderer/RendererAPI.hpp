@@ -1,5 +1,6 @@
 #pragma once
 #include "Base/Base.hpp"
+#include "Memory/SmartPtrs.hpp"
 
 namespace Cosmic
 {
@@ -26,7 +27,7 @@ namespace Cosmic
         Metal   =  3
     };
 
-    class RendererAPI
+    class RendererAPI : public IRefCounted
     {
     public:
         RendererAPI(ERendererAPI api);
@@ -45,7 +46,7 @@ namespace Cosmic
         inline static ERendererAPI sAPI;
     };
 
-    ERendererAPI       PlatformNativeRendererAPI();
-    Scope<RendererAPI> CreateRendererAPI(ERendererAPI api);
+    ERendererAPI     PlatformNativeRendererAPI();
+    Ref<RendererAPI> CreateRendererAPI(ERendererAPI api);
 
 }

@@ -34,13 +34,13 @@ namespace Cosmic
 
     }
 
-    Scope<RendererAPI> CreateRendererAPI(ERendererAPI api)
+    Ref<RendererAPI> CreateRendererAPI(ERendererAPI api)
     {
         CS_PROFILE_FN();
 
         switch (api)
         {
-			case ERendererAPI::OpenGL:  return CreateScope<OpenGLRendererAPI>(api); break;
+			case ERendererAPI::OpenGL:  return CreateRef<OpenGLRendererAPI>(api); break;
             case ERendererAPI::DirectX:
             case ERendererAPI::Vulkan:
             case ERendererAPI::Metal:

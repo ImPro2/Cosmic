@@ -5,14 +5,18 @@
 #include "App/Path.hpp"
 #include "App/File.hpp"
 
+#include "Memory/SmartPtrs.hpp"
+
 namespace Cosmic
 {
 
-    class FileSystem
+    class Application;
+
+    class FileSystem : public IRefCounted
     {
-    public:
-        static void Init(const Path& fileSystemWatcherPath);
-        static void Shutdown();
+    private:
+        static Ref<FileSystem> Init(const Path& fileSystemWatcherPath);
+        static void            Shutdown();
 
     public:
         static Path GetExecutableDirectory();
@@ -40,8 +44,12 @@ namespace Cosmic
         static void FileSystemWatcherThread();
 
     private:
-        inline static std::thread mFileSystemWatcherThread;
-        inline static Path        mFileSystemWatcherDirectory;
+        std::thread mFileSystemWatcherThread;
+        Path        mFileSystemWatcherDirectory;
+
+        inline static Ref<FileSystem> sInstance;
+
+        friend class Application;
     };
 
 }

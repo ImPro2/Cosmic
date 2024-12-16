@@ -47,19 +47,24 @@ namespace Cosmic
 
         mInfo = info;
 
-        Allocations::Init();
         OS::Init();
-        RenderCommand::Init(mInfo.RendererBackend);
 
-        ModuleSystem::Init();
+        mAllocationsInstance  = Allocations::Init();
+        mLogInstance          = Log::Init();
+        mEventSystemInstance  = EventSystem::Init();
+        mRendererAPIInstance  = RenderCommand::Init(mInfo.RendererBackend);
+        mModuleSystemInstance = ModuleSystem::Init();
 
         mWindow = CreateDesktopWindow(mInfo.WindowInfo);
 
-        Renderer2D::Init();
-        Gui::Init();
-        FileSystem::Init(String("./"));
+        mRenderer2DInstance = Renderer2D::Init();
+        mGuiInstance        = Gui::Init();
+        mFileSystemInstance = FileSystem::Init(String("./"));
 
-        NativeScriptEngine::Init(mInfo.ScriptAssemblyPath);
+        mNativeScriptEngineInstance = NativeScriptEngine::Init(mInfo.ScriptAssemblyPath);
+
+        mProjectManagerInstance = ProjectManager::Init();
+        mTimeInstance = Time::Init();
 
         OnEvent(ApplicationInitEvent(mInfo));
 

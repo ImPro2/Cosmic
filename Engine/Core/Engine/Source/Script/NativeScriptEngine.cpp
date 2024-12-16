@@ -1,25 +1,30 @@
 #include "cspch.hpp"
 #include "NativeScriptEngine.hpp"
 
+#include "App/Application.hpp"
+
 CS_MODULE_LOG_INFO(Cosmic, Script.NativeScriptEngine);
 
 namespace Cosmic
 {
 
-	void NativeScriptEngine::Init(const Path& scriptAssemblyPath)
+	Ref<NativeScriptEngine> NativeScriptEngine::Init(const Path& scriptAssemblyPath)
 	{
+		sInstance = CreateRef<NativeScriptEngine>();
+
 		LoadScriptAssembly(scriptAssemblyPath);
 
-
+		return sInstance;
 	}
 
 	void NativeScriptEngine::Shutdown()
 	{
+		sInstance.Release();
 	}
 
 	void NativeScriptEngine::OnUpdate(Dt dt)
 	{
-		for (Ref<NativeScript> instance : sScriptInstances)
+		for (Ref<NativeScript> instance : sInstance->mScriptInstances)
 			instance->OnUpdate(dt);
 	}
 
@@ -27,19 +32,18 @@ namespace Cosmic
 	{
 		String instantiateFunctionName = std::format("CSInstantiate{}", className.c_str());
 
-		sCallbackMap[className] = (InstantiateNativeScriptCallback)OS::RetrieveFunctionFromDynamicLibrary(instantiateFunctionName.c_str(), sScriptAssembly);
+		sInstance->mCallbackMap[className] = (InstantiateNativeScriptCallback)OS::RetrieveFunctionFromDynamicLibrary(instantiateFunctionName.c_str(), sInstance->mScriptAssembly);
 	}
 
 	Ref<NativeScript> NativeScriptEngine::InstantiateScriptInstance(const String& className, Entity entity)
 	{
-
-		if (sCallbackMap.find(className) == sCallbackMap.end())
+		if (sInstance->mCallbackMap.find(className) == sInstance->mCallbackMap.end())
 			RegisterScriptClass(className);
 
-		Ref<NativeScript> instance = Ref<NativeScript>(sCallbackMap[className](entity));
+		Ref<NativeScript> instance = Ref<NativeScript>(sInstance->mCallbackMap[className](entity));
 		instance->OnInstantiate();
 
-		sScriptInstances.push_back(instance);
+		sInstance->mScriptInstances.push_back(instance);
 
 		return instance;
 	}
@@ -48,24 +52,24 @@ namespace Cosmic
 	{
 		instance->OnDestroy();
 
-		auto it = std::find(sScriptInstances.begin(), sScriptInstances.end(), instance);
-		sScriptInstances.erase(it);
+		auto it = std::find(sInstance->mScriptInstances.begin(), sInstance->mScriptInstances.end(), instance);
+		sInstance->mScriptInstances.erase(it);
 
 		instance.Release();
 	}
 
 	void NativeScriptEngine::LoadScriptAssembly(const Path& scriptAssemblyPath)
 	{
-		sScriptAssemblyPath = scriptAssemblyPath;
+		sInstance->mScriptAssemblyPath = scriptAssemblyPath;
 
-		if (sScriptAssemblyPath.GetString().empty())
+		if (sInstance->mScriptAssemblyPath.GetString().empty())
 			return;
 
-		sScriptAssembly = OS::LoadDynamicLibrary(sScriptAssemblyPath);
+		sInstance->mScriptAssembly = OS::LoadDynamicLibrary(sInstance->mScriptAssemblyPath);
 
-		CS_ASSERT(sScriptAssembly, "Unable to load script assembly {}", sScriptAssemblyPath.GetString().c_str());
+		CS_ASSERT(sInstance->mScriptAssembly, "Unable to load script assembly {}", sInstance->mScriptAssemblyPath.GetString().c_str());
 
-		auto initFn = (void(*)(Application*))OS::RetrieveFunctionFromDynamicLibrary("CSInit", sScriptAssembly);
+		auto initFn = (void(*)(Application*))OS::RetrieveFunctionFromDynamicLibrary("CSInit", sInstance->mScriptAssembly);
 		initFn(Application::Get());
 	}
 

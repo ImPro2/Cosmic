@@ -19,7 +19,7 @@ namespace Cosmic
 		size_t TotalFreedMemory;
 	};
 
-	class Allocations
+	class Allocations : public IRefCounted
 	{
 	public:
 		static void LogAllocationStatistics();
@@ -29,7 +29,7 @@ namespace Cosmic
 		static Ref<Allocator> AddAllocator(const String& name)
 		{
 			Ref<Allocator> allocator = CreateRef<Allocator>(name);
-			sAllocators.push_back(allocator.As<IAllocator>());
+			sInstance->mAllocators.push_back(allocator.As<IAllocator>());
 
 			return allocator;
 		}
@@ -37,32 +37,34 @@ namespace Cosmic
 		template<class Allocator>
 		static void RemoveAllocator(Ref<Allocator>& allocator)
 		{
-			auto it = std::find(sAllocators.begin(), sAllocators.end(), allocator);
-			sAllocators.erase(it);
+			auto it = std::find(sInstance->mAllocators.begin(), sInstance->mAllocators.end(), allocator);
+			sInstance->mAllocators.erase(it);
 
 			allocator->Shutdown();
 			allocator.Release();
 		}
 
 	private:
-		static void Init();
-		static void Shutdown();
+		static Ref<Allocations> Init();
+		static void             Shutdown();
 
 		static void EndFrame();
 
 	public:
-		static const AllocationStatistics& GetStatistics() { return sStatistics;  }
+		static const AllocationStatistics& GetStatistics() { return sInstance->mStatistics;  }
 
 	private:
 		static void OnAllocation(size_t size);
 		static void OnFree(size_t size);
 
 	private:
+		AllocationStatistics    mStatistics;
+		Vector<Ref<IAllocator>> mAllocators;
+
+		inline static Ref<Allocations> sInstance;
+
 		friend class IAllocator;
 		friend class Application;
-
-		inline static AllocationStatistics    sStatistics;
-		inline static Vector<Ref<IAllocator>> sAllocators;
 	};
 
 }

@@ -2,37 +2,50 @@
 #include "ProjectManager.hpp"
 #include "ProjectSerializer.hpp"
 
+#include "App/Application.hpp"
 #include "Script/NativeScriptEngine.hpp"
 
 namespace Cosmic
 {
+
+    Ref<ProjectManager> ProjectManager::Init()
+    {
+        sInstance = CreateRef<ProjectManager>();
+
+        return sInstance;
+    }
+
+    void ProjectManager::Shutdown()
+    {
+        sInstance.Release();
+    }
 
     Ref<Project> ProjectManager::NewProject()
     {
         ProjectInfo info;
         info.AssetsDirectory = "Assets";
 
-        sActiveProject = CreateRef<Project>(info);
-        return sActiveProject;
+        sInstance->mActiveProject = CreateRef<Project>(info);
+        return sInstance->mActiveProject;
     }
 
     Ref<Project> ProjectManager::LoadProject(const Path& path)
     {
-        ProjectSerializer serializer(sActiveProject);
+        ProjectSerializer serializer(sInstance->mActiveProject);
         serializer.Deserialize(path);
 
-        NativeScriptEngine::LoadScriptAssembly(sActiveProject->GetInfo().ScriptAssemblyPath.GetAbsolutePath());
+        NativeScriptEngine::LoadScriptAssembly(sInstance->mActiveProject->GetInfo().ScriptAssemblyPath.GetAbsolutePath());
         
-        return sActiveProject;
+        return sInstance->mActiveProject;
     }
      
     void ProjectManager::SaveActiveProject(const Path& path)
     {
         if (!path.GetString().empty())
-			sActiveProject->GetInfo().ProjectFilePath = path;
+			sInstance->mActiveProject->GetInfo().ProjectFilePath = path;
 
-        ProjectSerializer serializer(sActiveProject);
-        serializer.Serialize(sActiveProject->GetInfo().ProjectFilePath);
+        ProjectSerializer serializer(sInstance->mActiveProject);
+        serializer.Serialize(sInstance->mActiveProject->GetInfo().ProjectFilePath);
     }
 
 }

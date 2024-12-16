@@ -39,7 +39,7 @@ namespace Cosmic
         friend class ModuleSystem;
     };
 
-    class ModuleSystem
+    class ModuleSystem : public IRefCounted
     {
     private:
         enum class EDeferredInsertMode
@@ -55,7 +55,7 @@ namespace Cosmic
                 return Get<T>();
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
-            sModules.push_back(module);
+            sInstance->mModules.push_back(module);
             module->mName = typeid(T).name();
             module->OnInit();
 
@@ -69,7 +69,7 @@ namespace Cosmic
                 return Get<T>();
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
-            sModules.insert(sModules.begin(), module);
+            sInstance->mModules.insert(sInstance->mModules.begin(), module);
             module->mName = typeid(T).name();
             module->OnInit();
 
@@ -84,7 +84,7 @@ namespace Cosmic
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
-            sDeferredAddModules.push({ module, EDeferredInsertMode::Back });
+            sInstance->mDeferredAddModules.push({ module, EDeferredInsertMode::Back });
 
             return module.As<T>();
         }
@@ -97,7 +97,7 @@ namespace Cosmic
 
             Ref<IModule> module = CreateRef<T>(std::forward<Args>(args)...);
             module->mName = typeid(T).name();
-            sDeferredAddModules.push({ module, EDeferredInsertMode::Front });
+            sInstance->mDeferredAddModules.push({ module, EDeferredInsertMode::Front });
 
             return module.As<T>();
         }
@@ -117,13 +117,13 @@ namespace Cosmic
                 return false;
             };
 
-            std::erase_if(sModules, eraseFunction);
+            std::erase_if(sInstance->mModules, eraseFunction);
         }
 
         template<typename T>
         static void RemoveDeferred()
         {
-            sDeferredRemoveModules.push(Get<T>());
+            sInstance->mDeferredRemoveModules.push(Get<T>());
         }
 
         template<typename T>
@@ -131,7 +131,7 @@ namespace Cosmic
         {
             const char* name = typeid(T).name();
 
-            for (Ref<IModule> module : sModules)
+            for (Ref<IModule> module : sInstance->mModules)
             {
                 if (module->GetName() == name)
                     return module.As<T>();
@@ -141,8 +141,8 @@ namespace Cosmic
         }
 
     private:
-        static void Init();
-        static void Shutdown();
+        static Ref<ModuleSystem> Init();
+        static void              Shutdown();
 
         static void OnUpdate();
         static void OnEvent(const IEvent& e);
@@ -152,10 +152,12 @@ namespace Cosmic
         static void RemoveDeferredModules();
 
     private:
-        inline static Vector<Ref<IModule>> sModules;
+        Vector<Ref<IModule>> mModules;
 
-        inline static std::queue<Pair<Ref<IModule>, EDeferredInsertMode>> sDeferredAddModules;
-        inline static std::queue<Ref<IModule>>                            sDeferredRemoveModules;
+        std::queue<Pair<Ref<IModule>, EDeferredInsertMode>> mDeferredAddModules;
+        std::queue<Ref<IModule>>                            mDeferredRemoveModules;
+
+        inline static Ref<ModuleSystem> sInstance;
 
         friend class Application;
     };

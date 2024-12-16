@@ -8,23 +8,25 @@ CS_MODULE_LOG_INFO(Cosmic, App.Events);
 namespace Cosmic
 {
 
-	void EventSystem::Init()
+	Ref<EventSystem> EventSystem::Init()
 	{
+		sInstance = CreateRef<EventSystem>();
 
+		return sInstance;
 	}
 
 	void EventSystem::Shutdown()
 	{
-
+		sInstance.Release();
 	}
 
 	void EventSystem::DispatchEvents()
 	{
-		while (!sEventQueue.empty())
+		while (!sInstance->mEventQueue.empty())
 		{
-			FramePtr<IEvent> e = sEventQueue.front();
+			FramePtr<IEvent> e = sInstance->mEventQueue.front();
 			Application::Get()->OnEvent(*e);
-			sEventQueue.pop();
+			sInstance->mEventQueue.pop();
 		}
 	}
 

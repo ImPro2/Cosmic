@@ -5,7 +5,9 @@
 namespace Cosmic
 {
 
-    class ProjectManager
+	class Application;
+
+    class ProjectManager : public IRefCounted
 	{
 	public:
         static Ref<Project> NewProject();
@@ -13,10 +15,19 @@ namespace Cosmic
         
 		static void SaveActiveProject(const Path& path = "");
 
-		static Ref<Project> GetActiveProject() { return sActiveProject; }
+	public:
+		static Ref<Project> GetActiveProject() { return sInstance->mActiveProject; }
 
 	private:
-		inline static Ref<Project> sActiveProject;
+		static Ref<ProjectManager> Init();
+		static void                Shutdown();
+
+	private:
+		Ref<Project> mActiveProject;
+
+		inline static Ref<ProjectManager> sInstance;
+
+		friend class Application;
 	};
 
 }

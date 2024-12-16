@@ -20,8 +20,6 @@ CS_MODULE_LOG_INFO(Cosmic, Gui);
 namespace Cosmic
 {
 
-    static bool sInitialized = false;
-
     static void SetDarkThemeColors()
     {
         constexpr auto colorFromBytes = [](const uint8_t r, const uint8_t g, const uint8_t b)
@@ -78,9 +76,11 @@ namespace Cosmic
         //colors[ImGuiCol_Border] = colorFromBytes(10, 200, 10);
     }
 
-    void Gui::Init()
+    Ref<Gui> Gui::Init()
     {
         CS_PROFILE_FN();
+
+        sInstance = CreateRef<Gui>();
     
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -114,7 +114,9 @@ namespace Cosmic
         ImGui_ImplGlfw_InitForOpenGL(windowHandle, true);
         ImGui_ImplOpenGL3_Init("#version 410");
 
-        sInitialized = true;
+        sInstance->mInitialized = true;
+
+        return sInstance;
     }
 
     void Gui::Shutdown()
@@ -129,16 +131,16 @@ namespace Cosmic
     void Gui::OnEvent(IEvent* e)
     {
         CS_PROFILE_FN();
-        if (!sInitialized) return;
+        if (!sInstance->mInitialized) return;
     
-        if (sBlockEvents)
+        if (sInstance->mBlockEvents)
         {
             ImGuiIO& io = ImGui::GetIO();
 
-            bool mouse = (e->GetType() == (int16)EEventType::MouseMove) || (e->GetType() == (int16)EEventType::MouseScroll) || (e->GetType() == (int16)EEventType::MouseButtonClick);
-            bool keyboard = (e->GetType() == (int16)EEventType::KeyPress) || (e->GetType() == (int16)EEventType::KeyRelease) || (e->GetType() == (int16)EEventType::KeyType);
+            bool mouse    = (e->GetType() == (int16)EEventType::MouseMove) || (e->GetType() == (int16)EEventType::MouseScroll) || (e->GetType() == (int16)EEventType::MouseButtonClick);
+            bool keyboard = (e->GetType() == (int16)EEventType::KeyPress)  || (e->GetType() == (int16)EEventType::KeyRelease)  || (e->GetType() == (int16)EEventType::KeyType);
 
-            e->Block |= mouse & io.WantCaptureMouse;
+            e->Block |= mouse    & io.WantCaptureMouse;
             e->Block |= keyboard & io.WantCaptureKeyboard;
         }
     }
@@ -159,10 +161,7 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         ImGuiIO& io = ImGui::GetIO();
-        //Application& app = Application::Get();
-        //IDesktopWindow* window = app.GetWindow();
-        //io.DisplaySize = ImVec2((float32)window->GetSize().x, (float32)window->GetSize().y);
-    
+   
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

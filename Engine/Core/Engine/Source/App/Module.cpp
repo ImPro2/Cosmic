@@ -4,16 +4,21 @@
 namespace Cosmic
 {
 
-    void ModuleSystem::Init()
+    Ref<ModuleSystem> ModuleSystem::Init()
     {
         CS_PROFILE_FN();
+
+        sInstance = CreateRef<ModuleSystem>();
+
+        return sInstance;
     }
 
     void ModuleSystem::Shutdown()
     {
         CS_PROFILE_FN();
 
-        sModules.clear();
+        sInstance->mModules.clear();
+        sInstance.Release();
     }
 
     void ModuleSystem::OnUpdate()
@@ -25,7 +30,7 @@ namespace Cosmic
 
         float32 dt = Time::GetDeltaTime();
 
-        for (Ref<IModule> module : sModules)
+        for (Ref<IModule> module : sInstance->mModules)
             module->OnUpdate(dt);
     }
 
@@ -33,7 +38,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        for (Ref<IModule> module : sModules)
+        for (Ref<IModule> module : sInstance->mModules)
             module->OnEvent(e);
     }
 
@@ -41,39 +46,39 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        for (Ref<IModule> module : sModules)
+        for (Ref<IModule> module : sInstance->mModules)
             module->OnImGuiRender();
     }
 
     void ModuleSystem::AddDeferredModules()
     {
-        while (!sDeferredAddModules.empty())
+        while (!sInstance->mDeferredAddModules.empty())
         {
-            auto [module, insertMode] = sDeferredAddModules.front();
+            auto [module, insertMode] = sInstance->mDeferredAddModules.front();
             
             module->OnInit();
             
             switch (insertMode)
             {
-                case EDeferredInsertMode::Front: sModules.insert(sModules.begin(), module); break;
-                case EDeferredInsertMode::Back:  sModules.push_back(module);                break;
+                case EDeferredInsertMode::Front: sInstance->mModules.insert(sInstance->mModules.begin(), module); break;
+                case EDeferredInsertMode::Back:  sInstance->mModules.push_back(module);                           break;
             }
 
-            sDeferredAddModules.pop();
+            sInstance->mDeferredAddModules.pop();
         }
     }
 
     void ModuleSystem::RemoveDeferredModules()
     {
-        while (!sDeferredRemoveModules.empty())
+        while (!sInstance->mDeferredRemoveModules.empty())
         {
-            Ref<IModule> module = sDeferredRemoveModules.front();
+            Ref<IModule> module = sInstance->mDeferredRemoveModules.front();
 
-            std::erase(sModules, module);
+            std::erase(sInstance->mModules, module);
             module->OnShutdown();
             module.Release();
 
-            sDeferredRemoveModules.pop();
+            sInstance->mDeferredRemoveModules.pop();
         }
     }
 

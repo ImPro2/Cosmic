@@ -24,20 +24,25 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Linux.LinuxFileSystem)
 namespace Cosmic
 {
 
-    void FileSystem::Init(const Path& fileSystemWatcherPath)
+    Ref<FileSystem> FileSystem::Init(const Path& fileSystemWatcherPath)
     {
-        mFileSystemWatcherDirectory = fileSystemWatcherPath;
-        mFileSystemWatcherThread = std::thread(&FileSystem::FileSystemWatcherThread);
+        sInstance = CreateRef<FileSystem>();
+
+        sInstance->mFileSystemWatcherDirectory = fileSystemWatcherPath;
+        sInstance->mFileSystemWatcherThread = std::thread(&FileSystem::FileSystemWatcherThread);
+
+        return sInstance;
     }
 
     void FileSystem::Shutdown()
     {
+        sInstance.Release();
     }
 
     void FileSystem::FileSystemWatcherThread()
     {
         int32 fd = inotify_init();
-        int32 wd = inotify_add_watch(fd, mFileSystemWatcherDirectory.GetString().c_str(), IN_MODIFY | IN_CREATE | IN_DELETE);
+        int32 wd = inotify_add_watch(fd, sInstance->mFileSystemWatcherDirectory.GetString().c_str(), IN_MODIFY | IN_CREATE | IN_DELETE);
 
         constexpr size_t bufferLength = 1024 * (sizeof(struct inotify_event) + 16);
         uint8 buffer[bufferLength];

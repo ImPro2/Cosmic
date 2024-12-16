@@ -9,11 +9,13 @@
 namespace Cosmic
 {
 
-	class NativeScriptEngine
+	class Application;
+
+	class NativeScriptEngine : public IRefCounted
 	{
-	public:
-		static void Init(const Path& scriptAssemblyPath);
-		static void Shutdown();
+	private:
+		static Ref<NativeScriptEngine> Init(const Path& scriptAssemblyPath);
+		static void                    Shutdown();
 
 	public:
 		static void OnUpdate(Dt dt);
@@ -27,11 +29,15 @@ namespace Cosmic
 		static void LoadScriptAssembly(const Path& scriptAssemblyPath = "");
 
 	private:
-		inline static Path  sScriptAssemblyPath;
-		inline static void* sScriptAssembly;
+		Path  mScriptAssemblyPath;
+		void* mScriptAssembly;
 
-		inline static UnorderedMap<String, InstantiateNativeScriptCallback> sCallbackMap;       // class name - callbacks
-		inline static Vector<Ref<NativeScript>>                             sScriptInstances;
+		UnorderedMap<String, InstantiateNativeScriptCallback> mCallbackMap;       // class name - callbacks
+		Vector<Ref<NativeScript>>                             mScriptInstances;
+
+		inline static Ref<NativeScriptEngine> sInstance;
+
+		friend class Application;
 	};
 
 }

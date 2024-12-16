@@ -8,57 +8,17 @@
 
 CS_MODULE_LOG_INFO(Cosmic, Renderer.Renderer2D);
 
-#include "Renderer/Buffer.hpp"
-#include "Renderer/Shader.hpp"
-#include "Renderer/Shader.hpp"
-
 namespace Cosmic
 {
 
-    struct QuadVertex
-    {
-        glm::vec4 Position;
-        float4    Color;
-        float2    TexCoord;
-        float32   TexIndex;
-        float32   TilingFactor;
-        int32     EntityID;
-    };
-
-    struct Renderer2DData
-    {
-        uint32 MaxQuads = 10000;
-        uint32 MaxVertices = MaxQuads * 4;
-        uint32 MaxIndices = MaxQuads * 6;
-        static const uint32 MaxTextureSlots = 16; // TODO: RenderCaps
-
-        Ref<VertexBuffer> QuadVertexBuffer;
-        Ref<IndexBuffer>  QuadIndexBuffer;
-        Ref<Shader>       Standard2DShader;
-        Ref<Texture2D>    WhiteTexture;
-
-        uint32 QuadIndexCount = 0;
-        QuadVertex* QuadVertexBufferBasePtr = nullptr;
-        QuadVertex* QuadVertexBufferPtr = nullptr;
-
-        std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
-        uint32 TextureSlotIndex = 1; // 0 is the white texture
-
-        glm::vec4 QuadVertexPositions[4];
-
-        Renderer2DStatistics Stats;
-    };
-
-    static Renderer2DData* sData = nullptr;
-
-    void Renderer2D::Init()
+    Ref<Renderer2D> Renderer2D::Init()
     {
         CS_PROFILE_FN();
 
-        sData = new Renderer2DData();
+        sInstance = CreateRef<Renderer2D>();
 
-        sData->QuadVertexBuffer = CreateVertexBuffer(nullptr, sData->MaxVertices * sizeof(QuadVertex), EBufferUsage::Dynamic);
-        sData->QuadVertexBuffer->SetLayout({
+        sInstance->mData.QuadVertexBuffer = CreateVertexBuffer(nullptr, sInstance->mData.MaxVertices * sizeof(QuadVertex), EBufferUsage::Dynamic);
+        sInstance->mData.QuadVertexBuffer->SetLayout({
             VertexBufferElement(EShaderDataType::Float4),
             VertexBufferElement(EShaderDataType::Float4),
             VertexBufferElement(EShaderDataType::Float2),
@@ -67,14 +27,14 @@ namespace Cosmic
             VertexBufferElement(EShaderDataType::Int)
         });
 
-        sData->QuadVertexBuffer->Bind();
+        sInstance->mData.QuadVertexBuffer->Bind();
 
-        sData->QuadVertexBufferBasePtr = new QuadVertex[sData->MaxVertices];
+        sInstance->mData.QuadVertexBufferBasePtr = new QuadVertex[sInstance->mData.MaxVertices];
 
-        uint32* quadIndices = new uint32[sData->MaxIndices];
+        uint32* quadIndices = new uint32[sInstance->mData.MaxIndices];
 
         uint32 offset = 0;
-        for (int32 i = 0; i < sData->MaxIndices; i += 6)
+        for (int32 i = 0; i < sInstance->mData.MaxIndices; i += 6)
         {
             quadIndices[i + 0] = offset + 0;
             quadIndices[i + 1] = offset + 1;
@@ -87,36 +47,37 @@ namespace Cosmic
             offset += 4;
         }
 
-        sData->QuadIndexBuffer = CreateIndexBuffer(quadIndices, sData->MaxIndices);
-        sData->QuadIndexBuffer->Bind();
+        sInstance->mData.QuadIndexBuffer = CreateIndexBuffer(quadIndices, sInstance->mData.MaxIndices);
+        sInstance->mData.QuadIndexBuffer->Bind();
         delete[] quadIndices;
 
         uint32 whiteTextureData = 0xffffffff;
         Texture2DInfo whiteTextureInfo = Texture2DInfo(1, 1, ETextureWrapMode::Repeat);
 
-        sData->WhiteTexture = CreateTexture2D(whiteTextureInfo);
-        sData->WhiteTexture->SetData(&whiteTextureData, sizeof(uint32));
+        sInstance->mData.WhiteTexture = CreateTexture2D(whiteTextureInfo);
+        sInstance->mData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32));
 
-        sData->Standard2DShader = CreateShader("Engine/Core/Engine/Assets/Shaders/Standard2D.glsl");
-        sData->Standard2DShader->Bind();
+        sInstance->mData.Standard2DShader = CreateShader("Engine/Core/Engine/Assets/Shaders/Standard2D.glsl");
+        sInstance->mData.Standard2DShader->Bind();
 
-        for (int32 i = 0; i < sData->MaxTextureSlots; i++)
-            sData->Standard2DShader->SetInt(std::format("uTextures[{}]", i), i);
+        for (int32 i = 0; i < sInstance->mData.MaxTextureSlots; i++)
+            sInstance->mData.Standard2DShader->SetInt(std::format("uTextures[{}]", i), i);
 
-        sData->TextureSlots[0] = sData->WhiteTexture;
+        sInstance->mData.TextureSlots[0] = sInstance->mData.WhiteTexture;
 
-        sData->QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-        sData->QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
-        sData->QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
-        sData->QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+        sInstance->mData.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+        sInstance->mData.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+        sInstance->mData.QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+        sInstance->mData.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+        return sInstance;
     }
 
     void Renderer2D::Shutdown()
     {
         CS_PROFILE_FN();
 
-        delete sData;
-        sData = nullptr;
+        sInstance.Release();
     }
 
     void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
@@ -125,8 +86,8 @@ namespace Cosmic
 
         glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
 
-        sData->Standard2DShader->Bind();
-        sData->Standard2DShader->SetMat4("uViewProjection", viewProj);
+        sInstance->mData.Standard2DShader->Bind();
+        sInstance->mData.Standard2DShader->SetMat4("uViewProjection", viewProj);
 
         StartBatch();
     }
@@ -135,8 +96,8 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        sData->Standard2DShader->Bind();
-        sData->Standard2DShader->SetMat4("uViewProjection", camera.GetViewProjMat());
+        sInstance->mData.Standard2DShader->Bind();
+        sInstance->mData.Standard2DShader->SetMat4("uViewProjection", camera.GetViewProjMat());
 
         StartBatch();
     }
@@ -152,10 +113,10 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        sData->QuadIndexCount = 0;
-        sData->QuadVertexBufferPtr = sData->QuadVertexBufferBasePtr;
+        sInstance->mData.QuadIndexCount = 0;
+        sInstance->mData.QuadVertexBufferPtr = sInstance->mData.QuadVertexBufferBasePtr;
 
-        sData->TextureSlotIndex = 1;
+        sInstance->mData.TextureSlotIndex = 1;
     }
 
     void Renderer2D::NextBatch()
@@ -170,16 +131,16 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        uint32 dataSize = (uint32)((uint8*)sData->QuadVertexBufferPtr - (uint8*)sData->QuadVertexBufferBasePtr);
-        sData->QuadVertexBuffer->SetData(sData->QuadVertexBufferBasePtr, dataSize);
+        uint32 dataSize = (uint32)((uint8*)sInstance->mData.QuadVertexBufferPtr - (uint8*)sInstance->mData.QuadVertexBufferBasePtr);
+        sInstance->mData.QuadVertexBuffer->SetData(sInstance->mData.QuadVertexBufferBasePtr, dataSize);
 
-        for (int32 i = 0; i < sData->TextureSlotIndex; i++)
-            sData->TextureSlots[i]->Bind(i);
+        for (int32 i = 0; i < sInstance->mData.TextureSlotIndex; i++)
+            sInstance->mData.TextureSlots[i]->Bind(i);
 
-        sData->Standard2DShader->Bind();
-        RenderCommand::Render(EPrimitiveTopology::TriangleIndexed, sData->QuadIndexCount);
+        sInstance->mData.Standard2DShader->Bind();
+        RenderCommand::Render(EPrimitiveTopology::TriangleIndexed, sInstance->mData.QuadIndexCount);
 
-        sData->Stats.DrawCalls++;
+        sInstance->mData.Stats.DrawCalls++;
     }
 
     void Renderer2D::RenderQuad(const glm::vec2& position, float32 rotation, const glm::vec2& scale, float4 color)
@@ -218,7 +179,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        if (sData->QuadIndexCount >= sData->MaxIndices)
+        if (sInstance->mData.QuadIndexCount >= sInstance->mData.MaxIndices)
             NextBatch();
 
         const float32 textureIndex = 0.0f;
@@ -227,34 +188,34 @@ namespace Cosmic
 
         for (int32 i = 0; i < 4; i++)
         {
-            sData->QuadVertexBufferPtr->Position     = transform * sData->QuadVertexPositions[i];
-            sData->QuadVertexBufferPtr->Color        = color;
-            sData->QuadVertexBufferPtr->TexCoord     = texCoord[i];
-            sData->QuadVertexBufferPtr->TexIndex     = textureIndex;
-            sData->QuadVertexBufferPtr->TilingFactor = tilingFactor;
-            sData->QuadVertexBufferPtr->EntityID     = entityID;
-            sData->QuadVertexBufferPtr++;
+            sInstance->mData.QuadVertexBufferPtr->Position     = transform * sInstance->mData.QuadVertexPositions[i];
+            sInstance->mData.QuadVertexBufferPtr->Color        = color;
+            sInstance->mData.QuadVertexBufferPtr->TexCoord     = texCoord[i];
+            sInstance->mData.QuadVertexBufferPtr->TexIndex     = textureIndex;
+            sInstance->mData.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+            sInstance->mData.QuadVertexBufferPtr->EntityID     = entityID;
+            sInstance->mData.QuadVertexBufferPtr++;
         }
 
-        sData->QuadIndexCount += 6;
-        sData->Stats.QuadCount++;
-        sData->Stats.TotalVertexCount += 4;
-        sData->Stats.TotalIndexCount  += 6;
+        sInstance->mData.QuadIndexCount += 6;
+        sInstance->mData.Stats.QuadCount++;
+        sInstance->mData.Stats.TotalVertexCount += 4;
+        sInstance->mData.Stats.TotalIndexCount  += 6;
     }
 
     void Renderer2D::RenderQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float4 color, float32 tilingFactor, int32 entityID)
     {
         CS_PROFILE_FN();
 
-        if (sData->QuadIndexCount >= sData->MaxIndices)
+        if (sInstance->mData.QuadIndexCount >= sInstance->mData.MaxIndices)
             NextBatch();
 
         float32 textureIndex = 0.0f;
         const float2  texCoord[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
-        for (uint32 i = 1; i < sData->TextureSlotIndex; i++)
+        for (uint32 i = 1; i < sInstance->mData.TextureSlotIndex; i++)
         {
-            if (sData->TextureSlots[i]->GetRendererID() == texture->GetRendererID())
+            if (sInstance->mData.TextureSlots[i]->GetRendererID() == texture->GetRendererID())
             {
                 textureIndex = (float32)i;
             }
@@ -262,49 +223,49 @@ namespace Cosmic
 
         if (textureIndex == 0.0f)
         {
-            textureIndex = sData->TextureSlotIndex;
-            sData->TextureSlots[sData->TextureSlotIndex] = texture;
-            sData->TextureSlotIndex++;
+            textureIndex = sInstance->mData.TextureSlotIndex;
+            sInstance->mData.TextureSlots[sInstance->mData.TextureSlotIndex] = texture;
+            sInstance->mData.TextureSlotIndex++;
         }
 
         for (int32 i = 0; i < 4; i++)
         {
-            sData->QuadVertexBufferPtr->Position     = transform * sData->QuadVertexPositions[i];
-            sData->QuadVertexBufferPtr->Color        = color;
-            sData->QuadVertexBufferPtr->TexCoord     = texCoord[i];
-            sData->QuadVertexBufferPtr->TexIndex     = textureIndex;
-            sData->QuadVertexBufferPtr->TilingFactor = tilingFactor;
-            sData->QuadVertexBufferPtr->EntityID     = entityID;
-            sData->QuadVertexBufferPtr++;
+            sInstance->mData.QuadVertexBufferPtr->Position     = transform * sInstance->mData.QuadVertexPositions[i];
+            sInstance->mData.QuadVertexBufferPtr->Color        = color;
+            sInstance->mData.QuadVertexBufferPtr->TexCoord     = texCoord[i];
+            sInstance->mData.QuadVertexBufferPtr->TexIndex     = textureIndex;
+            sInstance->mData.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+            sInstance->mData.QuadVertexBufferPtr->EntityID     = entityID;
+            sInstance->mData.QuadVertexBufferPtr++;
         }
 
-        sData->QuadIndexCount += 6;
-        sData->Stats.QuadCount++;
-        sData->Stats.TotalVertexCount += 4;
-        sData->Stats.TotalIndexCount  += 6;
+        sInstance->mData.QuadIndexCount += 6;
+        sInstance->mData.Stats.QuadCount++;
+        sInstance->mData.Stats.TotalVertexCount += 4;
+        sInstance->mData.Stats.TotalIndexCount  += 6;
     }
 
     void Renderer2D::ResetStatistics()
     {
         CS_PROFILE_FN();
 
-        memset(&sData->Stats, 0, sizeof(Renderer2DStatistics));
+        memset(&sInstance->mData.Stats, 0, sizeof(Renderer2DStatistics));
     }
 
     const Renderer2DStatistics& Renderer2D::GetStatistics()
     {
         CS_PROFILE_FN();
 
-        return sData->Stats;
+        return sInstance->mData.Stats;
     }
 
     void Renderer2D::SetMaxQuadCount(uint32 count)
     {
         CS_PROFILE_FN();
 
-        sData->MaxQuads = count;
-        sData->MaxVertices = count * 4;
-        sData->MaxIndices = count * 6;
+        sInstance->mData.MaxQuads = count;
+        sInstance->mData.MaxVertices = count * 4;
+        sInstance->mData.MaxIndices = count * 6;
     }
 
 }

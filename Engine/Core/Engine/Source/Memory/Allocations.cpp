@@ -8,28 +8,32 @@ namespace Cosmic
 
 	void Allocations::LogAllocationStatistics()
 	{
-		size_t inUse = sStatistics.TotalAllocatedMemory - sStatistics.TotalFreedMemory;
+		size_t inUse = sInstance->mStatistics.TotalAllocatedMemory - sInstance->mStatistics.TotalFreedMemory;
 		CS_LOG_INFO("Allocation Statistics:");
 		CS_LOG_INFO("    Allocated Memory: {}", inUse);
-		CS_LOG_INFO("    Total Allocated Memory Size: {}", sStatistics.TotalAllocatedMemory);
-		CS_LOG_INFO("    Total Freed Memory Size: {}", sStatistics.TotalFreedMemory);
-		CS_LOG_INFO("    Allocators ({}):", sAllocators.size());
+		CS_LOG_INFO("    Total Allocated Memory Size: {}", sInstance->mStatistics.TotalAllocatedMemory);
+		CS_LOG_INFO("    Total Freed Memory Size: {}", sInstance->mStatistics.TotalFreedMemory);
+		CS_LOG_INFO("    Allocators ({}):", sInstance->mAllocators.size());
 
-		for (Ref<IAllocator> allocator : sAllocators)
+		for (Ref<IAllocator> allocator : sInstance->mAllocators)
 		{
 			const char* name = allocator->GetName().c_str();
 			CS_LOG_INFO("        - {}", name);
 		}
 	}
 
-	void Allocations::Init()
+	Ref<Allocations> Allocations::Init()
 	{
-		sStatistics.TotalAllocatedMemory = 0;
-		sStatistics.TotalFreedMemory     = 0;
+		sInstance = Ref<Allocations>(new Allocations());
+
+		sInstance->mStatistics.TotalAllocatedMemory = 0;
+		sInstance->mStatistics.TotalFreedMemory     = 0;
 
 		DefaultAllocator::Init();
 		FrameStackAllocator::Init();
 		PersistentStackAllocator::Init();
+
+		return sInstance;
 	}
 
 	void Allocations::Shutdown()
@@ -40,7 +44,7 @@ namespace Cosmic
 		PersistentStackAllocator::Shutdown();
 
 		// All other allocators
-		for (Ref<IAllocator> allocator : sAllocators)
+		for (Ref<IAllocator> allocator : sInstance->mAllocators)
 			allocator->Shutdown();
 	}
 
@@ -51,12 +55,12 @@ namespace Cosmic
 
 	void Allocations::OnAllocation(size_t size)
 	{
-		sStatistics.TotalAllocatedMemory += size;
+		sInstance->mStatistics.TotalAllocatedMemory += size;
 	}
 
 	void Allocations::OnFree(size_t size)
 	{
-		sStatistics.TotalFreedMemory += size;
+		sInstance->mStatistics.TotalFreedMemory += size;
 	}
 
 }

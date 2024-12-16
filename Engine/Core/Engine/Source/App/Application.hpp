@@ -8,6 +8,18 @@
 
 #include "Event/Events.hpp"
 
+#include "App/Log/Log.hpp"
+#include "App/FileSystem.hpp"
+#include "App/Module.hpp"
+#include "Event/EventSystem.hpp"
+#include "Gui/Gui.hpp"
+#include "Memory/Allocations.hpp"
+#include "Project/ProjectManager.hpp"
+#include "Renderer/RenderCommand.hpp"
+#include "Renderer/Renderer2D.hpp"
+#include "Script/NativeScriptEngine.hpp"
+#include "Time/Time.hpp"
+
 namespace Cosmic {
 
     struct ApplicationInfo
@@ -55,6 +67,18 @@ namespace Cosmic {
         bool                  mMinimized = false;
         ApplicationInfo       mInfo;
         Scope<IDesktopWindow> mWindow;
+
+        Ref<Log>                mLogInstance;
+        Ref<FileSystem>         mFileSystemInstance;
+        Ref<ModuleSystem>       mModuleSystemInstance;
+        Ref<EventSystem>        mEventSystemInstance;
+        Ref<Gui>                mGuiInstance;
+        Ref<Allocations>        mAllocationsInstance;
+        Ref<ProjectManager>     mProjectManagerInstance;
+        Ref<RendererAPI>        mRendererAPIInstance;
+        Ref<Renderer2D>         mRenderer2DInstance;
+        Ref<NativeScriptEngine> mNativeScriptEngineInstance;
+        Ref<Time>               mTimeInstance;
     };
 
 }

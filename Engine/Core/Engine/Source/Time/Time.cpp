@@ -5,12 +5,23 @@
 
 namespace Cosmic
 {
+
+    Ref<Time> Time::Init()
+    {
+        sInstance = CreateRef<Time>();
+
+        return sInstance;
+    }
+
+    void Time::Shutdown()
+    {
+        sInstance.Release();
+    }
     
     TimeUnit Time::GetCurrentTime()
     {
         return TimeUnit((float32)glfwGetTime()); 
     }
-    
 
     void Time::Update()
     {
@@ -20,18 +31,18 @@ namespace Cosmic
         static int32 count = 0;
 
         if (count != 0)
-            sAverageFramesPerSecond = (cumulativeFPS + sFramesPerSecond) / count;
+            sInstance->mAverageFramesPerSecond = (cumulativeFPS + sInstance->mFramesPerSecond) / count;
 
         count++;
 
 
         TimeUnit currentTime = (float32)glfwGetTime(); // temporary
         
-        sCurrentDeltaTime = currentTime - sLastFrameTime;
-        sLastFrameTime    = currentTime;
+        sInstance->mCurrentDeltaTime = currentTime - sInstance->mLastFrameTime;
+        sInstance->mLastFrameTime    = currentTime;
 
-        sFramesPerSecond = 1 / sCurrentDeltaTime;
-        cumulativeFPS += sFramesPerSecond;
+        sInstance->mFramesPerSecond = 1 / sInstance->mCurrentDeltaTime;
+        cumulativeFPS += sInstance->mFramesPerSecond;
     }
 
 }

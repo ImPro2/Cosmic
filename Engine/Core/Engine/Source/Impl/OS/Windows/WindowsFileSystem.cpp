@@ -47,21 +47,24 @@ namespace Cosmic
 
     }
 
-    void FileSystem::Init(const Path& fileSystemWatcherPath)
+    Ref<FileSystem> FileSystem::Init(const Path& fileSystemWatcherPath)
     {
-        mFileSystemWatcherDirectory = fileSystemWatcherPath;
-        mFileSystemWatcherThread = std::thread(&FileSystem::FileSystemWatcherThread);
+        sInstance = CreateRef<FileSystem>();
+
+        sInstance->mFileSystemWatcherDirectory = fileSystemWatcherPath;
+        sInstance->mFileSystemWatcherThread    = std::thread(&FileSystem::FileSystemWatcherThread);
+
+        return sInstance;
     }
 
     void FileSystem::Shutdown()
     {
-
+        sInstance.Release();
     }
-
 
     void FileSystem::FileSystemWatcherThread()
     {
-        HANDLE dirHandle = CreateFileA(mFileSystemWatcherDirectory.GetString().c_str(), GENERIC_READ | FILE_LIST_DIRECTORY,
+        HANDLE dirHandle = CreateFileA(sInstance->mFileSystemWatcherDirectory.GetString().c_str(), GENERIC_READ | FILE_LIST_DIRECTORY,
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
             NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
             NULL

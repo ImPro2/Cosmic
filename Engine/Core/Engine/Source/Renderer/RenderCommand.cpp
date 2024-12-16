@@ -7,12 +7,14 @@
 namespace Cosmic
 {
 
-    void RenderCommand::Init(ERendererAPI api)
+    Ref<RendererAPI> RenderCommand::Init(ERendererAPI api)
     {
         CS_PROFILE_FN();
 
         sAPI = CreateRendererAPI(api);
         sAPI->Init();
+
+        return sAPI;
     }
 
     void RenderCommand::Shutdown()
@@ -20,6 +22,7 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         sAPI->Shutdown();
+        sAPI.Release();
     }
 
     void RenderCommand::SetViewport(uint32 x, uint32 y, uint32 width, uint32 height)
