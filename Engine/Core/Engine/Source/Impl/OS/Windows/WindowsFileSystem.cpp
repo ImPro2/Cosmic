@@ -9,6 +9,9 @@
 #include <Windows.h>
 #include <windows.h>
 
+#undef near
+#undef far
+
 #include "App/File.hpp"
 #include "Event/Type/FileSystemEvents.hpp"
 #include "App/Log/Log.hpp"
@@ -80,7 +83,7 @@ namespace Cosmic
         flags |= FILE_NOTIFY_CHANGE_CREATION;
         flags |= FILE_NOTIFY_CHANGE_SECURITY;
 
-        char filename[100];
+        char filename[1024];
         char buffer[2048];
         DWORD bytesReturned;
         FILE_NOTIFY_INFORMATION* pNotify;
@@ -121,30 +124,31 @@ namespace Cosmic
                 pNotify = (FILE_NOTIFY_INFORMATION*)((char*)buffer + offset);
                 strcpy(filename, "");
                 int filenamelen = WideCharToMultiByte(CP_ACP, 0, pNotify->FileName, pNotify->FileNameLength / 2, filename, sizeof(filename), NULL, NULL);
+
                 filename[pNotify->FileNameLength / 2] = '\0';
 
-                File file = File(Path(filename));
+                File file = File(GetCurrentWorkingDirectory() / Path(StringUtils::Replace(filename, '\\', '/')));
 
                 switch (pNotify->Action)
                 {
                     case FILE_ACTION_ADDED:
                     {
-                        //Application::Get()->OnEvent(FileAddedEvent(file));
+                        EventSystem::DeferEvent<FileAddedEvent>(file);
                         break;
                     }
                     case FILE_ACTION_REMOVED:
                     {
-                        //Application::Get()->OnEvent(FileRemovedEvent(file));
+                        EventSystem::DeferEvent<FileRemovedEvent>(file);
                         break;
                     }
                     case FILE_ACTION_MODIFIED:
                     {
-                        //Application::Get()->OnEvent(FileModifiedEvent(file));
+                        EventSystem::DeferEvent<FileModifiedEvent>(file);
                         break;
                     }
                     case FILE_ACTION_RENAMED_NEW_NAME:
                     {
-                        //Application::Get()->OnEvent(FileRenamedEvent(file));
+                        EventSystem::DeferEvent<FileRenamedEvent>(file);
                         break;
                     }
                     default:

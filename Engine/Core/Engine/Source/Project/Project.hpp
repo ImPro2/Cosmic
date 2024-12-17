@@ -13,6 +13,8 @@ namespace Cosmic
 		File ProjectFilePath;
 		File StartScenePath;
 		File ScriptAssemblyPath;
+
+		Path BinaryDirectory;
 		Path AssetsDirectory;
 	};
 

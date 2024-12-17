@@ -8,7 +8,6 @@
 #include "Base/Base.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "ECS/Entity.hpp"
-#include "Script/NativeScript.hpp"
 #include "Renderer/OrthographicCamera.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "entt/entity/fwd.hpp"
@@ -35,6 +34,15 @@ namespace Cosmic
 
         void ForEachEntity(std::function<void(Entity)> fn);
         void ForEachEntityIndexed(std::function<void(Entity, int32)> fn);
+
+        template<typename... T, typename F>
+        void ForEach(F callback)
+        {
+            mRegistry.view<T...>().each([&](entt::entity entity, T&... components)
+			{
+				callback(Entity{ entity, &mRegistry }, std::forward<T&>(components)...);
+			});
+        }
 
         size_t GetEntityCount() const;
         entt::registry* GetRegistryPtr() { return &mRegistry; }

@@ -40,7 +40,7 @@ namespace Cosmic
 
     const String File::GetName()
     {
-        return std::filesystem::path(mAbsolutePath.GetString()).filename().string();
+        return std::filesystem::path(mAbsolutePath.GetString()).stem().string();
     }
 
     const String File::GetExtension()
@@ -50,7 +50,7 @@ namespace Cosmic
 
     const String File::GetNameAndExtension()
     {
-        return std::filesystem::path(mAbsolutePath.GetString()).root_name().string();
+        return std::filesystem::path(mAbsolutePath.GetString()).filename().string();
     }
 
     const Path File::GetAbsolutePath() const

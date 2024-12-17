@@ -1,7 +1,8 @@
 #pragma once
-#include "App/Path.hpp"
+#include "App/File.hpp"
 #include "App/OS.hpp"
 #include "ECS/Entity.hpp"
+#include "ECS/Scene.hpp"
 #include "Memory/SmartPtrs.hpp"
 
 #include "Script/NativeScript.hpp"
@@ -20,6 +21,11 @@ namespace Cosmic
 	public:
 		static void OnUpdate(Dt dt);
 
+		static void SetActiveScene(const Ref<Scene>& scene);
+
+	public:
+		static const File& GetScriptAssemblyFile() { return sInstance->mScriptAssemblyFile; }
+
 	public:
 		static void RegisterScriptClass(const String& className);
 
@@ -27,13 +33,21 @@ namespace Cosmic
 		static void              DestroyScriptInstance(Ref<NativeScript>& instance);
 
 		static void LoadScriptAssembly(const Path& scriptAssemblyPath = "");
+		static void ReloadScriptAssembly();
 
 	private:
-		Path  mScriptAssemblyPath;
+		static String GetInitFunctionName();
+		static String GetInstantiateScriptFunctionNameFromScriptClass(const String& className);
+
+	private:
+		File  mScriptAssemblyFile;
+		File  mCopiedScriptAssemblyFile;
 		void* mScriptAssembly;
 
 		UnorderedMap<String, InstantiateNativeScriptCallback> mCallbackMap;       // class name - callbacks
 		Vector<Ref<NativeScript>>                             mScriptInstances;
+
+		Ref<Scene> mActiveScene;
 
 		inline static PersistentRef<NativeScriptEngine> sInstance;
 

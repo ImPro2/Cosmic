@@ -77,7 +77,10 @@ namespace Cosmic
 
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
+        bool OnFileAdded(const FileAddedEvent& e);
         bool OnFileModified(const FileModifiedEvent& e);
+        bool OnSceneOpened(const SceneOpenedEvent& e);
+        bool OnSceneNew(const SceneNewEvent& e);
 
     private:
         void SetWindowTitle();

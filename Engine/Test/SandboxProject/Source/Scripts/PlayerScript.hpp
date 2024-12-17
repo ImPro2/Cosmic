@@ -9,8 +9,11 @@ namespace Cosmic
         PlayerScript(Entity entity);
 
     public:
-        virtual void OnInstantiate() override;        
+        virtual void OnInstantiate() override;
         virtual void OnUpdate(Dt dt) override;
+
+    public:
+        float32 MovementSpeed = 1.0f;
     };
 
     

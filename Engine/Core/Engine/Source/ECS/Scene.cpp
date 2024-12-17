@@ -9,6 +9,7 @@ CS_MODULE_LOG_INFO(Cosmic, ECS.Scene);
 #include "App/Log/Log.hpp"
 #include "ECS/Components.hpp"
 #include "Base/Random.hpp"
+#include "Script/NativeScriptEngine.hpp"
 
 namespace Cosmic
 {
@@ -53,17 +54,7 @@ namespace Cosmic
     {
         // Update scripts
 
-		mRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-		{
-			if (!nsc.Instance && nsc.ShouldLoad)
-			{
-                nsc.Instance   = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
-                nsc.ShouldLoad = false;
-			}
-
-            if (nsc.Instance)
-				nsc.Instance->OnUpdate(Time::GetDeltaTime());
-		});
+        NativeScriptEngine::OnUpdate(dt);
 
         Camera*   mainCamera          = nullptr;
         glm::mat4 mainCameraTransform = glm::mat4(1.0f);
@@ -110,17 +101,7 @@ namespace Cosmic
     {
         // Update scripts
 
-        mRegistry.view<NativeScriptComponent>().each([this](auto entity, auto& nsc)
-        {
-			if (!nsc.Instance && nsc.ShouldLoad)
-			{
-                nsc.Instance   = NativeScriptEngine::InstantiateScriptInstance(nsc.ClassName, Entity { entity, &mRegistry } );
-                nsc.ShouldLoad = false;
-			}
-
-            if (nsc.Instance)
-				nsc.Instance->OnUpdate(Time::GetDeltaTime());
-        });
+        NativeScriptEngine::OnUpdate(dt);
 
         // Render SpriteRendererComponents
 

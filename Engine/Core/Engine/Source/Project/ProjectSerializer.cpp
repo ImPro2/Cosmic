@@ -27,6 +27,7 @@ namespace Cosmic
         out << YAML::Key << "StartScenePath"     << YAML::Value << info.StartScenePath.GetAbsolutePath().GetString();
         out << YAML::Key << "ScriptAssemblyPath" << YAML::Value << info.ScriptAssemblyPath.GetAbsolutePath().GetString();
         out << YAML::Key << "AssetsDirectory"    << YAML::Value << info.AssetsDirectory.GetString();
+        out << YAML::Key << "BinaryDirectory"    << YAML::Value << info.BinaryDirectory.GetString();
 
         out << YAML::EndMap;
 
@@ -55,6 +56,7 @@ namespace Cosmic
         info.StartScenePath     = Path(file["StartScenePath"].as<String>());
         info.ScriptAssemblyPath = Path(file["ScriptAssemblyPath"].as<String>());
         info.AssetsDirectory    = file["AssetsDirectory"].as<String>();
+        info.BinaryDirectory    = file["BinaryDirectory"].as<String>();
 
         return true;
     }

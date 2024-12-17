@@ -13,13 +13,14 @@
 
 #undef max
 #undef min
+#undef near
+#undef far
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsOS);
 
 #include "App/Log/Log.hpp"
 #include "App/Log/ConsoleColor.hpp"
 #include "Base/Base.hpp"
-#include "Script/NativeScript.hpp"
 #include "App/Application.hpp"
 #include "App/Window/IWindow.hpp"
 #include "IWindowsWindow.hpp"

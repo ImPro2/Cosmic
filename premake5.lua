@@ -62,4 +62,3 @@ group ""
 
 include "Engine/Core/Engine"
 include "Engine/Tools/Editor"
-include "Engine/Test/SandboxProject"

@@ -34,15 +34,14 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
         
-        mActiveScene = CreateRef<Scene>();
+        NewProject();
+        NewScene();
 
         mPanels.Init();
         mLayoutManager.Init(FileSystem::GetCurrentWorkingDirectory() / "Engine/Tools/Editor/Assets/EditorLayouts.yaml");
 
         ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
         ModuleSystem::AddFront<DockspaceModule>();
-
-        NewProject();
     }
 
     void EditorModule::OnShutdown()
@@ -63,7 +62,10 @@ namespace Cosmic
 
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
+        CS_DISPATCH_EVENT(FileAddedEvent, OnFileAdded);
         CS_DISPATCH_EVENT(FileModifiedEvent, OnFileModified);
+        CS_DISPATCH_EVENT(SceneOpenedEvent, OnSceneOpened);
+        CS_DISPATCH_EVENT(SceneNewEvent, OnSceneNew);
 
         if (e.GetType() >= (int16)EEventType::Last)
 			mActionManager.OnEditorEvent(e);
@@ -88,15 +90,39 @@ namespace Cosmic
         return false;
     }
 
+    bool EditorModule::OnFileAdded(const FileAddedEvent& e)
+    {
+        return false;
+    }
+
     bool EditorModule::OnFileModified(const FileModifiedEvent& e)
     {
-        const String modified = e.GetFile().GetNameAndExtension();
-        const String& scriptAssemblyPath = Application::Get()->GetInfo().ScriptAssemblyPath;
+        const File& modifiedPath       = e.GetFile();
+        const File& scriptAssemblyFile = NativeScriptEngine::GetScriptAssemblyFile();
 
-        if (modified == scriptAssemblyPath)
+        if (scriptAssemblyFile.GetAbsolutePath() == "")
+            return false;
+
+        if (FileSystem::GetParentDirectory(modifiedPath) == FileSystem::GetParentDirectory(scriptAssemblyFile))
         {
+            NativeScriptEngine::ReloadScriptAssembly();
             return true;
         }
+
+        return false;
+    }
+
+    bool EditorModule::OnSceneOpened(const SceneOpenedEvent& e)
+    {
+        NativeScriptEngine::SetActiveScene(e.GetScene());
+
+        return false;
+    }
+
+    bool EditorModule::OnSceneNew(const SceneNewEvent& e)
+    {
+        NativeScriptEngine::SetActiveScene(e.GetScene());
+
         return false;
     }
 
@@ -211,7 +237,8 @@ namespace Cosmic
 
     void EditorModule::NewScene()
     {
-        CS_NOT_IMPLEMENTED();    
+        mActiveScene = CreateRef<Scene>();
+        EventSystem::DeferEvent<SceneNewEvent>(mActiveScene);
     }
 
     void EditorModule::SetWindowTitle()
