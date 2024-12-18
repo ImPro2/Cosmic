@@ -2,6 +2,7 @@
 #include "MenubarLayout.hpp"
 
 #include "Editor/EditorModule.hpp"
+#include "Script/NativeScriptEngine.hpp"
 
 namespace Cosmic
 {
@@ -62,6 +63,14 @@ namespace Cosmic
         menubar.EndMenu();
 
         menubar.Item(MenubarItem("Show ImGui Demo Window", "", {}, editorModule->GetShowImGuiDemoWindowPtr()));
+
+        menubar.EndMenu();
+
+        menubar.BeginMenu(MenubarMenu("Script", "ALT+S", { EKeyCode::LeftAlt, EKeyCode::S }));
+
+        menubar.Item(MenubarItem("Reload Script Assembly", "CTRL+R", { EKeyCode::LeftControl, EKeyCode::R }, nullptr, []() { NativeScriptEngine::ReloadScriptAssembly(); }));
+
+        menubar.EndMenu();
 
         menubar.SetCurrentMenu(nullptr);
 

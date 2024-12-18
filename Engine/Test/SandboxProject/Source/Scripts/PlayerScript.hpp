@@ -13,8 +13,7 @@ namespace Cosmic
         virtual void OnUpdate(Dt dt) override;
 
     public:
-        float32 MovementSpeed = 100.0f;
+        Field<float32> MovementSpeed = 100.0f;
     };
 
-    
 }

@@ -16,11 +16,15 @@ namespace Cosmic
 
 		LoadScriptAssembly(scriptAssemblyPath);
 
+		sInstance->mRegistry.Init();
+
 		return sInstance;
 	}
 
 	void NativeScriptEngine::Shutdown()
 	{
+		sInstance->mRegistry.Shutdown();
+
 		sInstance.Release();
 	}
 
@@ -29,53 +33,12 @@ namespace Cosmic
 		if (!sInstance->mActiveScene)
 			return;
 
-		sInstance->mActiveScene->ForEach<NativeScriptComponent>([](Entity entity, NativeScriptComponent& nsc)
-		{
-			if (!nsc.Instance && nsc.ShouldLoad)
-			{
-                nsc.Instance   = InstantiateScriptInstance(nsc.ClassName, entity);
-                nsc.ShouldLoad = false;
-			}
-
-            if (nsc.Instance)
-				nsc.Instance->OnUpdate(Time::GetDeltaTime());
-		});
+		sInstance->mRegistry.OnUpdate(sInstance->mActiveScene);
 	}
 
 	void NativeScriptEngine::SetActiveScene(const Ref<Scene>& scene)
 	{
 		sInstance->mActiveScene = scene;
-	}
-
-	void NativeScriptEngine::RegisterScriptClass(const String& className)
-	{
-		sInstance->mCallbackMap[className] = (InstantiateNativeScriptCallback)OS::RetrieveFunctionFromDynamicLibrary(
-			GetInstantiateScriptFunctionNameFromScriptClass(className).c_str(),
-			sInstance->mScriptAssembly
-		);
-	}
-
-	Ref<NativeScript> NativeScriptEngine::InstantiateScriptInstance(const String& className, Entity entity)
-	{
-		if (sInstance->mCallbackMap.find(className) == sInstance->mCallbackMap.end())
-			RegisterScriptClass(className);
-
-		Ref<NativeScript> instance = Ref<NativeScript>(sInstance->mCallbackMap[className](entity));
-		instance->OnInstantiate();
-
-		sInstance->mScriptInstances.push_back(instance);
-
-		return instance;
-	}
-
-	void NativeScriptEngine::DestroyScriptInstance(Ref<NativeScript>& instance)
-	{
-		instance->OnDestroy();
-
-		auto it = std::find(sInstance->mScriptInstances.begin(), sInstance->mScriptInstances.end(), instance);
-		sInstance->mScriptInstances.erase(it);
-
-		instance.Release();
 	}
 
 	void NativeScriptEngine::LoadScriptAssembly(const Path& scriptAssemblyPath)
@@ -119,7 +82,7 @@ namespace Cosmic
 		CS_ASSERT(sInstance->mScriptAssembly, "Unable to load script assembly {}", sInstance->mCopiedScriptAssemblyFile.GetString().c_str());
 
 		auto initFn = (void(*)(Application*))OS::RetrieveFunctionFromDynamicLibrary(
-			GetInitFunctionName().c_str(),
+			sInitFunctionName.c_str(),
 			sInstance->mScriptAssembly
 		);
 
@@ -128,39 +91,10 @@ namespace Cosmic
 
 	void NativeScriptEngine::ReloadScriptAssembly()
 	{
-		for (Ref<NativeScript>& instance : sInstance->mScriptInstances)
-		{
-			instance->OnDestroy();
-			instance.Release();
-		}
-
-		sInstance->mScriptInstances.clear();
-
 		LoadScriptAssembly(sInstance->mScriptAssemblyFile);
 
-		for (auto& [scriptClass, instantiateCallback] : sInstance->mCallbackMap)
-		{
-			instantiateCallback = (InstantiateNativeScriptCallback)OS::RetrieveFunctionFromDynamicLibrary(
-				GetInstantiateScriptFunctionNameFromScriptClass(scriptClass).c_str(),
-				sInstance->mScriptAssembly
-			);
-		}
-
-		sInstance->mActiveScene->ForEach<NativeScriptComponent>([](Entity entity, NativeScriptComponent& nsc)
-		{
-			nsc.ShouldLoad = true;
-			nsc.Instance   = nullptr;
-		});
-	}
-
-	String NativeScriptEngine::GetInitFunctionName()
-	{
-		return "CSInit";
-	}
-
-	String NativeScriptEngine::GetInstantiateScriptFunctionNameFromScriptClass(const String& className)
-	{
-		return std::format("CSInstantiate{}", className.c_str());
+		sInstance->mRegistry.ReleaseScriptInstances(sInstance->mActiveScene);
+		sInstance->mRegistry.ReloadInstantiateCallbacks();
 	}
 
 }

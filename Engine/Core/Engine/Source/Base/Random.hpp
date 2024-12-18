@@ -20,6 +20,5 @@ namespace Cosmic
 
 		return dist(engine);
 	}
-	
 
 }

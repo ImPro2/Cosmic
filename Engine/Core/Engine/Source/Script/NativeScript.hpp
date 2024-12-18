@@ -5,11 +5,14 @@
 #include "Memory/SmartPtrs.hpp"
 
 #include "Script/NativeScriptMacros.hpp"
+#include "Script/Field.hpp"
 
 namespace Cosmic
 {
 
-    class NativeScriptEngine;
+    using NativeScriptID = int32;
+
+    class NativeScriptRegistry;
 
     class NativeScript : public IRefCounted
     {
@@ -52,10 +55,11 @@ namespace Cosmic
         virtual void OnUpdate(Dt dt) { }
 
     protected:
-        Entity mEntity;
+        Entity         mEntity;
+        NativeScriptID mID = -1;
 
     private:
-        friend class NativeScriptEngine;
+        friend class NativeScriptRegistry;
         friend class Scene;
     };
 

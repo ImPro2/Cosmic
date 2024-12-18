@@ -6,6 +6,7 @@
 #include "Memory/SmartPtrs.hpp"
 
 #include "Script/NativeScript.hpp"
+#include "Script/NativeScriptRegistry.hpp"
 
 namespace Cosmic
 {
@@ -14,42 +15,41 @@ namespace Cosmic
 
 	class NativeScriptEngine : public IRefCounted
 	{
+	public:
+		template<class T>
+		static T* AllocateNativeScript(Entity entity)
+		{
+			return sInstance->mRegistry.AllocateNativeScript<T>(entity);
+		}
+
 	private:
 		static PersistentRef<NativeScriptEngine> Init(const Path& scriptAssemblyPath);
 		static void                              Shutdown();
 
 	public:
 		static void OnUpdate(Dt dt);
-
 		static void SetActiveScene(const Ref<Scene>& scene);
 
 	public:
-		static const File& GetScriptAssemblyFile() { return sInstance->mScriptAssemblyFile; }
+		static const File&           GetScriptAssemblyFile()   { return sInstance->mScriptAssemblyFile; }
+		static NativeScriptRegistry& GetRegistry()             { return sInstance->mRegistry;           }
+		static void*                 GetLoadedScriptAssembly() { return sInstance->mScriptAssembly;     }
 
 	public:
-		static void RegisterScriptClass(const String& className);
-
-		static Ref<NativeScript> InstantiateScriptInstance(const String& className, Entity entity);
-		static void              DestroyScriptInstance(Ref<NativeScript>& instance);
-
 		static void LoadScriptAssembly(const Path& scriptAssemblyPath = "");
 		static void ReloadScriptAssembly();
-
-	private:
-		static String GetInitFunctionName();
-		static String GetInstantiateScriptFunctionNameFromScriptClass(const String& className);
 
 	private:
 		File  mScriptAssemblyFile;
 		File  mCopiedScriptAssemblyFile;
 		void* mScriptAssembly;
 
-		UnorderedMap<String, InstantiateNativeScriptCallback> mCallbackMap;       // class name - callbacks
-		Vector<Ref<NativeScript>>                             mScriptInstances;
+		NativeScriptRegistry mRegistry;
 
 		Ref<Scene> mActiveScene;
 
 		inline static PersistentRef<NativeScriptEngine> sInstance;
+		inline static String sInitFunctionName = "CSInit";
 
 		friend class Application;
 	};
