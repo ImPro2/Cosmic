@@ -1,5 +1,6 @@
 #pragma once
 #include "Base/Types.hpp"
+#include "Script/FieldMacros.hpp"
 
 namespace Cosmic
 {
@@ -20,8 +21,9 @@ namespace Cosmic
 		~IField() = default;
 
 	public:
-		EFieldType GetType()      const { return mType;       }
-		bool       IsRegistered() const { return mRegistered; }
+		EFieldType    GetType()      const { return mType;       }
+		const String& GetName()      const { return mName;       }
+		bool          IsRegistered() const { return mRegistered; }
 
 	public:
 		template<typename T>
@@ -37,27 +39,31 @@ namespace Cosmic
 
 	protected:
 		EFieldType mType       = EFieldType::Unknown;
+		String     mName       = "";
 		bool       mRegistered = false;
 	};
 
-	template<typename T>
+	template<typename T, char... Chars>
 	class Field : public IField
 	{
 	public:
 		Field()
 		{
+			ExtractName();
 			InitializeField();
 		}
 
 		Field(const T& value)
 			: mValue(value)
 		{
+			ExtractName();
 			InitializeField();
 		}
 
 		Field(T&& value)
 			: mValue(std::move(value))
 		{
+			ExtractName();
 			InitializeField();
 		}
 
@@ -81,6 +87,12 @@ namespace Cosmic
 		operator T() const { return mValue; }
 
 	private:
+		void ExtractName()
+		{
+			Vector<char> vec = { Chars... };
+			mName = String(vec.begin(), vec.end());
+		}
+
 		void InitializeField()
 		{
 			if (mRegistered)

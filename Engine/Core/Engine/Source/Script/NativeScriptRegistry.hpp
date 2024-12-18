@@ -51,8 +51,8 @@ namespace Cosmic
 		NativeScriptFieldMap&       GetFieldMap()       { return mFieldMap; }
 		const NativeScriptFieldMap& GetFieldMap() const { return mFieldMap; }
 
-		Vector<IField*>       GetScriptInstanceFields(const Ref<NativeScript>& instance)       { return mFieldMap[instance->mID];    }
-		const Vector<IField*> GetScriptInstanceFields(const Ref<NativeScript>& instance) const { return mFieldMap.at(instance->mID); }
+		Vector<IField*>&       GetScriptInstanceFields(const Ref<NativeScript>& instance)       { return mFieldMap[instance->mID];    }
+		const Vector<IField*>& GetScriptInstanceFields(const Ref<NativeScript>& instance) const { return mFieldMap.at(instance->mID); }
 
 		Vector<Ref<NativeScript>>&       GetInstances()       { return mScriptInstances; }
 		const Vector<Ref<NativeScript>>& GetInstances() const { return mScriptInstances; }

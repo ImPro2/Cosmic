@@ -314,11 +314,84 @@ namespace Cosmic
 
             if (ImGui::Button("Bind"))
                 component.ShouldLoad = true;
-            
-            ImGui::SameLine();
-            if (ImGui::Button("Create"))
-            {
 
+            // Render fields
+
+            if (!component.Instance)
+                return;
+
+            NativeScriptRegistry& registry = NativeScriptEngine::GetRegistry();
+            Vector<IField*>&      fields   = registry.GetScriptInstanceFields(component.Instance);
+
+            ImGui::Separator();
+            ImGui::Text("Script Fields");
+
+            int32 i = 20;
+
+            for (IField* field : fields)
+            {
+                ImGui::PushID(i++);
+                ImGui::Text(field->GetName().c_str());
+                ImGui::PopID();
+
+                ImGui::SameLine();
+
+                switch (field->GetType())
+                {
+					case EFieldType::Float32:
+					{
+                        ImGui::InputFloat(std::format("##{}", i++).c_str(), (float32*)field->GetValuePtr());
+						break;
+					}
+					case EFieldType::Float2:
+					{
+						break;
+					}
+					case EFieldType::Float3:
+					{
+						break;
+					}
+					case EFieldType::Float4:
+					{
+						break;
+					}
+					case EFieldType::Int32:
+					{
+						break;
+					}
+					case EFieldType::Int2:
+					{
+						break;
+					}
+					case EFieldType::Int3:
+					{
+						break;
+					}
+					case EFieldType::Int4:
+					{
+						break;
+					}
+					case EFieldType::UInt32:
+					{
+						break;
+					}
+					case EFieldType::UInt2:
+					{
+						break;
+					}
+					case EFieldType::UInt3:
+					{
+						break;
+					}
+					case EFieldType::UInt4:
+					{
+						break;
+					}
+					case EFieldType::String:
+					{
+						break;
+					}
+                }
             }
         });
     }

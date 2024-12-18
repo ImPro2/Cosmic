@@ -31,7 +31,7 @@ namespace Cosmic
 
         glm::normalize(movementDir);
 
-        tc.Translation += MovementSpeed * (float32)dt * movementDir;
+        tc.Translation += mMovementSpeed * (float32)dt * movementDir;
     }
 
 }
