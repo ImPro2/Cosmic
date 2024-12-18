@@ -1,4 +1,4 @@
 StartScenePath: ""
-ScriptAssemblyPath: C:/Dev/Cosmic/Engine/Test/SandboxProject/bin/Debug-windows-x86_64/SandboxProject/SandboxProject.dll
+ScriptAssemblyPath: bin/Debug-windows-x86_64/SandboxProject/SandboxProject.dll
 AssetsDirectory: Assets
 BinaryDirectory: bin

@@ -21,19 +21,17 @@ namespace Cosmic
 
     void PlayerScript::OnUpdate(Dt dt)
     {
-        CS_LOG_INFO("aaa");
-
         auto& tc = GetComponent<TransformComponent>();
 
         glm::vec3 movementDir = {
-            (float32)Input::IsKeyPressed(EKeyCode::A) - (float32)Input::IsKeyPressed(EKeyCode::D),
-            (float32)Input::IsKeyPressed(EKeyCode::S) - (float32)Input::IsKeyPressed(EKeyCode::W),
+            (float32)Input::IsKeyPressed(EKeyCode::D) - (float32)Input::IsKeyPressed(EKeyCode::A),
+            (float32)Input::IsKeyPressed(EKeyCode::W) - (float32)Input::IsKeyPressed(EKeyCode::S),
             0.0f
         };
 
         glm::normalize(movementDir);
 
-        tc.Translation += movementDir;
+        tc.Translation += MovementSpeed * (float32)dt * movementDir;
     }
 
 }

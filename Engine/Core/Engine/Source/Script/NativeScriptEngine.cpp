@@ -85,6 +85,14 @@ namespace Cosmic
 		if (sInstance->mScriptAssemblyFile.GetAbsolutePath().GetString().empty())
 			return;
 
+		// Check if it's valid
+
+		if (!FileSystem::Exists(sInstance->mScriptAssemblyFile))
+		{
+			CS_LOG_WARN("Attempting to load non-existent script assembly {}", sInstance->mScriptAssemblyFile.GetAbsolutePath().GetString().c_str());
+			return;
+		}
+
 		// Unload current script assembly
 
 		if (sInstance->mScriptAssembly)
@@ -100,7 +108,7 @@ namespace Cosmic
 
 		for (File entry : FileSystem::ListDirectoryContents(FileSystem::GetParentDirectory(sInstance->mScriptAssemblyFile)))
 		{
-			Path copyTo = binDir / entry.GetNameAndExtension();
+			Path copyTo = copyDir / entry.GetNameAndExtension();
 			FileSystem::CopyFile(entry, copyTo);
 
 			if (entry.GetAbsolutePath() == sInstance->mScriptAssemblyFile.GetAbsolutePath())
@@ -120,6 +128,14 @@ namespace Cosmic
 
 	void NativeScriptEngine::ReloadScriptAssembly()
 	{
+		for (Ref<NativeScript>& instance : sInstance->mScriptInstances)
+		{
+			instance->OnDestroy();
+			instance.Release();
+		}
+
+		sInstance->mScriptInstances.clear();
+
 		LoadScriptAssembly(sInstance->mScriptAssemblyFile);
 
 		for (auto& [scriptClass, instantiateCallback] : sInstance->mCallbackMap)
@@ -129,6 +145,12 @@ namespace Cosmic
 				sInstance->mScriptAssembly
 			);
 		}
+
+		sInstance->mActiveScene->ForEach<NativeScriptComponent>([](Entity entity, NativeScriptComponent& nsc)
+		{
+			nsc.ShouldLoad = true;
+			nsc.Instance   = nullptr;
+		});
 	}
 
 	String NativeScriptEngine::GetInitFunctionName()

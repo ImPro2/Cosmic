@@ -18,6 +18,9 @@ namespace Cosmic
         {
             CS_PROFILE_FN();
 
+            if ((IEvent*)&mEvent == nullptr)
+                return;
+
             if (mEvent.GetType() == T::GetStaticType())
             {
                mEvent.Block |= func(static_cast<T&>(mEvent));

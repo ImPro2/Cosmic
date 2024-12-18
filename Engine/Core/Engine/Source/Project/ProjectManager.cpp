@@ -34,9 +34,11 @@ namespace Cosmic
         ProjectSerializer serializer(sInstance->mActiveProject);
         serializer.Deserialize(path);
 
-        NativeScriptEngine::LoadScriptAssembly(sInstance->mActiveProject->GetInfo().ScriptAssemblyPath.GetAbsolutePath());
+        const Ref<Project>& project = sInstance->mActiveProject;
+
+        NativeScriptEngine::LoadScriptAssembly(project->GetParentPath() / project->GetInfo().ScriptAssemblyPath.GetAbsolutePath());
         
-        return sInstance->mActiveProject;
+        return project;
     }
      
     void ProjectManager::SaveActiveProject(const Path& path)

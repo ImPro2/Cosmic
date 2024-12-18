@@ -92,6 +92,19 @@ namespace Cosmic
 
     bool EditorModule::OnFileAdded(const FileAddedEvent& e)
     {
+        const File& modifiedPath       = e.GetFile();
+        const File& scriptAssemblyFile = NativeScriptEngine::GetScriptAssemblyFile();
+
+        if (scriptAssemblyFile.GetAbsolutePath() == "")
+            return false;
+
+        if (modifiedPath.GetAbsolutePath() == scriptAssemblyFile.GetAbsolutePath())
+        {
+            NativeScriptEngine::ReloadScriptAssembly();
+            return true;
+        }
+
+
         return false;
     }
 
