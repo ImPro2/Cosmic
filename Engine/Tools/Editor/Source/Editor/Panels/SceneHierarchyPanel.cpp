@@ -6,7 +6,7 @@
 #include <IconsFontAwesome6.h>
 #include "Editor/Event/SceneEvents.hpp"
 #include "Editor/EditorModule.hpp"
-#include "UI/ImGuiUtil.hpp"
+#include "UI/ImGuiUtils/ImGuiUtils.hpp"
 
 #include "ECS/Components.hpp"
 #include "imgui_internal.h"
@@ -119,11 +119,10 @@ namespace Cosmic
             RenderEntities();
             RenderRightClickMenu();
 
-            //if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
-            if (false)
+            if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
             {
                 bool first = !mMouseSelectionStarted;
-                mMouseSelectionStarted = !ImGuiUtil::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
+                mMouseSelectionStarted = !ImGuiUtils::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
 
                 if (first && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                 {

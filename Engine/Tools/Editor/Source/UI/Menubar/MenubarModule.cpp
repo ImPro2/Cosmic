@@ -6,7 +6,7 @@
 
 #include "Editor/EditorModule.hpp"
 
-#include "UI/ImGuiUtil.hpp"
+#include "UI/ImGuiUtils/ImGuiUtils.hpp"
 #include "imgui.h"
 
 namespace Cosmic
@@ -43,7 +43,7 @@ namespace Cosmic
 
     void MenubarModule::RenderMenu(MenubarMenu* menu)
     {
-        if (!ImGuiUtil::BeginMenu(menu->Name, menu->Keys, menu == mLayout.GetCurrentMenu()))
+        if (!ImGuiUtils::BeginMenu(menu->Name, menu->Keys, menu == mLayout.GetCurrentMenu()))
             return;
 
         for (MenubarEntry* entry : menu->Children)
@@ -57,7 +57,7 @@ namespace Cosmic
             {
                 MenubarItem* item = (MenubarItem*)entry;
                 
-                if (ImGuiUtil::MenuItem(item->Name, item->Shortcut, item->Keys, item->EnabledPtr, item->Enabled) && item->Callback)
+                if (ImGuiUtils::MenuItem(item->Name, item->Shortcut, item->Keys, item->EnabledPtr, item->Enabled) && item->Callback)
                     item->Callback();
             }
 

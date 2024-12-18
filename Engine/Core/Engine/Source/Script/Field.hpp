@@ -29,10 +29,19 @@ namespace Cosmic
 		template<typename T>
 		T& GetValue()
 		{
-			return static_cast<T&>(*GetValuePtr());
+			return *static_cast<T*>(GetValuePtr());
 		}
 
-		virtual void* GetValuePtr() = 0;
+		template<typename T>
+		T& GetDefaultValue()
+		{
+			return *static_cast<T*>(GetDefaultValuePtr());
+		}
+
+		virtual void* GetValuePtr()        = 0;
+		virtual void* GetDefaultValuePtr() = 0;
+
+		virtual void Reset() = 0;
 
 	protected:
 		void RegisterField();
@@ -54,14 +63,14 @@ namespace Cosmic
 		}
 
 		Field(const T& value)
-			: mValue(value)
+			: mValue(value), mDefaultValue(value)
 		{
 			ExtractName();
 			InitializeField();
 		}
 
 		Field(T&& value)
-			: mValue(std::move(value))
+			: mValue(std::move(value)), mDefaultValue(std::move(value))
 		{
 			ExtractName();
 			InitializeField();
@@ -80,7 +89,13 @@ namespace Cosmic
 		}
 
 	public:
-		void* GetValuePtr() override { return &mValue; }
+		void* GetValuePtr()        override { return &mValue;        }
+		void* GetDefaultValuePtr() override { return &mDefaultValue; }
+
+		void Reset() override
+		{
+			mValue = mDefaultValue;
+		}
 
 	public:
 		operator T()       { return mValue; }
@@ -134,6 +149,7 @@ namespace Cosmic
 
 	private:
 		T mValue;
+		T mDefaultValue;
 	};
 
 }

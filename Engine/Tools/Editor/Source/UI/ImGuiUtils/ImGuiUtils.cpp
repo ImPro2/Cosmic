@@ -1,10 +1,10 @@
 #include "cspch.hpp"
-#include "ImGuiUtil.hpp"
+#include "ImGuiUtils.hpp"
 
 #include "App/Input.hpp"
 #include "imgui.h"
 
-namespace Cosmic::ImGuiUtil
+namespace Cosmic::ImGuiUtils
 {
 
     namespace Util

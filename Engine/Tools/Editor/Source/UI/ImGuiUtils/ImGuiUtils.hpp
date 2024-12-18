@@ -1,10 +1,11 @@
 #pragma once
 #include "Base/Types.hpp"
 #include "App/KeyAndMouseCodes.hpp"
+#include "UI/ImGuiUtils/DrawTypes.hpp"
 
 #include <imgui.h>
 
-namespace Cosmic::ImGuiUtil
+namespace Cosmic::ImGuiUtils
 {
 
     bool BeginMenu(const char* label, const Vector<EKeyCode>& shortcut, bool open = false);

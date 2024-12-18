@@ -5,7 +5,7 @@
 #include "Project/ProjectManager.hpp"
 #include "App/FileSystem.hpp"
 #include "App/Input.hpp"
-#include "UI/ImGuiUtil.hpp"
+#include "UI/ImGuiUtils/ImGuiUtils.hpp"
 #include "imgui.h"
 
 #include <IconsFontAwesome6.h>

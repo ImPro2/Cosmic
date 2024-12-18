@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Editor/Event/ComponentEvents.hpp"
+#include "UI/ImGuiUtils/DrawTypes.hpp"
 
 CS_MODULE_LOG_INFO(Editor, Panels.InspectorPanel);
 
@@ -330,17 +331,11 @@ namespace Cosmic
 
             for (IField* field : fields)
             {
-                ImGui::PushID(i++);
-                ImGui::Text(field->GetName().c_str());
-                ImGui::PopID();
-
-                ImGui::SameLine();
-
                 switch (field->GetType())
                 {
 					case EFieldType::Float32:
 					{
-                        ImGui::InputFloat(std::format("##{}", i++).c_str(), (float32*)field->GetValuePtr());
+                        ImGuiUtils::DrawFloat(field->GetName(), field->GetValue<float32>(), field->GetDefaultValue<float32>());
 						break;
 					}
 					case EFieldType::Float2:
@@ -349,6 +344,7 @@ namespace Cosmic
 					}
 					case EFieldType::Float3:
 					{
+                        ImGuiUtils::DrawFloat3(field->GetName(), field->GetValue<float3>(), field->GetDefaultValue<float3>());
 						break;
 					}
 					case EFieldType::Float4:

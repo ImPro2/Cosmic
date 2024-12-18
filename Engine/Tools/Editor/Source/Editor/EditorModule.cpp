@@ -24,7 +24,7 @@ CS_MODULE_LOG_INFO(Editor, EditorModule);
 
 #include "UI/FileDialog.hpp"
 #include "UI/Menubar/MenubarModule.hpp"
-#include "UI/ImGuiUtil.hpp"
+#include "UI/ImGuiUtils/ImGuiUtils.hpp"
 #include "UI/DockspaceModule.hpp"
 
 namespace Cosmic
