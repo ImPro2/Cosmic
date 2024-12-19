@@ -13,10 +13,16 @@ namespace Cosmic
     class EditorApp : public Application
     {
     public:
-        EditorApp(const StartupArguments& args);
+        EditorApp(const StartupArgumentList& args);
 
         bool OnInit(const ApplicationInitEvent& e);
         void OnEvent(const IEvent& e) override;
+
+    private:
+        void SetupStartupArguments();
+
+    private:
+        StartupArgumentParser mStartupArgumentParser;
     };
 
 }

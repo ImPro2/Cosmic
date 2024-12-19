@@ -24,12 +24,12 @@ namespace Cosmic {
 
     struct ApplicationInfo
     {
-        StartupArguments  StartupArgs        = { };
-        const char*       Name               = "Cosmic Engine";
-        DesktopWindowInfo WindowInfo         = DesktopWindowInfo();
-        ERendererAPI      RendererBackend    = PlatformNativeRendererAPI();
-        bool              EnableImGui        = true;
-        String            ScriptAssemblyPath = "";
+        StartupArgumentList StartupArgs        = { };
+        const char*         Name               = "Cosmic Engine";
+        DesktopWindowInfo   WindowInfo         = DesktopWindowInfo();
+        ERendererAPI        RendererBackend    = PlatformNativeRendererAPI();
+        bool                EnableImGui        = true;
+        String              ScriptAssemblyPath = "";
     };
     
     class Application

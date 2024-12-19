@@ -92,7 +92,7 @@ namespace Cosmic
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
 		out << YAML::BeginMap;
-		out << YAML::Key << "Entity" << YAML::Value << "123456789";
+		out << YAML::Key << "Entity" << YAML::Value << entity.GetComponent<EntityMetadataComponent>().ID;
 
 		if (entity.HasComponent<TagComponent>())
 		{
@@ -254,6 +254,7 @@ namespace Cosmic
 				{
 					auto& component = deserializedEntity.AddComponent<NativeScriptComponent>();
 					component.ClassName = nativeScriptComponent["Class Name"].as<std::string>();
+					component.ShouldLoad = true;
 				}
 			}
 		}

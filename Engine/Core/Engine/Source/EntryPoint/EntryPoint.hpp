@@ -1,18 +1,12 @@
 #pragma once
-#include "Base/Types.hpp"
+#include "EntryPoint/StartupArgumentList.hpp"
 
 namespace Cosmic
 {
 
     class Application;
 
-    struct StartupArguments
-    {
-        int32 ArgumentCount;
-        char** Arguments;
-    };
-
-    extern Application* CreateApplication(StartupArguments&& args);
+    extern Application* CreateApplication(StartupArgumentList&& args);
 
 }
 

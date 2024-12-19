@@ -1,5 +1,7 @@
 #include "Base/Macros.hpp"
 #include "EntryPoint/EntryPoint.hpp"
+#include "EntryPoint/StartupArgumentParser.hpp"
+#include "App/File.hpp"
 #include "cspch.hpp"
 #include "EditorApp.hpp"
 #include <entt/entt.hpp>
@@ -11,11 +13,13 @@ CS_MODULE_LOG_INFO(Editor, EditorApp)
 namespace Cosmic
 {
 
-    EditorApp::EditorApp(const StartupArguments& args)
+    EditorApp::EditorApp(const StartupArgumentList& args)
+        : mStartupArgumentParser(args)
     {
         ApplicationInfo info = {};
         info.StartupArgs     = args;
 
+        SetupStartupArguments();
         Init(info);
     }
 
@@ -24,7 +28,6 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         ModuleSystem::AddFront<EditorModule>();
-
         return false;
     }
 
@@ -38,9 +41,44 @@ namespace Cosmic
         CS_DISPATCH_EVENT(ApplicationInitEvent, OnInit);
     }
 
-    Application* CreateApplication(StartupArguments&& args)
+    void EditorApp::SetupStartupArguments()
     {
-        return new EditorApp(args);
+        StartupArgumentSpecification spec = StartupArgumentSpecification(
+            "Cosmic",
+            "A game engine",
+            "Program Brief",
+            { "General"},
+            {
+                StartupArgument(
+                    EStartupArgumentType::Flag,
+                    "Help", "-h", "--help", "General",
+                    "Print this help message",
+                    { },
+                    [this](const String&)
+                    {
+                        mStartupArgumentParser.PrintHelp();
+					}
+                ),
+                StartupArgument(
+                    EStartupArgumentType::Option,
+                    "Project File", "-p", "--project", "General",
+                    "Open a Cosmic Project file (*.cosmic)",
+                    { },
+                    [](const String& path)
+                    {
+                        ModuleSystem::Get<EditorModule>()->OpenProject(Path(path));
+                    }
+                )
+            }
+        );
+
+        mStartupArgumentParser.Parse(spec);
+        mStartupArgumentParser.PrintHelp();
+    }
+
+    Application* CreateApplication(StartupArgumentList&& args)
+    {
+        return new EditorApp(std::move(args));
     }
 
 }
