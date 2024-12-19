@@ -42,8 +42,10 @@ namespace Cosmic::ImGuiUtils
 			return lineHeight;
 		}
 
-		static void DrawMultiComponentFloat(ImGuiID& id, float32& value, float32 resetValue, float32 min, float32 max, float32 dragWidth, const char* buttonText, const ImVec2& buttonSize, const ImVec4& buttonColor, const ImVec4& buttonHoveredColor, const ImVec4& buttonActiveColor, bool last = false, float32 totalWidth = 0.0f)
+		static bool DrawMultiComponentFloat(ImGuiID& id, float32& value, float32 resetValue, float32 min, float32 max, float32 dragWidth, const char* buttonText, const ImVec2& buttonSize, const ImVec4& buttonColor, const ImVec4& buttonHoveredColor, const ImVec4& buttonActiveColor, bool last = false, float32 totalWidth = 0.0f)
 		{
+			bool changed = false;
+
 			ImGui::PushStyleColor(ImGuiCol_Button,        buttonColor);
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHoveredColor);
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive,  buttonActiveColor);
@@ -51,7 +53,10 @@ namespace Cosmic::ImGuiUtils
 			ImGui::PushID(id++);
 
 			if (ImGui::Button(buttonText, buttonSize))
-				value = resetValue;
+			{
+				value   = resetValue;
+				changed = true;
+			}
 
 			ImGui::PopID();
 			ImGui::SameLine();
@@ -66,19 +71,23 @@ namespace Cosmic::ImGuiUtils
 
 			ImGui::PushItemWidth(dragWidth);
 			ImGui::PushID(id++);
-			ImGui::DragFloat("", &value, 0.1f, min, max, "%.2f");
+			changed = changed || ImGui::DragFloat("", &value, 0.1f, min, max, "%.2f");
 			ImGui::PopID();
 			ImGui::PopItemWidth();
 			ImGui::PopStyleColor(3);
 
 			if (!last)
 				ImGui::SameLine();
+
+			return changed;
 		}
 
 	}
 
-	void DrawFloat(const String& name, float32& value, const float32& resetValue /*= 0.0f*/, const float32& min /*= 0.0f*/, const float32& max /*= 0.0f*/)
+	bool DrawFloat(const String& name, float32& value, const float32& resetValue /*= 0.0f*/, const float32& min /*= 0.0f*/, const float32& max /*= 0.0f*/)
 	{
+		bool changed = false;
+
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,  ImVec2(4, 4));
 
@@ -103,7 +112,7 @@ namespace Cosmic::ImGuiUtils
 
 		ImGui::PushItemWidth(dragFloatWidth);
 		ImGui::PushID(baseID++);
-		ImGui::DragFloat("##asdf", &value, 0.1f, min, max, "%.2f");
+		changed = ImGui::DragFloat("##asdf", &value, 0.1f, min, max, "%.2f");
 		ImGui::PopID();
 		ImGui::PopItemWidth();
 
@@ -112,19 +121,26 @@ namespace Cosmic::ImGuiUtils
 		ImGui::PushID(baseID);
 
 		if (ImGui::Button(resetStr, buttonSize))
-			value = resetValue;
+		{
+			value   = resetValue;
+			changed = true;
+		}
 
 		ImGui::PopID();
 		ImGui::PopStyleVar(2);
+
+		return changed;
 	}
 
-	void DrawFloat2(const String& name, float2& value, const float2& resetValue /*= { 0.0f, 0.0f }*/, const float2& min /*= { 0.0f, 0.0f }*/, const float2& max /*= { 0.0f, 0.0f }*/)
+	bool DrawFloat2(const String& name, float2& value, const float2& resetValue /*= { 0.0f, 0.0f }*/, const float2& min /*= { 0.0f, 0.0f }*/, const float2& max /*= { 0.0f, 0.0f }*/)
 	{
-
+		return false;
 	}
 
-	void DrawFloat3(const String& name, float3& value, const float3& resetValue /*= { 0.0f, 0.0f, 0.0f }*/, const float3& min /*= { 0.0f, 0.0f, 0.0f }*/, const float3& max /*= { 0.0f, 0.0f, 0.0f }*/)
+	bool DrawFloat3(const String& name, float3& value, const float3& resetValue /*= { 0.0f, 0.0f, 0.0f }*/, const float3& min /*= { 0.0f, 0.0f, 0.0f }*/, const float3& max /*= { 0.0f, 0.0f, 0.0f }*/)
 	{
+		bool changed = false;
+
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,  ImVec2(0, 4));
 
@@ -158,9 +174,9 @@ namespace Cosmic::ImGuiUtils
 		ImVec4 buttonHoveredColorZ = { 0.2f, 0.35f, 0.9f,  1.0f };
 		ImVec4 buttonActiveColorZ  = { 0.1f, 0.25f, 0.8f,  1.0f };
 
-		Utils::DrawMultiComponentFloat(baseID, value.x, resetValue.x, min.x, min.y, dragFloatWidth, "X", buttonSize, buttonColorX, buttonHoveredColorX, buttonActiveColorX);
-		Utils::DrawMultiComponentFloat(baseID, value.y, resetValue.y, min.y, min.y, dragFloatWidth, "Y", buttonSize, buttonColorY, buttonHoveredColorY, buttonActiveColorY);
-		Utils::DrawMultiComponentFloat(baseID, value.z, resetValue.z, min.z, min.z, dragFloatWidth, "Z", buttonSize, buttonColorZ, buttonHoveredColorZ, buttonActiveColorZ, true, widthWithoutResetButton);
+		changed = changed || Utils::DrawMultiComponentFloat(baseID, value.x, resetValue.x, min.x, min.y, dragFloatWidth, "X", buttonSize, buttonColorX, buttonHoveredColorX, buttonActiveColorX);
+		changed = changed || Utils::DrawMultiComponentFloat(baseID, value.y, resetValue.y, min.y, min.y, dragFloatWidth, "Y", buttonSize, buttonColorY, buttonHoveredColorY, buttonActiveColorY);
+		changed = changed || Utils::DrawMultiComponentFloat(baseID, value.z, resetValue.z, min.z, min.z, dragFloatWidth, "Z", buttonSize, buttonColorZ, buttonHoveredColorZ, buttonActiveColorZ, true, widthWithoutResetButton);
 
 		ImGui::SameLine();
 
@@ -180,55 +196,207 @@ namespace Cosmic::ImGuiUtils
 			value.x = resetValue.x;
 			value.y = resetValue.y;
 			value.z = resetValue.z;
+			changed = true;
 		}
 
 		ImGui::PopID();
 		ImGui::PopStyleVar(2);
+
+		return changed;
 	}
 
-	void DrawFloat4(const String& name, float4& value, const float4& resetValue /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/, const float4& min /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/, const float4& max /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/)
+	bool DrawFloat4(const String& name, float4& value, const float4& resetValue /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/, const float4& min /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/, const float4& max /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/)
 	{
-
+		return false;
 	}
 
-	void DrawInt(const String& name, int32& value, const int32& resetValue /*= 0*/, const int32& min /*= 0*/, const int32& max /*= 0*/)
+	bool DrawInt(const String& name, int32& value, const int32& resetValue /*= 0*/, const int32& min /*= 0*/, const int32& max /*= 0*/)
 	{
-
+		return false;
 	}
 
-	void DrawInt2(const String& name, int2& value, const int2& resetValue /*= { 0, 0 }*/, const int2& min /*= { 0, 0 }*/, const int2& max /*= { 0, 0 }*/)
+	bool DrawInt2(const String& name, int2& value, const int2& resetValue /*= { 0, 0 }*/, const int2& min /*= { 0, 0 }*/, const int2& max /*= { 0, 0 }*/)
 	{
-
+		return false;
 	}
 
-	void DrawInt3(const String& name, int3& value, const int3& resetValue /*= { 0, 0, 0 }*/, const int3& min /*= { 0, 0, 0 }*/, const int3& max /*= { 0, 0, 0 }*/)
+	bool DrawInt3(const String& name, int3& value, const int3& resetValue /*= { 0, 0, 0 }*/, const int3& min /*= { 0, 0, 0 }*/, const int3& max /*= { 0, 0, 0 }*/)
 	{
-
+		return false;
 	}
 
-	void DrawInt4(const String& name, int4& value, const int4& resetValue /*= { 0, 0, 0, 0 }*/, const int4& min /*= { 0, 0, 0, 0 }*/, const int4& max /*= { 0, 0, 0, 0 }*/)
+	bool DrawInt4(const String& name, int4& value, const int4& resetValue /*= { 0, 0, 0, 0 }*/, const int4& min /*= { 0, 0, 0, 0 }*/, const int4& max /*= { 0, 0, 0, 0 }*/)
 	{
-
+		return false;
 	}
 
-	void DrawUInt(const String& name, uint32& value, const uint32& resetValue /*= 0*/, const uint32& min /*= 0*/, const uint32& max /*= 0*/)
+	bool DrawUInt(const String& name, uint32& value, const uint32& resetValue /*= 0*/, const uint32& min /*= 0*/, const uint32& max /*= 0*/)
 	{
-
+		return false;
 	}
 
-	void DrawUInt2(const String& name, uint2& value, const uint2& resetValue /*= { 0, 0 }*/, const uint2& min /*= { 0, 0 }*/, const uint2& max /*= { 0, 0 }*/)
+	bool DrawUInt2(const String& name, uint2& value, const uint2& resetValue /*= { 0, 0 }*/, const uint2& min /*= { 0, 0 }*/, const uint2& max /*= { 0, 0 }*/)
 	{
-
+		return false;
 	}
 
-	void DrawUInt3(const String& name, uint3& value, const uint3& resetValue /*= { 0, 0, 0 }*/, const uint3& min /*= { 0, 0, 0 }*/, const uint3& max /*= { 0, 0, 0 }*/)
+	bool DrawUInt3(const String& name, uint3& value, const uint3& resetValue /*= { 0, 0, 0 }*/, const uint3& min /*= { 0, 0, 0 }*/, const uint3& max /*= { 0, 0, 0 }*/)
 	{
-
+		return false;
 	}
 
-	void DrawUInt4(const String& name, uint4& value, const uint4& resetValue /*= { 0, 0, 0, 0 }*/, const uint4& min /*= { 0, 0, 0, 0 }*/, const uint4& max /*= { 0, 0, 0, 0 }*/)
+	bool DrawUInt4(const String& name, uint4& value, const uint4& resetValue /*= { 0, 0, 0, 0 }*/, const uint4& min /*= { 0, 0, 0, 0 }*/, const uint4& max /*= { 0, 0, 0, 0 }*/)
 	{
+		return false;
+	}
 
+	bool DrawVec2(const String& name, glm::vec2& value, const glm::vec2& resetValue /*= { 0.0f, 0.0f }*/, const glm::vec2& min /*= { 0.0f, 0.0f }*/, const glm::vec2& max /*= { 0.0f, 0.0f }*/)
+	{
+		return DrawFloat2(name, *(float2*)&value, *(float2*)&resetValue, *(float2*)&min, *(float2*)&max);
+	}
+
+	bool DrawVec3(const String& name, glm::vec3& value, const glm::vec3& resetValue /*= { 0.0f, 0.0f, 0.0f }*/, const glm::vec3& min /*= { 0.0f, 0.0f, 0.0f }*/, const glm::vec3& max /*= { 0.0f, 0.0f, 0.0f }*/)
+	{
+		return DrawFloat3(name, *(float3*)&value, *(float3*)&resetValue, *(float3*)&min, *(float3*)&max);
+	}
+
+	bool DrawVec4(const String& name, glm::vec4& value, const glm::vec4& resetValue /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/, const glm::vec4& min /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/, const glm::vec4& max /*= { 0.0f, 0.0f, 0.0f, 0.0f }*/)
+	{
+		return DrawFloat4(name, *(float4*)&value, *(float4*)&resetValue, *(float4*)&min, *(float4*)&max);
+	}
+
+	bool DrawString(const String& name, String& value, const String& resetValue)
+	{
+		ImGuiID baseID = ImGui::GetID(name.c_str());
+
+		ImGui::PushID(baseID++);
+		ImGui::Text(name.c_str());
+		ImGui::PopID();
+
+		ImGui::SameLine(Utils::AfterTextIndentValue());
+
+		auto callback = [](ImGuiInputTextCallbackData* data) -> int32
+		{
+			if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+			{
+				String* userData = (String*)data->UserData;
+				userData->resize(data->BufSize);
+				data->Buf = (char*)userData->c_str();
+			}
+			return 0;
+		};
+
+		ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_AutoSelectAll;
+
+		ImGui::PushID(baseID++);
+		bool changed = ImGui::InputText("", (char*)value.c_str(), value.size(), flags, callback, (void*)&value);
+		ImGui::PopID();
+
+		return changed;
+	}
+
+    bool DrawEnumStr(const String& name, String& currentValue, const Vector<String>& values, const String& resetValue)
+	{
+		ImGuiID baseID = ImGui::GetID(name.c_str());
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,  ImVec2(4, 4));
+
+		ImGui::AlignTextToFramePadding();
+
+		ImGui::PushID(baseID++);
+		ImGui::Text(name.c_str());
+		ImGui::PopID();
+
+		ImGui::SameLine(Utils::AfterTextIndentValue());
+
+		bool changed = false;
+
+		float32 lineHeight = Utils::GetLineHeight();
+		ImVec2  buttonSize = { lineHeight, lineHeight };
+		float32 width      = ImGui::GetContentRegionAvailWidth() - buttonSize.x;
+
+		ImGui::PushItemWidth(width);
+		ImGui::PushID(baseID++);
+
+		if (ImGui::BeginCombo("", currentValue.c_str()))
+		{
+			for (int16 i = 0; i < values.size(); i++)
+			{
+				bool isSelected = currentValue == values[i];
+
+				ImGui::PushID(baseID++);
+
+				if (ImGui::Selectable(values[i].c_str(), isSelected))
+				{
+					changed      = true;
+					currentValue = values[i];
+				}
+
+				ImGui::PopID();
+
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
+
+		ImGui::PopID();
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PushID(baseID++);
+
+		if (ImGui::Button(ICON_FA_ARROW_ROTATE_RIGHT, buttonSize))
+		{
+			changed      = true;
+			currentValue = resetValue;
+		}
+
+		ImGui::PopID();
+		ImGui::PopStyleVar(2);
+
+		return changed;
+	}
+
+	bool DrawEnumInt16(const String& name, int16& value, const int16 resetValue, const int16 lastValue, EnumToStringCallback toStr, EnumFromStringCallback fromStr)
+	{
+		struct StringData
+		{
+			String         CurrentValue;
+			String         ResetValue;
+			Vector<String> Values;
+		};
+
+		static UnorderedMap<ImGuiID, StringData> sStringDataMap;
+
+		ImGuiID id = ImGui::GetID(name.c_str());
+
+		if (sStringDataMap.find(id) == sStringDataMap.end())
+		{
+			StringData strData;
+			strData.CurrentValue = toStr(value);
+			strData.ResetValue = toStr(resetValue);
+			strData.Values = Vector<String>(lastValue);
+
+			for (int16 i = 0; i < lastValue; i++)
+			{
+				strData.Values[i] = toStr(i);
+			}
+
+			sStringDataMap[id] = strData;
+		}
+
+		StringData& strData = sStringDataMap[id];
+
+		if (DrawEnumStr(name, strData.CurrentValue, strData.Values, strData.ResetValue))
+		{
+			value = fromStr(strData.CurrentValue.c_str());
+			return true;
+		}
+
+		return false;
 	}
 
 }

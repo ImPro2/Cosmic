@@ -110,74 +110,6 @@ namespace Cosmic
         }
     }
 
-    static void DrawVec3(const char* label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f)
-    {
-        ImGui::PushID(label);
-
-        ImGui::Columns(2);
-        ImGui::SetColumnWidth(0, columnWidth);
-        ImGui::Text(label);
-        ImGui::NextColumn();
-
-        //ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
-
-        ImGuiIO& io = ImGui::GetIO();
-        ImGuiStyle& style = ImGui::GetStyle();
-
-        float32 lineHeight = io.FontDefault->FontSize + 2.0f * style.FramePadding.y;
-        ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
-
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.2f, 0.2f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
-
-        if (ImGui::Button("X", buttonSize))
-            values.x = resetValue;
-
-        ImGui::PopStyleColor(3);
-
-        ImGui::SameLine();
-        ImGui::PushItemWidth(columnWidth);
-        ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::PopItemWidth();
-
-        ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.8f, 0.3f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
-
-        if (ImGui::Button("Y", buttonSize))
-            values.y = resetValue;
-
-        ImGui::PopStyleColor(3);
-
-        ImGui::SameLine();
-        ImGui::PushItemWidth(columnWidth);
-        ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::PopItemWidth();
-
-        ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.25f, 0.8f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.35f, 0.9f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.25f, 0.8f, 1.0f));
-
-        if (ImGui::Button("Z", buttonSize))
-            values.z = resetValue;
-
-        ImGui::PopStyleColor(3);
-
-        ImGui::SameLine();
-        ImGui::PushItemWidth(columnWidth);
-        ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::PopItemWidth();
-
-        ImGui::PopStyleVar(2);
-        ImGui::Columns(1);
-        ImGui::PopID();
-    }
-
     void InspectorPanel::RenderComponents(Entity entity)
     {
         // Tag
@@ -232,9 +164,9 @@ namespace Cosmic
 
         RenderComponent<TransformComponent>("Transform Component", entity, [](TransformComponent& component)
         {
-            DrawVec3("Translation", component.Translation);
-            DrawVec3("Rotation", component.Rotation);
-            DrawVec3("Scale", component.Scale, 1.0f);
+			ImGuiUtils::DrawVec3("Translation", component.Translation, { 0.0f, 0.0f, 0.0f });
+            ImGuiUtils::DrawVec3("Rotation",    component.Rotation,    { 0.0f, 0.0f, 0.0f });
+            ImGuiUtils::DrawVec3("Scale",       component.Scale,       { 1.0f, 1.0f, 1.0f });
         });
         RenderComponent<SpriteRendererComponent>("Sprite Renderer Component", entity, [](SpriteRendererComponent& component)
         {
@@ -247,51 +179,37 @@ namespace Cosmic
             ImGui::Checkbox("Primary", &component.Primary);
             ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);
 
-            const char* projectionTypeStrings[]     = { "Perspective", "Orthographic" };
-            const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];
+            EProjectionType projectionType = camera.GetProjectionType();
 
-            if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
+            if (ImGuiUtils::DrawEnum<EProjectionType>("Projection", projectionType, EProjectionType::Orthographic, EProjectionTypeToStr, EProjectionTypeFromStr))
             {
-                for (int i = 0; i < 2; i++)
-                {
-                    bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
-                    if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
-                    {
-                        currentProjectionTypeString = projectionTypeStrings[i];
-                        camera.SetProjectionType((EProjectionType)i);
-                    }
-
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
-                }
-
-                ImGui::EndCombo();
+                camera.SetProjectionType(projectionType);
             }
 
-            if (camera.GetProjectionType() == EProjectionType::Perspective)
+            if (projectionType == EProjectionType::Perspective)
             {
                 float32 fov  = glm::degrees(camera.GetPerspectiveVerticalFOV());
                 float32 near = camera.GetPerspectiveNearClip();
                 float32 far  = camera.GetPerspectiveFarClip();
 
-                if (ImGui::DragFloat("Vertical FOV", &fov))
-                    camera.SetPerspectiveVerticalFOV(glm::radians(fov));
-                if (ImGui::DragFloat("Near Clip", &near))
+                if (ImGuiUtils::DrawFloat("Field Of View", fov, glm::radians(45.0f)))
+                    camera.SetPerspectiveVerticalFOV(fov);
+                if (ImGuiUtils::DrawFloat("Near Clip", near, 0.01f))
                     camera.SetPerspectiveNearClip(near);
-                if (ImGui::DragFloat("Far Clip", &far))
+                if (ImGuiUtils::DrawFloat("Far Clip", far, 1000.0f))
                     camera.SetPerspectiveFarClip(far);
             }
-            else if (camera.GetProjectionType() == EProjectionType::Orthographic)
+            else if (projectionType == EProjectionType::Orthographic)
             {
                 float32 size = camera.GetOrthographicSize();
                 float32 near = camera.GetOrthographicNearClip();
                 float32 far  = camera.GetOrthographicFarClip();
 
-                if (ImGui::DragFloat("Size", &size))
+                if (ImGuiUtils::DrawFloat("Size", size, 10.0f))
                     camera.SetOrthographicSize(size);
-                if (ImGui::DragFloat("Near Clip", &near))
+                if (ImGuiUtils::DrawFloat("Near Clip", near, -1.0f))
                     camera.SetOrthographicNearClip(near);
-                if (ImGui::DragFloat("Far Clip", &far))
+                if (ImGuiUtils::DrawFloat("Far Clip", far, 1.0f))
                     camera.SetOrthographicFarClip(far);
             }
         });
@@ -324,69 +242,24 @@ namespace Cosmic
             NativeScriptRegistry& registry = NativeScriptEngine::GetRegistry();
             Vector<IField*>&      fields   = registry.GetScriptInstanceFields(component.Instance);
 
-            ImGui::Separator();
-            ImGui::Text("Script Fields");
-
-            int32 i = 20;
-
             for (IField* field : fields)
             {
                 switch (field->GetType())
                 {
-					case EFieldType::Float32:
-					{
-                        ImGuiUtils::DrawFloat(field->GetName(), field->GetValue<float32>(), field->GetDefaultValue<float32>());
-						break;
-					}
-					case EFieldType::Float2:
-					{
-						break;
-					}
-					case EFieldType::Float3:
-					{
-                        ImGuiUtils::DrawFloat3(field->GetName(), field->GetValue<float3>(), field->GetDefaultValue<float3>());
-						break;
-					}
-					case EFieldType::Float4:
-					{
-						break;
-					}
-					case EFieldType::Int32:
-					{
-						break;
-					}
-					case EFieldType::Int2:
-					{
-						break;
-					}
-					case EFieldType::Int3:
-					{
-						break;
-					}
-					case EFieldType::Int4:
-					{
-						break;
-					}
-					case EFieldType::UInt32:
-					{
-						break;
-					}
-					case EFieldType::UInt2:
-					{
-						break;
-					}
-					case EFieldType::UInt3:
-					{
-						break;
-					}
-					case EFieldType::UInt4:
-					{
-						break;
-					}
+					case EFieldType::Float32: ImGuiUtils::DrawFloat (field->GetName(), field->GetValue<float32>(), field->GetDefaultValue<float32>()); break;
+					case EFieldType::Float2:  ImGuiUtils::DrawFloat2(field->GetName(), field->GetValue<float2>(),  field->GetDefaultValue<float2>());  break;
+                    case EFieldType::Float3:  ImGuiUtils::DrawFloat3(field->GetName(), field->GetValue<float3>(),  field->GetDefaultValue<float3>());  break;
+					case EFieldType::Float4:  ImGuiUtils::DrawFloat2(field->GetName(), field->GetValue<float2>(),  field->GetDefaultValue<float2>());  break;
+					case EFieldType::Int32:   ImGuiUtils::DrawInt   (field->GetName(), field->GetValue<int32>(),   field->GetDefaultValue<int32>());   break;
+					case EFieldType::Int2:    ImGuiUtils::DrawInt2  (field->GetName(), field->GetValue<int2>(),    field->GetDefaultValue<int2>());    break;
+					case EFieldType::Int3:    ImGuiUtils::DrawInt3  (field->GetName(), field->GetValue<int3>(),    field->GetDefaultValue<int3>());    break;
+					case EFieldType::Int4:    ImGuiUtils::DrawInt4  (field->GetName(), field->GetValue<int4>(),    field->GetDefaultValue<int4>());    break;
+					case EFieldType::UInt32:  ImGuiUtils::DrawUInt  (field->GetName(), field->GetValue<uint32>(),  field->GetDefaultValue<uint32>());  break;
+					case EFieldType::UInt2:   ImGuiUtils::DrawUInt2 (field->GetName(), field->GetValue<uint2>(),   field->GetDefaultValue<uint2>());   break;
+					case EFieldType::UInt3:   ImGuiUtils::DrawUInt3 (field->GetName(), field->GetValue<uint3>(),   field->GetDefaultValue<uint3>());   break;
+					case EFieldType::UInt4:   ImGuiUtils::DrawUInt4 (field->GetName(), field->GetValue<uint4>(),   field->GetDefaultValue<uint4>());   break;
 					case EFieldType::String:
-					{
 						break;
-					}
                 }
             }
         });

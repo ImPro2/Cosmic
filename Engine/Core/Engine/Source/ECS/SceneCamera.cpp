@@ -6,6 +6,27 @@
 namespace Cosmic
 {
 
+    const char* EProjectionTypeToStr(EProjectionType type)
+    {
+        switch (type)
+        {
+			case EProjectionType::Perspective:  return "Perspective";
+			case EProjectionType::Orthographic: return "Orthographic";
+        }
+
+        return "None";
+    }
+
+    EProjectionType EProjectionTypeFromStr(const char* str)
+    {
+        if (strcmp(str, "Perspective") == 0)
+            return EProjectionType::Perspective;
+        else if (strcmp(str, "Orthographic") == 0)
+            return EProjectionType::Orthographic;
+        
+        return EProjectionType::None;
+    }
+
     SceneCamera::SceneCamera()
     {
         RecalculateProjection();

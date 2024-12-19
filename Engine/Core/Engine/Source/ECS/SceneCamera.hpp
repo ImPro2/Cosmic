@@ -7,11 +7,16 @@
 namespace Cosmic
 {
 
-    enum class EProjectionType
+    enum class EProjectionType : int16
     {
+        None         = -1,
         Perspective  = 0,
-        Orthographic = 1
+        Orthographic = 1,
+        Last
     };
+
+    const char*     EProjectionTypeToStr(EProjectionType type);
+    EProjectionType EProjectionTypeFromStr(const char* str);
 
     class SceneCamera : public Camera
     {
