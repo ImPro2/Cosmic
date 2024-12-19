@@ -12,6 +12,9 @@ namespace Cosmic
 	using NativeScriptInstantiateCallbackMap = UnorderedMap<String, InstantiateNativeScriptCallback>;
 	using NativeScriptFieldMap = UnorderedMap<NativeScriptID, Vector<IField*>>;
 
+	using EnumStringConversionCallbackMap = UnorderedMap<String, Pair<EnumToStringCallback, EnumFromStringCallback>>;
+	using EnumStringMap = UnorderedMap<String, Vector<String>>;
+
 	class NativeScriptEngine;
 
 	class NativeScriptRegistry
@@ -30,12 +33,6 @@ namespace Cosmic
 			return instance;
 		}
 
-		inline void RegisterScriptClass(const String& className, InstantiateNativeScriptCallback callback)
-		{
-			mCallbackMap[className] = callback;
-			mRegisteredClassNames.push_back(className);
-		}
-
 	private:
 		void Init();
 		void Shutdown();
@@ -43,7 +40,8 @@ namespace Cosmic
 		void OnUpdate(const Ref<Scene>& scene);
 
 	public:
-		void RegisterScriptClassStr(const String& className);
+		void RegisterScriptClass(const String& className, InstantiateNativeScriptCallback callback = nullptr);
+		void RegisterEnumClass(const String& enumClass, const String& toStrFunctionName, const String& fromStrFunctionName);
 
 		Ref<NativeScript> InstantiateScript(const String& className, Entity entity);
 		void              DestroyScriptInstance(Ref<NativeScript>& instance);
@@ -59,8 +57,17 @@ namespace Cosmic
 		NativeScriptFieldMap&       GetFieldMap()       { return mFieldMap; }
 		const NativeScriptFieldMap& GetFieldMap() const { return mFieldMap; }
 
+		EnumStringConversionCallbackMap&       GetEnumStringConversionCallbackMap()       { return mEnumConversionCallbackMap; }
+		const EnumStringConversionCallbackMap& GetEnumStringConversionCallbackMap() const { return mEnumConversionCallbackMap; }
+
+		EnumStringMap&       GetEnumStringMap()       { return mEnumStringMap; }
+		const EnumStringMap& GetEnumStringMap() const { return mEnumStringMap; }
+
 		Vector<String>&       GetRegisteredClassNames()       { return mRegisteredClassNames; }
 		const Vector<String>& GetRegisteredClassNames() const { return mRegisteredClassNames; }
+
+		Vector<String>&       GetRegisteredEnumClassNames()       { return mRegisteredEnumClassNames; }
+		const Vector<String>& GetRegisteredEnumClassNames() const { return mRegisteredEnumClassNames; }
 
 		Vector<IField*>&       GetScriptInstanceFields(const Ref<NativeScript>& instance)       { return mFieldMap[instance->mID];    }
 		const Vector<IField*>& GetScriptInstanceFields(const Ref<NativeScript>& instance) const { return mFieldMap.at(instance->mID); }
@@ -75,7 +82,12 @@ namespace Cosmic
 		NativeScriptInstantiateCallbackMap mCallbackMap;          // class name - callbacks
 		NativeScriptFieldMap               mFieldMap;             // script instance - fields
 
-		Vector<String>                     mRegisteredClassNames; // keys of mCallbackMap
+		EnumStringConversionCallbackMap    mEnumConversionCallbackMap; // enum type name - callbacks
+		EnumStringMap                      mEnumStringMap;             // enum type name - strings of values
+
+		Vector<String>                     mRegisteredClassNames;     // keys of mCallbackMap
+		Vector<String>                     mRegisteredEnumClassNames; // keys of mEnumConversionCallbackMap
+
 		Vector<Ref<NativeScript>>          mScriptInstances;
 
 		NativeScriptID mLastInstantiatedScriptID = -1;

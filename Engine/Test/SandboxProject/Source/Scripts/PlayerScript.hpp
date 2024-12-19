@@ -1,4 +1,5 @@
 #include "Script/NativeScript.hpp"
+#include "CustomEnum.hpp"
 
 namespace Cosmic
 {
@@ -15,6 +16,8 @@ namespace Cosmic
     public:
         Field<float32, CS_FIELD_NAME("MovementSpeed")> mMovementSpeed = 100.0f;
         Field<float3,  CS_FIELD_NAME("Velocity")>      mVelocity      = float3 { 0.0f, 0.0f, 0.0f };
+
+        Field<ECustomEnum, CS_FIELD_NAME("CustomEnum")> mCustomEnum = ECustomEnum::SomeValue;
     };
 
 }

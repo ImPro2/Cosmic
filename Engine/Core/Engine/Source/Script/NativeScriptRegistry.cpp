@@ -45,20 +45,52 @@ namespace Cosmic
 		});
 	}
 
-	void NativeScriptRegistry::RegisterScriptClassStr(const String& className)
+	void NativeScriptRegistry::RegisterScriptClass(const String& className, InstantiateNativeScriptCallback callback)
 	{
-		mCallbackMap[className] = (InstantiateNativeScriptCallback)OS::RetrieveFunctionFromDynamicLibrary(
-			Utils::GetInstantiateScriptFunctionNameFromScriptClass(className).c_str(),
-			NativeScriptEngine::GetLoadedScriptAssembly()
-		);
+		if (!callback)
+		{
+			mCallbackMap[className] = (InstantiateNativeScriptCallback)OS::RetrieveFunctionFromDynamicLibrary(
+				Utils::GetInstantiateScriptFunctionNameFromScriptClass(className).c_str(),
+				NativeScriptEngine::GetLoadedScriptAssembly()
+			);
+		}
+		else
+		{
+			mCallbackMap[className] = callback;
+		}
 
 		mRegisteredClassNames.push_back(className);
+	}
+
+	void NativeScriptRegistry::RegisterEnumClass(const String& enumClass, const String& toStrFunctionName, const String& fromStrFunctionName)
+	{
+		void* scriptAssembly = NativeScriptEngine::GetLoadedScriptAssembly();
+
+		EnumToStringCallback   toStrCallback   = static_cast<const char* (*)(int16)>(OS::RetrieveFunctionFromDynamicLibrary(toStrFunctionName.c_str(),   scriptAssembly));
+		EnumFromStringCallback fromStrCallback = static_cast<int16 (*)(const char*)>(OS::RetrieveFunctionFromDynamicLibrary(fromStrFunctionName.c_str(), scriptAssembly));
+
+		mEnumConversionCallbackMap[enumClass] = { toStrCallback, fromStrCallback };
+		mRegisteredEnumClassNames.push_back(enumClass);
+
+		Vector<String> stringValues;
+
+		for (int16 i = 0;; i++)
+		{
+			String valueStr = toStrCallback(i);
+
+			if (valueStr == "Last")
+				break;
+			else
+				stringValues.push_back(valueStr);
+		}
+
+		mEnumStringMap[enumClass] = stringValues;
 	}
 
 	Ref<NativeScript> NativeScriptRegistry::InstantiateScript(const String& className, Entity entity)
 	{
 		if (mCallbackMap.find(className) == mCallbackMap.end())
-			RegisterScriptClassStr(className);
+			RegisterScriptClass(className);
 
 		Ref<NativeScript> instance = Ref<NativeScript>(mCallbackMap[className](entity));
 		instance->OnInstantiate();
@@ -99,7 +131,7 @@ namespace Cosmic
 	{
 		for (auto& [scriptClass, instantiateCallback] : mCallbackMap)
 		{
-			RegisterScriptClassStr(scriptClass);
+			RegisterScriptClass(scriptClass);
 		}
 	}
 
@@ -112,6 +144,11 @@ namespace Cosmic
 		}
 
 		mFieldMap[mLastInstantiatedScriptID].push_back(field);
+
+		if (field->GetType() == EFieldType::Enum && mEnumConversionCallbackMap.find(field->GetTypeName()) == mEnumConversionCallbackMap.end())
+		{
+			RegisterEnumClass(field->GetTypeName(), field->GetEnumToStringFunctionName(), field->GetEnumFromStringFunctionName());
+		}
 	}
 
 }

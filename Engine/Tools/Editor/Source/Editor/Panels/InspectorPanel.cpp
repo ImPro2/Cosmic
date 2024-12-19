@@ -214,39 +214,60 @@ namespace Cosmic
             }
         });
         RenderComponent<NativeScriptComponent>("Native Script Component", entity, [&](NativeScriptComponent& component)
-        {
-            NativeScriptRegistry& registry   = NativeScriptEngine::GetRegistry();
-            const Vector<String>& classNames = registry.GetRegisteredClassNames();
-
-            if (ImGuiUtils::DrawEnumStr("Script Class", component.ClassName, classNames, ""))
-                component.ShouldLoad = component.ClassName != "";
-
-            if (component.Instance && component.ClassName == "")
-                registry.DestroyScriptInstance(component.Instance);
-
-            if (!component.Instance)
-                return;
-
-            Vector<IField*>& fields = registry.GetScriptInstanceFields(component.Instance);
-
-            for (IField* field : fields)
             {
-                switch (field->GetType())
+                NativeScriptRegistry& registry = NativeScriptEngine::GetRegistry();
+                const Vector<String>& classNames = registry.GetRegisteredClassNames();
+
+                if (ImGuiUtils::DrawEnumStr("Script Class", component.ClassName, classNames, ""))
+                    component.ShouldLoad = component.ClassName != "";
+
+                if (component.Instance && component.ClassName == "")
+                    registry.DestroyScriptInstance(component.Instance);
+
+                if (!component.Instance)
+                    return;
+
+                Vector<IField*>& fields = registry.GetScriptInstanceFields(component.Instance);
+
+                for (IField* field : fields)
                 {
-					case EFieldType::Float32: ImGuiUtils::DrawFloat (field->GetName(), field->GetValue<float32>(), field->GetDefaultValue<float32>()); break;
-					case EFieldType::Float2:  ImGuiUtils::DrawFloat2(field->GetName(), field->GetValue<float2>(),  field->GetDefaultValue<float2>());  break;
-                    case EFieldType::Float3:  ImGuiUtils::DrawFloat3(field->GetName(), field->GetValue<float3>(),  field->GetDefaultValue<float3>());  break;
-					case EFieldType::Float4:  ImGuiUtils::DrawFloat2(field->GetName(), field->GetValue<float2>(),  field->GetDefaultValue<float2>());  break;
-					case EFieldType::Int32:   ImGuiUtils::DrawInt   (field->GetName(), field->GetValue<int32>(),   field->GetDefaultValue<int32>());   break;
-					case EFieldType::Int2:    ImGuiUtils::DrawInt2  (field->GetName(), field->GetValue<int2>(),    field->GetDefaultValue<int2>());    break;
-					case EFieldType::Int3:    ImGuiUtils::DrawInt3  (field->GetName(), field->GetValue<int3>(),    field->GetDefaultValue<int3>());    break;
-					case EFieldType::Int4:    ImGuiUtils::DrawInt4  (field->GetName(), field->GetValue<int4>(),    field->GetDefaultValue<int4>());    break;
-					case EFieldType::UInt32:  ImGuiUtils::DrawUInt  (field->GetName(), field->GetValue<uint32>(),  field->GetDefaultValue<uint32>());  break;
-					case EFieldType::UInt2:   ImGuiUtils::DrawUInt2 (field->GetName(), field->GetValue<uint2>(),   field->GetDefaultValue<uint2>());   break;
-					case EFieldType::UInt3:   ImGuiUtils::DrawUInt3 (field->GetName(), field->GetValue<uint3>(),   field->GetDefaultValue<uint3>());   break;
-					case EFieldType::UInt4:   ImGuiUtils::DrawUInt4 (field->GetName(), field->GetValue<uint4>(),   field->GetDefaultValue<uint4>());   break;
-					case EFieldType::String:
+                    switch (field->GetType())
+                    {
+                    case EFieldType::Float32: ImGuiUtils::DrawFloat(field->GetName(), field->GetValue<float32>(), field->GetDefaultValue<float32>()); break;
+                    case EFieldType::Float2:  ImGuiUtils::DrawFloat2(field->GetName(), field->GetValue<float2>(), field->GetDefaultValue<float2>());  break;
+                    case EFieldType::Float3:  ImGuiUtils::DrawFloat3(field->GetName(), field->GetValue<float3>(), field->GetDefaultValue<float3>());  break;
+                    case EFieldType::Float4:  ImGuiUtils::DrawFloat2(field->GetName(), field->GetValue<float2>(), field->GetDefaultValue<float2>());  break;
+                    case EFieldType::Int32:   ImGuiUtils::DrawInt(field->GetName(), field->GetValue<int32>(), field->GetDefaultValue<int32>());   break;
+                    case EFieldType::Int2:    ImGuiUtils::DrawInt2(field->GetName(), field->GetValue<int2>(), field->GetDefaultValue<int2>());    break;
+                    case EFieldType::Int3:    ImGuiUtils::DrawInt3(field->GetName(), field->GetValue<int3>(), field->GetDefaultValue<int3>());    break;
+                    case EFieldType::Int4:    ImGuiUtils::DrawInt4(field->GetName(), field->GetValue<int4>(), field->GetDefaultValue<int4>());    break;
+                    case EFieldType::UInt32:  ImGuiUtils::DrawUInt(field->GetName(), field->GetValue<uint32>(), field->GetDefaultValue<uint32>());  break;
+                    case EFieldType::UInt2:   ImGuiUtils::DrawUInt2(field->GetName(), field->GetValue<uint2>(), field->GetDefaultValue<uint2>());   break;
+                    case EFieldType::UInt3:   ImGuiUtils::DrawUInt3(field->GetName(), field->GetValue<uint3>(), field->GetDefaultValue<uint3>());   break;
+                    case EFieldType::UInt4:   ImGuiUtils::DrawUInt4(field->GetName(), field->GetValue<uint4>(), field->GetDefaultValue<uint4>());   break;
+                    case EFieldType::String:  ImGuiUtils::DrawString(field->GetName(), field->GetValue<String>(), field->GetDefaultValue<String>());  break;
+                    case EFieldType::Enum:
+                    {
+                        const String& enumClass = field->GetTypeName();
+
+                        EnumStringConversionCallbackMap& enumCallbackMap = registry.GetEnumStringConversionCallbackMap();
+
+                        EnumToStringCallback   toStr   = enumCallbackMap[enumClass].first;
+                        EnumFromStringCallback fromStr = enumCallbackMap[enumClass].second;
+
+                        EnumStringMap&        enumStrMap = registry.GetEnumStringMap();
+                        const Vector<String>& strings    = enumStrMap[enumClass];
+
+                        String currentValue = toStr(field->GetValue<int16>());
+                        String defaultValue = toStr(field->GetDefaultValue<int16>());
+
+                        if (ImGuiUtils::DrawEnumStr(field->GetName(), currentValue, strings, defaultValue))
+                        {
+                            field->SetValue<int16>(fromStr(currentValue.c_str()));
+                        }
+                      
 						break;
+					}
                 }
             }
         });

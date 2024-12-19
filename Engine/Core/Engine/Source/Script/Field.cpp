@@ -13,4 +13,14 @@ namespace Cosmic
 		registry.RegisterField(this);
 	}
 
+	String IField::GetEnumToStringFunctionName()
+	{
+		return std::format("{}ToStr", GetTypeName());
+	}
+
+	String IField::GetEnumFromStringFunctionName()
+	{
+		return std::format("{}FromStr", GetTypeName());
+	}
+
 }

@@ -11,21 +11,34 @@ namespace Cosmic
 		Float32, Float2, Float3, Float4,
 		Int32, Int2, Int3, Int4,
 		UInt32, UInt2, UInt3, UInt4,
-		String
+		String,
+		Enum
 	};
 
 	class IField
 	{
 	public:
-		IField()  = default;
+		IField(const String& name, const String& typeName, EFieldType fieldType)
+			: mName(name), mTypeName(typeName), mType(fieldType)
+		{
+		}
+
 		~IField() = default;
 
 	public:
 		EFieldType    GetType()      const { return mType;       }
 		const String& GetName()      const { return mName;       }
+		const String& GetTypeName()  const { return mTypeName;   }
 		bool          IsRegistered() const { return mRegistered; }
 
 	public:
+		template<typename T>
+		void SetValue(const T& value)
+		{
+			T& data = GetValue<T>();
+			data    = value;
+		}
+
 		template<typename T>
 		T& GetValue()
 		{
@@ -38,6 +51,10 @@ namespace Cosmic
 			return *static_cast<T*>(GetDefaultValuePtr());
 		}
 
+		String GetEnumToStringFunctionName();
+		String GetEnumFromStringFunctionName();
+
+	public:
 		virtual void* GetValuePtr()        = 0;
 		virtual void* GetDefaultValuePtr() = 0;
 
@@ -49,6 +66,7 @@ namespace Cosmic
 	protected:
 		EFieldType mType       = EFieldType::Unknown;
 		String     mName       = "";
+		String     mTypeName   = "";
 		bool       mRegistered = false;
 	};
 
@@ -57,22 +75,20 @@ namespace Cosmic
 	{
 	public:
 		Field()
+			: IField(ExtractName(), ExtractTypeName(), ExtractFieldType()), mValue(), mDefaultValue()
 		{
-			ExtractName();
 			InitializeField();
 		}
 
 		Field(const T& value)
-			: mValue(value), mDefaultValue(value)
+			: IField(ExtractName(), ExtractTypeName(), ExtractFieldType()), mValue(value), mDefaultValue(value)
 		{
-			ExtractName();
 			InitializeField();
 		}
 
 		Field(T&& value)
-			: mValue(std::move(value)), mDefaultValue(std::move(value))
+			: IField(ExtractName(), ExtractTypeName(), ExtractFieldType()), mValue(std::move(value)), mDefaultValue(std::move(value))
 		{
-			ExtractName();
 			InitializeField();
 		}
 
@@ -102,10 +118,52 @@ namespace Cosmic
 		operator T() const { return mValue; }
 
 	private:
-		void ExtractName()
+		String ExtractName()
 		{
 			Vector<char> vec = { Chars... };
-			mName = String(vec.begin(), vec.end());
+			return String(vec.begin(), vec.end());
+		}
+
+		String ExtractTypeName()
+		{
+			Vector<String> result = StringUtils::Split(String(typeid(T).name()), ':');
+			return result[result.size() - 1];
+		}
+
+		EFieldType ExtractFieldType()
+		{
+			if constexpr (std::is_same_v<T, float32>)
+				return EFieldType::Float32;
+			else if constexpr (std::is_same_v<T, float2>)
+				return EFieldType::Float2;
+			else if constexpr (std::is_same_v<T, float3>)
+				return EFieldType::Float3;
+			else if constexpr (std::is_same_v<T, float4>)
+				return EFieldType::Float4;
+			else if constexpr (std::is_same_v<T, int32>)
+				return EFieldType::Int32;
+			else if constexpr (std::is_same_v<T, int2>)
+				return EFieldType::Int2;
+			else if constexpr (std::is_same_v<T, int3>)
+				return EFieldType::Int3;
+			else if constexpr (std::is_same_v<T, int4>)
+				return EFieldType::Int4;
+			else if constexpr (std::is_same_v<T, uint32>)
+				return EFieldType::UInt32;
+			else if constexpr (std::is_same_v<T, uint2>)
+				return EFieldType::UInt2;
+			else if constexpr (std::is_same_v<T, uint3>)
+				return EFieldType::UInt3;
+			else if constexpr (std::is_same_v<T, uint4>)
+				return EFieldType::UInt4;
+			else if constexpr (std::is_same_v<T, String>)
+				return EFieldType::String;
+			else if constexpr (std::is_enum_v<T>)
+				return EFieldType::Enum;
+			else
+				static_assert(false);
+
+			return EFieldType::Unknown;
 		}
 
 		void InitializeField()
@@ -115,41 +173,14 @@ namespace Cosmic
 
 			mRegistered = true;
 
-			if constexpr (std::is_same_v<T, float32>)
-				mType = EFieldType::Float32;
-			else if constexpr (std::is_same_v<T, float2>)
-				mType = EFieldType::Float2;
-			else if constexpr (std::is_same_v<T, float3>)
-				mType = EFieldType::Float3;
-			else if constexpr (std::is_same_v<T, float4>)
-				mType = EFieldType::Float4;
-			else if constexpr (std::is_same_v<T, int32>)
-				mType = EFieldType::Int32;
-			else if constexpr (std::is_same_v<T, int2>)
-				mType = EFieldType::Int2;
-			else if constexpr (std::is_same_v<T, int3>)
-				mType = EFieldType::Int3;
-			else if constexpr (std::is_same_v<T, int4>)
-				mType = EFieldType::Int4;
-			else if constexpr (std::is_same_v<T, uint32>)
-				mType = EFieldType::UInt32;
-			else if constexpr (std::is_same_v<T, uint2>)
-				mType = EFieldType::UInt2;
-			else if constexpr (std::is_same_v<T, uint3>)
-				mType = EFieldType::UInt3;
-			else if constexpr (std::is_same_v<T, uint4>)
-				mType = EFieldType::UInt4;
-			else if constexpr (std::is_same_v<T, String>)
-				mType = EFieldType::String;
-			else
-				static_assert(false);
-
 			RegisterField();
 		}
 
 	private:
 		T mValue;
 		T mDefaultValue;
+
+		String mTypeName;
 	};
 
 }

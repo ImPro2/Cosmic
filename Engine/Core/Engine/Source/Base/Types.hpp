@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <functional>
 #include <vector>
 #include <stdint.h>
 
@@ -42,5 +43,8 @@ namespace Cosmic {
         F first;
         S second;
     };
+
+    using EnumToStringCallback   = std::function<const char*(int16)>;
+    using EnumFromStringCallback = std::function<int16(const char*)>;
 
 }
