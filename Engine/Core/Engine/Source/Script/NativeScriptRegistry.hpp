@@ -46,10 +46,16 @@ namespace Cosmic
 		Ref<NativeScript> InstantiateScript(const String& className, Entity entity);
 		void              DestroyScriptInstance(Ref<NativeScript>& instance);
 
-	public:
+	private:
+		void OnScriptAssemblyReloaded(const Ref<Scene>& scene);
+		void OnScriptAssemblyUnloaded();
+
+	private:
 		void ReleaseScriptInstances();
+		void ClearRegisteredScriptClasses();
+		void ClearRegisteredEnumClasses();
+
 		void SetUnloadedScriptInstancesToLoad(const Ref<Scene>& scene);
-		void ReloadInstantiateCallbacks();
 
 	public:
 		NativeScriptInstantiateCallbackMap&       GetCallbackMap()       { return mCallbackMap; }
@@ -67,9 +73,6 @@ namespace Cosmic
 		Vector<String>&       GetRegisteredClassNames()       { return mRegisteredClassNames; }
 		const Vector<String>& GetRegisteredClassNames() const { return mRegisteredClassNames; }
 
-		Vector<String>&       GetRegisteredEnumClassNames()       { return mRegisteredEnumClassNames; }
-		const Vector<String>& GetRegisteredEnumClassNames() const { return mRegisteredEnumClassNames; }
-
 		Vector<IField*>&       GetScriptInstanceFields(const Ref<NativeScript>& instance)       { return mFieldMap[instance->mID];    }
 		const Vector<IField*>& GetScriptInstanceFields(const Ref<NativeScript>& instance) const { return mFieldMap.at(instance->mID); }
 
@@ -80,18 +83,16 @@ namespace Cosmic
 		void RegisterField(IField* field);
 
 	private:
-		NativeScriptInstantiateCallbackMap mCallbackMap;          // class name - callbacks
-		NativeScriptFieldMap               mFieldMap;             // script instance - fields
+		Vector<Ref<NativeScript>>          mScriptInstances;
+		NativeScriptFieldMap               mFieldMap;                  // script instance - fields
+
+		NativeScriptInstantiateCallbackMap mCallbackMap;               // class name - callbacks
+		Vector<String>                     mRegisteredClassNames;      // keys of mCallbackMap
 
 		EnumStringConversionCallbackMap    mEnumConversionCallbackMap; // enum type name - callbacks
 		EnumStringMap                      mEnumStringMap;             // enum type name - strings of values
 
-		Vector<String>                     mRegisteredClassNames;     // keys of mCallbackMap
-		Vector<String>                     mRegisteredEnumClassNames; // keys of mEnumConversionCallbackMap
-
-		Vector<Ref<NativeScript>>          mScriptInstances;
-
-		NativeScriptID mLastInstantiatedScriptID = -1;
+		NativeScriptID                     mLastInstantiatedScriptID = -1;
 
 		friend class NativeScriptEngine;
 		friend class IField;

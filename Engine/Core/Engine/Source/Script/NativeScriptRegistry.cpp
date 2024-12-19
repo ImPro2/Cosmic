@@ -22,12 +22,10 @@ namespace Cosmic
 
 	void NativeScriptRegistry::Init()
 	{
-
 	}
 
 	void NativeScriptRegistry::Shutdown()
 	{
-
 	}
 
 	void NativeScriptRegistry::OnUpdate(const Ref<Scene>& scene)
@@ -70,7 +68,6 @@ namespace Cosmic
 		EnumFromStringCallback fromStrCallback = static_cast<int16 (*)(const char*)>(OS::RetrieveFunctionFromDynamicLibrary(fromStrFunctionName.c_str(), scriptAssembly));
 
 		mEnumConversionCallbackMap[enumClass] = { toStrCallback, fromStrCallback };
-		mRegisteredEnumClassNames.push_back(enumClass);
 
 		Vector<String> stringValues;
 
@@ -80,8 +77,8 @@ namespace Cosmic
 
 			if (valueStr == "Last")
 				break;
-			else
-				stringValues.push_back(valueStr);
+
+			stringValues.push_back(valueStr);
 		}
 
 		mEnumStringMap[enumClass] = stringValues;
@@ -104,10 +101,28 @@ namespace Cosmic
 	{
 		instance->OnDestroy();
 
+		mFieldMap[instance].clear();
+		mFieldMap.erase(instance);
+
 		auto it = std::find(mScriptInstances.begin(), mScriptInstances.end(), instance);
 		mScriptInstances.erase(it);
 
 		instance.Release();
+	}
+
+	void NativeScriptRegistry::OnScriptAssemblyReloaded(const Ref<Scene>& scene)
+	{
+		OnScriptAssemblyUnloaded();
+		SetUnloadedScriptInstancesToLoad(scene);
+	}
+
+	void NativeScriptRegistry::OnScriptAssemblyUnloaded()
+	{
+		ReleaseScriptInstances();
+		ClearRegisteredScriptClasses();
+		ClearRegisteredEnumClasses();
+
+		mLastInstantiatedScriptID = -1;
 	}
 
 	void NativeScriptRegistry::ReleaseScriptInstances()
@@ -115,10 +130,24 @@ namespace Cosmic
 		for (Ref<NativeScript>& instance : mScriptInstances)
 		{
 			instance->OnDestroy();
+			mFieldMap[instance].clear();
 			instance.Release();
 		}
 
+		mFieldMap.clear();
 		mScriptInstances.clear();
+	}
+
+	void NativeScriptRegistry::ClearRegisteredScriptClasses()
+	{
+		mCallbackMap.clear();
+		mRegisteredClassNames.clear();
+	}
+
+	void NativeScriptRegistry::ClearRegisteredEnumClasses()
+	{
+		mEnumConversionCallbackMap.clear();
+		mEnumStringMap.clear();
 	}
 
 	void NativeScriptRegistry::SetUnloadedScriptInstancesToLoad(const Ref<Scene>& scene)
@@ -128,14 +157,6 @@ namespace Cosmic
 			if (!nsc.Instance)
 				nsc.ShouldLoad = true;
 		});
-	}
-
-	void NativeScriptRegistry::ReloadInstantiateCallbacks()
-	{
-		for (auto& [scriptClass, instantiateCallback] : mCallbackMap)
-		{
-			RegisterScriptClass(scriptClass);
-		}
 	}
 
 	void NativeScriptRegistry::RegisterField(IField* field)
