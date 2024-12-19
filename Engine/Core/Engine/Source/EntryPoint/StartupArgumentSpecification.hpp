@@ -13,22 +13,24 @@ namespace Cosmic
 	};
 
 
-	using StartupArgumentCallback = std::function<void(const String&)>;
+	using StartupArgumentCallback      = std::function<void(const String&)>;
+	using StartupArgumentErrorCallback = std::function<void()>;
 
 	struct StartupArgument
 	{
 		StartupArgument() = default;
 		StartupArgument(
-			EStartupArgumentType    type,
-			const char*             name,
-			const char*             flag                  = "",
-			const char*             altFlag               = "",
-			const char*             category              = "",
-			const char*             description           = "",
-			std::initializer_list<String>&& defaultValues = { },
-			StartupArgumentCallback callback              = nullptr
+			EStartupArgumentType            type,
+			const char*                     name,
+			const char*                     flag           = "",
+			const char*                     altFlag        = "",
+			const char*                     category       = "",
+			const char*                     description    = "",
+			const char*                     defaultValue   = "",
+			std::initializer_list<String>&& possibleValues = { },
+			StartupArgumentCallback         callback       = nullptr
 		)
-			: ArgumentType(type), Name(name), Flag(flag), AltFlag(altFlag), Category(category), Description(description), DefaultValues(defaultValues), Callback(callback)
+			: ArgumentType(type), Name(name), Flag(flag), AltFlag(altFlag), Category(category), Description(description), DefaultValue(defaultValue), PossibleValues(possibleValues), Callback(callback)
 		{
 		}
 
@@ -38,7 +40,8 @@ namespace Cosmic
 		String Flag, AltFlag;
 		String Category;
 		String Description;
-		Vector<String> DefaultValues;
+		String DefaultValue;
+		Vector<String> PossibleValues;
 
 		StartupArgumentCallback Callback;
 	};
@@ -53,13 +56,14 @@ namespace Cosmic
 	{
 		StartupArgumentSpecification() = default;
 		StartupArgumentSpecification(
-			const char* programName,
-			const char* programDescription,
-			const char* programBrief,
+			const char*                              programName,
+			const char*                              programDescription,
+			const char*                              programBrief,
 			std::initializer_list<String>&&          startupArgumentCategories,
-			std::initializer_list<StartupArgument>&& startupArguments
+			std::initializer_list<StartupArgument>&& startupArguments,
+			StartupArgumentErrorCallback             errorCallback
 		)
-			: ProgramName(programName), ProgramDescription(programDescription), ProgramBrief(programBrief), StartupArgumentCategories(startupArgumentCategories), StartupArguments(std::move(startupArguments))
+			: ProgramName(programName), ProgramDescription(programDescription), ProgramBrief(programBrief), StartupArgumentCategories(startupArgumentCategories), StartupArguments(std::move(startupArguments)), ErrorCallback(errorCallback)
 		{
 		}
 
@@ -69,6 +73,8 @@ namespace Cosmic
 
 		Vector<String>          StartupArgumentCategories;
 		Vector<StartupArgument> StartupArguments;
+
+		StartupArgumentErrorCallback ErrorCallback;
 	};
 
 }

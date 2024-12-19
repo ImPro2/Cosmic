@@ -23,6 +23,8 @@ namespace Cosmic
 
     private:
         StartupArgumentParser mStartupArgumentParser;
+
+        Path mProjectToOpen = "";
     };
 
 }

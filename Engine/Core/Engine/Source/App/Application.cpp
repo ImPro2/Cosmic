@@ -45,6 +45,9 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+        if (!mRunning)
+            return;
+
         mInfo = info;
 
         OS::Init();

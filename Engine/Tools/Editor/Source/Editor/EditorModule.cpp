@@ -185,6 +185,12 @@ namespace Cosmic
 
     void EditorModule::OpenProject(File file)
     {
+        if (!FileSystem::Exists(file))
+        {
+            CS_LOG_WARN("Attempted to open nonexistent project file {}", file.GetAbsolutePath().GetString().c_str());
+            return;
+        }
+
         mActiveProject = ProjectManager::LoadProject(file);
         SetWindowTitle();
 
