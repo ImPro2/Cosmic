@@ -24,10 +24,14 @@ namespace Cosmic
 
 	PersistentRef<Allocations> Allocations::Init()
 	{
+		ReferenceCounter* refCounter = ReferenceCounter::Init();
+
 		sInstance = PersistentRef<Allocations>(new Allocations());
 
 		sInstance->mStatistics.TotalAllocatedMemory = 0;
 		sInstance->mStatistics.TotalFreedMemory     = 0;
+
+		sInstance->mReferenceCounter = refCounter;
 
 		DefaultAllocator::Init();
 		FrameStackAllocator::Init();
@@ -46,6 +50,8 @@ namespace Cosmic
 		// All other allocators
 		for (Ref<IAllocator> allocator : sInstance->mAllocators)
 			allocator->Shutdown();
+
+		ReferenceCounter::Shutdown();
 	}
 
 	void Allocations::EndFrame()
@@ -55,6 +61,8 @@ namespace Cosmic
 
 	void Allocations::SetInstance(const PersistentRef<Allocations>& instance)
 	{
+		ReferenceCounter::sInstance          = instance->mReferenceCounter;
+
 		sInstance = instance;
 
 		DefaultAllocator::sAllocator         = sInstance->mAllocators[0];

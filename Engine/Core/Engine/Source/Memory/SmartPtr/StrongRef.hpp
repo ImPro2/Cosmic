@@ -1,21 +1,13 @@
 #pragma once
 #include "Base/Types.hpp"
+#include "Memory/SmartPtr/ReferenceCounter.hpp"
+#include "Memory/Allocations.hpp"
 
 namespace Cosmic
 {
 
     class IRefCounted
     {
-    public:
-        void IncRefCount()  const { mRefCount++;   }
-        void DecRefCount()  const { mRefCount--;   }
-        void ZeroRefCount() const { mRefCount = 0; }
-
-    public:
-        uint32 GetRefCount() const { return mRefCount; }
-
-    private:
-        mutable uint32 mRefCount = 0;
     };
 
     template<class T, class Allocator>
@@ -119,8 +111,7 @@ namespace Cosmic
     public:
         void Release()
         {
-            mPtr->ZeroRefCount();
-            Allocator::Free(mPtr);
+            ReferenceCounter::DecRefCount<T, Allocator>(mPtr);
             mPtr = nullptr;
         }
 
@@ -136,6 +127,14 @@ namespace Cosmic
             return StrongRef<T2, Allocator>(*this);
         }
 
+        bool IsValid() const
+        {
+            if (ReferenceCounter::GetRefCount(mPtr) == 0)
+                mPtr = nullptr;
+
+            return mPtr != nullptr;
+		}
+
     public:
         T* operator->()       { return mPtr; }
         T* operator->() const { return mPtr; }
@@ -143,24 +142,24 @@ namespace Cosmic
         T&       operator*()       { return *mPtr; }
         const T& operator*() const { return *mPtr; }
 
-        operator bool()       { return mPtr != nullptr; }
-        operator bool() const { return mPtr != nullptr; }
+        operator bool()       { return IsValid(); }
+        operator bool() const { return IsValid(); }
 
     private:
         void IncRef() const
         {
             if (mPtr)
-                mPtr->IncRefCount();
+                ReferenceCounter::IncRefCount(mPtr);
         }
 
         void DecRef() const
         {
             if (mPtr)
             {
-                mPtr->DecRefCount();
+                uint32 refCount = ReferenceCounter::DecRefCount<T, Allocator>(mPtr);
 
-                if (mPtr->GetRefCount() == 0)
-                    Allocator::Free(mPtr);
+                if (refCount == 0)
+                    mPtr = nullptr;
             }
         }
 
@@ -168,7 +167,7 @@ namespace Cosmic
         template<class, class>
         friend class StrongRef;
 
-        T* mPtr;
+        mutable T* mPtr;
     };
 
     template<class T, class Allocator>
@@ -269,8 +268,7 @@ namespace Cosmic
     public:
         void Release()
         {
-            mPtr->ZeroRefCount();
-            Allocator::Free(mPtr);
+            ReferenceCounter::ZeroRefCount<T, Allocator>(mPtr);
             mPtr = nullptr;
         }
 
@@ -286,9 +284,12 @@ namespace Cosmic
             return PersistentStrongRef<T2, Allocator>(*this);
         }
 
-        bool IsValid()
+        bool IsValid() const
         {
-            return (mPtr != nullptr) ? mPtr->GetRefCount() > 0 : false;
+            if (ReferenceCounter::GetRefCount(mPtr) == 0)
+				mPtr = nullptr;
+
+            return mPtr != nullptr;
         }
 
     public:
@@ -305,17 +306,19 @@ namespace Cosmic
         void IncRef() const
         {
             if (mPtr)
-                mPtr->IncRefCount();
+            {
+                ReferenceCounter::IncRefCount(mPtr);
+            }
         }
 
         void DecRef() const
         {
             if (mPtr)
             {
-                mPtr->DecRefCount();
+                uint32 refCount = ReferenceCounter::DecRefCount<T, Allocator>(mPtr);
 
-                if (mPtr->GetRefCount() == 0)
-                    Allocator::Free(mPtr);
+                if (refCount == 0)
+                    mPtr = nullptr;
             }
         }
 
@@ -323,7 +326,7 @@ namespace Cosmic
         template<class, class>
         friend class PersistentStrongRef;
 
-        T* mPtr;
+        mutable T* mPtr;
     };
 
     template<class T, class Allocator>

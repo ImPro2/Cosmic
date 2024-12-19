@@ -168,6 +168,8 @@ namespace Cosmic
     {
         sInstance = instance;
 
+        Allocations::SetInstance(sInstance->mAllocationsInstance);
+
         Log::sInstance                = sInstance->mLogInstance;
         FileSystem::sInstance         = sInstance->mFileSystemInstance;
         ModuleSystem::sInstance       = sInstance->mModuleSystemInstance;
@@ -178,8 +180,6 @@ namespace Cosmic
         Renderer2D::sInstance         = sInstance->mRenderer2DInstance;
         NativeScriptEngine::sInstance = sInstance->mNativeScriptEngineInstance;
         Time::sInstance               = sInstance->mTimeInstance;
-
-        Allocations::SetInstance(sInstance->mAllocationsInstance);
     }
 
 }

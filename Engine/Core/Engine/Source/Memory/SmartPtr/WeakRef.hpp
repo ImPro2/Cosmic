@@ -77,7 +77,10 @@ namespace Cosmic
     public:
         bool IsValid() const
         {
-            return (mPtr != nullptr) ? mPtr->GetRefCount() > 0 : false;
+            if (ReferenceCounter::GetRefCount(mPtr) == 0)
+                mPtr = nullptr;
+
+            return mPtr != nullptr;
         }
 
     public:
@@ -88,7 +91,7 @@ namespace Cosmic
         template<class, class>
         friend class WeakRef;
 
-        T* mPtr;
+        mutable T* mPtr;
     };
 
 }

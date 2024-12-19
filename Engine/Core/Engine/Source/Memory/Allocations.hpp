@@ -53,7 +53,7 @@ namespace Cosmic
 		static void SetInstance(const PersistentRef<Allocations>& instance);
 
 	public:
-		static const AllocationStatistics& GetStatistics() { return sInstance->mStatistics;  }
+		static const AllocationStatistics& GetStatistics()       { return sInstance->mStatistics;       }
 
 	private:
 		static void OnAllocation(size_t size);
@@ -62,6 +62,7 @@ namespace Cosmic
 	private:
 		AllocationStatistics    mStatistics;
 		Vector<Ref<IAllocator>> mAllocators;
+		ReferenceCounter*       mReferenceCounter;
 
 		inline static PersistentRef<Allocations> sInstance;
 

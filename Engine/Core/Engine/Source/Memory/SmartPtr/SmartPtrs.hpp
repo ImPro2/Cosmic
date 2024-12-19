@@ -3,6 +3,7 @@
 #include "Memory/SmartPtr/StrongRef.hpp"
 #include "Memory/SmartPtr/WeakRef.hpp"
 #include "Memory/SmartPtr/FramePtr.hpp"
+#include "Memory/SmartPtr/ReferenceCounter.hpp"
 
 #include "Memory/Allocator/DefaultAllocator.hpp"
 
