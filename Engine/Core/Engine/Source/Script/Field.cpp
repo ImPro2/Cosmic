@@ -9,8 +9,13 @@ namespace Cosmic
 
 	void IField::RegisterField()
 	{
-		NativeScriptRegistry& registry = NativeScriptEngine::GetRegistry();
-		registry.RegisterField(this);
+		if (!mRegistered)
+		{
+			NativeScriptRegistry& registry = NativeScriptEngine::GetRegistry();
+			registry.RegisterField(this);
+
+			mRegistered = true;
+		}
 	}
 
 	String IField::GetEnumToStringFunctionName()

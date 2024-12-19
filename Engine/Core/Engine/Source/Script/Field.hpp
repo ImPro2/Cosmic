@@ -77,31 +77,41 @@ namespace Cosmic
 		Field()
 			: IField(ExtractName(), ExtractTypeName(), ExtractFieldType()), mValue(), mDefaultValue()
 		{
-			InitializeField();
+			RegisterField();
 		}
 
 		Field(const T& value)
 			: IField(ExtractName(), ExtractTypeName(), ExtractFieldType()), mValue(value), mDefaultValue(value)
 		{
-			InitializeField();
+			RegisterField();
 		}
 
 		Field(T&& value)
-			: IField(ExtractName(), ExtractTypeName(), ExtractFieldType()), mValue(std::move(value)), mDefaultValue(std::move(value))
+			: IField(ExtractName(), ExtractTypeName(), ExtractFieldType()), mValue(std::move(value)), mDefaultValue(mValue)
 		{
-			InitializeField();
+			RegisterField();
 		}
 
 		Field& operator=(const T& value)
 		{
 			mValue = value;
-			InitializeField();
+
+			if (!mRegistered)
+			{
+				mDefaultValue = value;
+				RegisterField();
+			}
 		}
 
 		Field& operator=(T&& value)
 		{
 			mValue = std::move(value);
-			InitializeField();
+
+			if (!mRegistered)
+			{
+				mDefaultValue = mValue;
+				RegisterField();
+			}
 		}
 
 	public:
@@ -164,16 +174,6 @@ namespace Cosmic
 				static_assert(false);
 
 			return EFieldType::Unknown;
-		}
-
-		void InitializeField()
-		{
-			if (mRegistered)
-				return;
-
-			mRegistered = true;
-
-			RegisterField();
 		}
 
 	private:

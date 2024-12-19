@@ -82,6 +82,19 @@ namespace Cosmic::ImGuiUtils
 			return changed;
 		}
 
+		static TooltipCallback sTooltipCallback = nullptr;
+
+		static void CallTooltipCallback()
+		{
+			if (sTooltipCallback)
+				sTooltipCallback();
+		}
+
+	}
+
+	void SetTooltipCallback(TooltipCallback callback)
+	{
+		Utils::sTooltipCallback = callback;
 	}
 
 	bool DrawFloat(const String& name, float32& value, const float32& resetValue /*= 0.0f*/, const float32& min /*= 0.0f*/, const float32& max /*= 0.0f*/)
@@ -97,6 +110,10 @@ namespace Cosmic::ImGuiUtils
 
 		ImGui::PushID(baseID++);
 		ImGui::Text(name.c_str());
+
+		if (ImGui::IsItemHovered())
+			Utils::CallTooltipCallback();
+
 		ImGui::PopID();
 
 		float32 textWidth = ImGui::CalcItemWidth();
@@ -150,6 +167,9 @@ namespace Cosmic::ImGuiUtils
 
 		ImGui::PushID(baseID++);
 		ImGui::Text(name.c_str());
+
+		if (ImGui::IsItemHovered())
+			Utils::CallTooltipCallback();
 
 		float32 width = ImGui::CalcTextSize(name.c_str()).x;
 		float32 actualWidth = Utils::AfterTextIndentValue();
@@ -276,6 +296,10 @@ namespace Cosmic::ImGuiUtils
 
 		ImGui::PushID(baseID++);
 		ImGui::Text(name.c_str());
+
+		if (ImGui::IsItemHovered())
+			Utils::CallTooltipCallback();
+
 		ImGui::PopID();
 
 		ImGui::SameLine(Utils::AfterTextIndentValue());
@@ -329,6 +353,10 @@ namespace Cosmic::ImGuiUtils
 
 		ImGui::PushID(baseID++);
 		ImGui::Text(name.c_str());
+
+		if (ImGui::IsItemHovered())
+			Utils::CallTooltipCallback();
+
 		ImGui::PopID();
 
 		ImGui::SameLine(Utils::AfterTextIndentValue());
