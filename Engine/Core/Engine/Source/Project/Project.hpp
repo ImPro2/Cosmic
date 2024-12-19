@@ -3,6 +3,7 @@
 #include "App/FileSystem.hpp"
 #include "App/Path.hpp"
 #include "App/File.hpp"
+#include "ECS/Scene.hpp"
 #include "Memory/Memory.hpp"
 
 namespace Cosmic
@@ -10,12 +11,17 @@ namespace Cosmic
 
 	struct ProjectInfo
 	{
-		File ProjectFilePath;
-		File StartScenePath;
-		File ScriptAssemblyPath;
+		ProjectInfo()                   = default;
+		ProjectInfo(const ProjectInfo&) = default;
 
-		Path BinaryDirectory;
-		Path AssetsDirectory;
+		// Only absolute path, other paths are relative to the parent directory of ProjectFilePath
+		File ProjectFilePath;
+		File ScriptAssemblyPath;
+		File StartScenePath;
+
+		Path BinaryDirectory = "bin";
+		Path AssetsDirectory = "Assets";
+		Path SourceDirectory = "Source";
 	};
 
 	class Project : public IRefCounted
@@ -28,6 +34,9 @@ namespace Cosmic
 		const ProjectInfo& GetInfo() const { return mInfo; }
 		ProjectInfo&       GetInfo()       { return mInfo; }
 
+		Ref<Scene>&       GetActiveScene()       { return mActiveScene; }
+		const Ref<Scene>& GetActiveScene() const { return mActiveScene; }
+
 		String GetName() const
 		{
 			return mInfo.ProjectFilePath.GetAbsolutePath().GetBase();
@@ -38,8 +47,12 @@ namespace Cosmic
 			return FileSystem::GetParentDirectory(mInfo.ProjectFilePath);
 		}
 
+	public:
+		void SetActiveScene(const Ref<Scene>& scene) { mActiveScene = scene; }
+
 	private:
 		ProjectInfo mInfo;
+		Ref<Scene>  mActiveScene;
 	};
 	
 }

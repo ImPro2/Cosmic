@@ -79,7 +79,7 @@ namespace Cosmic
 		}
 
 		sInstance->mScriptAssembly = OS::LoadDynamicLibrary(sInstance->mCopiedScriptAssemblyFile);
-		CS_ASSERT(sInstance->mScriptAssembly, "Unable to load script assembly {}", sInstance->mCopiedScriptAssemblyFile.GetString().c_str());
+		CS_ASSERT(sInstance->mScriptAssembly, "Unable to load script assembly");
 
 		auto initFn = (void(*)(Application*))OS::RetrieveFunctionFromDynamicLibrary(
 			sInitFunctionName.c_str(),
@@ -87,6 +87,8 @@ namespace Cosmic
 		);
 
 		initFn(Application::Get());
+
+		CS_LOG_INFO("Loaded script assembly: {} (copied from: {})", sInstance->mCopiedScriptAssemblyFile.GetAbsolutePath().GetString().c_str(), sInstance->mScriptAssemblyFile.GetAbsolutePath().GetString().c_str());
 	}
 
 	void NativeScriptEngine::ReloadScriptAssembly()

@@ -58,6 +58,8 @@ namespace Cosmic
 		}
 
 		mRegisteredClassNames.push_back(className);
+
+		CS_LOG_DEBUG("Registered script class {}", className.c_str());
 	}
 
 	void NativeScriptRegistry::RegisterEnumClass(const String& enumClass, const String& toStrFunctionName, const String& fromStrFunctionName)
@@ -82,6 +84,8 @@ namespace Cosmic
 		}
 
 		mEnumStringMap[enumClass] = stringValues;
+
+		CS_LOG_DEBUG("Registered enum class {}", enumClass.c_str());
 	}
 
 	Ref<NativeScript> NativeScriptRegistry::InstantiateScript(const String& className, Entity entity)
@@ -93,6 +97,8 @@ namespace Cosmic
 		instance->OnInstantiate();
 
 		mScriptInstances.push_back(instance);
+
+		CS_LOG_DEBUG("Instantiated script {}", className.c_str());
 
 		return instance;
 	}
@@ -106,6 +112,8 @@ namespace Cosmic
 
 		auto it = std::find(mScriptInstances.begin(), mScriptInstances.end(), instance);
 		mScriptInstances.erase(it);
+
+		CS_LOG_DEBUG("Destroyed script instance");
 
 		instance.Release();
 	}
@@ -173,6 +181,8 @@ namespace Cosmic
 		{
 			RegisterEnumClass(field->GetTypeName(), field->GetEnumToStringFunctionName(), field->GetEnumFromStringFunctionName());
 		}
+
+		CS_LOG_DEBUG("Registered field {} ({})", field->GetName(), field->GetTypeName());
 	}
 
 }

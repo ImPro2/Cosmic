@@ -28,7 +28,18 @@ namespace Cosmic
         static bool IsDirectory(const Path& path);
         static bool Exists(const Path& path);
 
+        static bool FileExists(const Path& path)
+        {
+            return IsFile(path) && Exists(path);
+        }
+
         static Path GetParentDirectory(const Path& path);
+
+        inline static void EnsureDirectoryExists(const Path& path)
+        {
+            if (!Exists(path))
+                CreateDirectory(path);
+        }
 
         static void CreateDirectory(const Path& dir);
         static void RemoveDirectory(const Path& dir);

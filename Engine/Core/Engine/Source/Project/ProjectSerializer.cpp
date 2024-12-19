@@ -24,10 +24,11 @@ namespace Cosmic
         YAML::Emitter out;
         out << YAML::BeginMap;
 
-        out << YAML::Key << "StartScenePath"     << YAML::Value << info.StartScenePath.GetAbsolutePath().GetString();
         out << YAML::Key << "ScriptAssemblyPath" << YAML::Value << info.ScriptAssemblyPath.GetAbsolutePath().GetString();
-        out << YAML::Key << "AssetsDirectory"    << YAML::Value << info.AssetsDirectory.GetString();
+        out << YAML::Key << "StartScenePath"     << YAML::Value << info.StartScenePath.GetAbsolutePath().GetString();
         out << YAML::Key << "BinaryDirectory"    << YAML::Value << info.BinaryDirectory.GetString();
+        out << YAML::Key << "AssetsDirectory"    << YAML::Value << info.AssetsDirectory.GetString();
+        out << YAML::Key << "SourceDirectory"    << YAML::Value << info.SourceDirectory.GetString();
 
         out << YAML::EndMap;
 
@@ -53,10 +54,11 @@ namespace Cosmic
         }
 
         info.ProjectFilePath    = path;
-        info.StartScenePath     = Path(file["StartScenePath"].as<String>());
         info.ScriptAssemblyPath = Path(file["ScriptAssemblyPath"].as<String>());
-        info.AssetsDirectory    = file["AssetsDirectory"].as<String>();
+        info.StartScenePath     = Path(file["StartScenePath"].as<String>());
         info.BinaryDirectory    = file["BinaryDirectory"].as<String>();
+        info.AssetsDirectory    = file["AssetsDirectory"].as<String>();
+        info.SourceDirectory    = file["SourceDirectory"].as<String>();
 
         return true;
     }

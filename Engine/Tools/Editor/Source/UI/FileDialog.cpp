@@ -4,14 +4,15 @@
 #include "cspch.hpp"
 #include "FileDialog.hpp"
 #include "Time/Time.hpp"
-#include "imgui_internal.h"
+#include "Project/ProjectManager.hpp"
 
 #include <string.h>
 #include <filesystem>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <IconsFontAwesome6.h>
 
-CS_MODULE_LOG_INFO("Editor", "Gui.FileDialog");
+CS_MODULE_LOG_INFO(Editor, UI.FileDialog);
 
 namespace Cosmic
 {
@@ -41,7 +42,12 @@ namespace Cosmic
         : mDirectory(dir)
     {
         if (mDirectory.GetString().empty())
-            mDirectory = FileSystem::GetCurrentWorkingDirectory() / "Engine/Tools/Editor";
+        {
+            if (Ref<Project> project = ProjectManager::GetActiveProject())
+                mDirectory = project->GetParentPath();
+            else
+                mDirectory = FileSystem::GetCurrentWorkingDirectory();
+        }
 
         memset(mFileInputBuffer, 0, 256);
         memset(mSearchInputBuffer, 0, 256);

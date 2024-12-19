@@ -15,7 +15,7 @@ namespace Cosmic
     class FileDialogModule : public IModule
     {
     public:
-        // Defaults to cwd/Engine/Tools/Editor
+        // Defaults to current project dir. If no project is active, it defaults to cwd
         FileDialogModule(const Path& dir = "");
     
     public:

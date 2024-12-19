@@ -4,6 +4,9 @@
 
 #include "App/Application.hpp"
 #include "Script/NativeScriptEngine.hpp"
+#include "ECS/SceneSerializer.hpp"
+
+CS_MODULE_LOG_INFO(Cosmic, Project.ProjectManager);
 
 namespace Cosmic
 {
@@ -22,10 +25,31 @@ namespace Cosmic
 
     Ref<Project> ProjectManager::NewProject()
     {
+        sInstance->mActiveProject = CreateRef<Project>();
+
+        CS_LOG_INFO("Created new project");
+
+        return sInstance->mActiveProject;
+    }
+
+    Ref<Project> ProjectManager::NewProject(const Path& path)
+    {
         ProjectInfo info;
-        info.AssetsDirectory = "Assets";
+        info.ProjectFilePath = path;
 
         sInstance->mActiveProject = CreateRef<Project>(info);
+
+        Path projectDir = sInstance->mActiveProject->GetParentPath();
+        Path assetsDir  = projectDir / info.AssetsDirectory;
+        Path sourceDir  = projectDir / info.SourceDirectory;
+
+        FileSystem::EnsureDirectoryExists(assetsDir);
+        FileSystem::EnsureDirectoryExists(sourceDir);
+
+        SaveActiveProject();
+
+        CS_LOG_INFO("Created new project {}", path.GetString().c_str());
+
         return sInstance->mActiveProject;
     }
 
@@ -34,11 +58,44 @@ namespace Cosmic
         ProjectSerializer serializer(sInstance->mActiveProject);
         serializer.Deserialize(path);
 
-        const Ref<Project>& project = sInstance->mActiveProject;
+        ProjectInfo& info = sInstance->mActiveProject->GetInfo();
 
-        NativeScriptEngine::LoadScriptAssembly(project->GetParentPath() / project->GetInfo().ScriptAssemblyPath.GetAbsolutePath());
+        Path projectDir         = sInstance->mActiveProject->GetParentPath();
+        Path scriptAssemblyPath = projectDir / info.ScriptAssemblyPath.GetAbsolutePath();
+        Path startScenePath     = projectDir / info.StartScenePath.GetAbsolutePath();
+
+        if (FileSystem::FileExists(scriptAssemblyPath))
+        {
+            NativeScriptEngine::LoadScriptAssembly(scriptAssemblyPath);
+        }
+        else
+        {
+            if (info.ScriptAssemblyPath.GetAbsolutePath() == "")
+                CS_LOG_WARN("Unspecified script assembly path");
+            else
+				CS_LOG_WARN("Invalid script assembly path {}", scriptAssemblyPath.GetString().c_str());
+
+            info.ScriptAssemblyPath = Path("");
+        }
+
+        if (FileSystem::FileExists(startScenePath))
+        {
+            SceneSerializer serializer(sInstance->mActiveProject->GetActiveScene());
+            serializer.Deserialize(startScenePath);
+        }
+        else
+        {
+            if (info.StartScenePath.GetAbsolutePath() == "")
+                CS_LOG_WARN("Unspecified scene path");
+            else
+				CS_LOG_WARN("Invalid starting scene path {}", startScenePath.GetString().c_str());
+
+            info.StartScenePath = Path("");
+        }
+
+        CS_LOG_INFO("Loaded project {}", info.ProjectFilePath.GetAbsolutePath().GetString().c_str());
         
-        return project;
+        return sInstance->mActiveProject;
     }
      
     void ProjectManager::SaveActiveProject(const Path& path)
