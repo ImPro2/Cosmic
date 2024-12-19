@@ -1,4 +1,5 @@
 #pragma once
+#include "Base/Base.hpp"
 #include "ECS/Entity.hpp"
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"

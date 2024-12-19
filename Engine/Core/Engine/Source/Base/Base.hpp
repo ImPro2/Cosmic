@@ -5,4 +5,4 @@
 #include "Singleton.hpp"
 #include "StringUtils.hpp"
 #include "Cast.hpp"
-
+#include "TypeStrings.hpp"

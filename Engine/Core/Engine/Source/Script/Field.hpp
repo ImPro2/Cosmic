@@ -1,5 +1,5 @@
 #pragma once
-#include "Base/Types.hpp"
+#include "Base/Base.hpp"
 #include "Script/FieldMacros.hpp"
 
 namespace Cosmic
@@ -136,8 +136,7 @@ namespace Cosmic
 
 		String ExtractTypeName()
 		{
-			Vector<String> result = StringUtils::Split(String(typeid(T).name()), ':');
-			return result[result.size() - 1];
+			return TypeStr<T>();
 		}
 
 		EFieldType ExtractFieldType()
