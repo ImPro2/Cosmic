@@ -269,6 +269,11 @@ namespace Cosmic::ImGuiUtils
 	{
 		ImGuiID baseID = ImGui::GetID(name.c_str());
 
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,  ImVec2(4, 4));
+
+		ImGui::AlignTextToFramePadding();
+
 		ImGui::PushID(baseID++);
 		ImGui::Text(name.c_str());
 		ImGui::PopID();
@@ -286,11 +291,29 @@ namespace Cosmic::ImGuiUtils
 			return 0;
 		};
 
-		ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_AutoSelectAll;
+		float32 lineHeight = Utils::GetLineHeight();
+		ImVec2  buttonSize = { lineHeight, lineHeight };
+		float32 width      = ImGui::GetContentRegionAvailWidth() - buttonSize.x;
 
+		ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_AutoSelectAll;
+
+		ImGui::PushItemWidth(width);
 		ImGui::PushID(baseID++);
 		bool changed = ImGui::InputText("", (char*)value.c_str(), value.size(), flags, callback, (void*)&value);
 		ImGui::PopID();
+		ImGui::PopItemWidth();
+
+		ImGui::SameLine();
+		ImGui::PushID(baseID++);
+
+		if (ImGui::Button(ICON_FA_ARROW_ROTATE_RIGHT, buttonSize))
+		{
+			changed = true;
+			value   = resetValue;
+		}
+		
+		ImGui::PopID();
+		ImGui::PopStyleVar(2);
 
 		return changed;
 	}
@@ -362,33 +385,24 @@ namespace Cosmic::ImGuiUtils
 
 	bool DrawEnumInt16(const String& name, int16& value, const int16 resetValue, const int16 lastValue, EnumToStringCallback toStr, EnumFromStringCallback fromStr)
 	{
-		struct StringData
-		{
-			String         CurrentValue;
-			String         ResetValue;
-			Vector<String> Values;
-		};
-
-		static UnorderedMap<ImGuiID, StringData> sStringDataMap;
+		static UnorderedMap<ImGuiID, EnumStringData> sStringDataMap;
 
 		ImGuiID id = ImGui::GetID(name.c_str());
 
 		if (sStringDataMap.find(id) == sStringDataMap.end())
 		{
-			StringData strData;
+			EnumStringData strData;
 			strData.CurrentValue = toStr(value);
-			strData.ResetValue = toStr(resetValue);
-			strData.Values = Vector<String>(lastValue);
+			strData.ResetValue   = toStr(resetValue);
+			strData.Values       = Vector<String>(lastValue);
 
 			for (int16 i = 0; i < lastValue; i++)
-			{
 				strData.Values[i] = toStr(i);
-			}
 
 			sStringDataMap[id] = strData;
 		}
 
-		StringData& strData = sStringDataMap[id];
+		EnumStringData& strData = sStringDataMap[id];
 
 		if (DrawEnumStr(name, strData.CurrentValue, strData.Values, strData.ResetValue))
 		{

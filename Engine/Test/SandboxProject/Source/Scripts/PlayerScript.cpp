@@ -36,4 +36,3 @@ namespace Cosmic
 
 }
 
-CS_NATIVE_SCRIPT(PlayerScript);

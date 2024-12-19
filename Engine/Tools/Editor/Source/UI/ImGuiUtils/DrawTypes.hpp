@@ -31,6 +31,13 @@ namespace Cosmic::ImGuiUtils
     using EnumToStringCallback   = std::function<const char*(int16)>;
     using EnumFromStringCallback = std::function<int16(const char*)>;
 
+	struct EnumStringData
+	{
+		String         CurrentValue;
+		String         ResetValue;
+		Vector<String> Values;
+	};
+
     bool DrawEnumStr(const String& name, String& currentValue, const Vector<String>& values, const String& resetValue);
     bool DrawEnumInt16(const String& name, int16& value, const int16 resetValue, const int16 lastValue, EnumToStringCallback toStr, EnumFromStringCallback fromStr);
 

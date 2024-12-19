@@ -213,34 +213,21 @@ namespace Cosmic
                     camera.SetOrthographicFarClip(far);
             }
         });
-        RenderComponent<NativeScriptComponent>("Native Script Component", entity, [](NativeScriptComponent& component)
+        RenderComponent<NativeScriptComponent>("Native Script Component", entity, [&](NativeScriptComponent& component)
         {
-            auto callback = [](ImGuiInputTextCallbackData* data) -> int32
-            {
-                if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-                {
-                    String* userData = (String*)data->UserData;
-                    userData->resize(data->BufSize);
-                    data->Buf = (char*)userData->c_str();
-                }
-                return 0;
-            };
+            NativeScriptRegistry& registry   = NativeScriptEngine::GetRegistry();
+            const Vector<String>& classNames = registry.GetRegisteredClassNames();
 
-            auto& className = component.ClassName;
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
-            ImGui::InputText("##InputScript", (char*)className.c_str(), className.size(), ImGuiInputTextFlags_CallbackResize, callback, (void*)&className);
-            ImGui::SameLine();
+            if (ImGuiUtils::DrawEnumStr("Script Class", component.ClassName, classNames, ""))
+                component.ShouldLoad = component.ClassName != "";
 
-            if (ImGui::Button("Bind"))
-                component.ShouldLoad = true;
-
-            // Render fields
+            if (component.Instance && component.ClassName == "")
+                registry.DestroyScriptInstance(component.Instance);
 
             if (!component.Instance)
                 return;
 
-            NativeScriptRegistry& registry = NativeScriptEngine::GetRegistry();
-            Vector<IField*>&      fields   = registry.GetScriptInstanceFields(component.Instance);
+            Vector<IField*>& fields = registry.GetScriptInstanceFields(component.Instance);
 
             for (IField* field : fields)
             {

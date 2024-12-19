@@ -17,6 +17,8 @@ namespace Cosmic
 	class NativeScriptRegistry
 	{
 	public:
+		// Functions called from script dll
+
 		template<class T>
 		T* AllocateNativeScript(Entity entity)
 		{
@@ -28,6 +30,12 @@ namespace Cosmic
 			return instance;
 		}
 
+		inline void RegisterScriptClass(const String& className, InstantiateNativeScriptCallback callback)
+		{
+			mCallbackMap[className] = callback;
+			mRegisteredClassNames.push_back(className);
+		}
+
 	private:
 		void Init();
 		void Shutdown();
@@ -35,7 +43,7 @@ namespace Cosmic
 		void OnUpdate(const Ref<Scene>& scene);
 
 	public:
-		void RegisterScriptClass(const String& className);
+		void RegisterScriptClassStr(const String& className);
 
 		Ref<NativeScript> InstantiateScript(const String& className, Entity entity);
 		void              DestroyScriptInstance(Ref<NativeScript>& instance);
@@ -51,6 +59,9 @@ namespace Cosmic
 		NativeScriptFieldMap&       GetFieldMap()       { return mFieldMap; }
 		const NativeScriptFieldMap& GetFieldMap() const { return mFieldMap; }
 
+		Vector<String>&       GetRegisteredClassNames()       { return mRegisteredClassNames; }
+		const Vector<String>& GetRegisteredClassNames() const { return mRegisteredClassNames; }
+
 		Vector<IField*>&       GetScriptInstanceFields(const Ref<NativeScript>& instance)       { return mFieldMap[instance->mID];    }
 		const Vector<IField*>& GetScriptInstanceFields(const Ref<NativeScript>& instance) const { return mFieldMap.at(instance->mID); }
 
@@ -61,9 +72,10 @@ namespace Cosmic
 		void RegisterField(IField* field);
 
 	private:
-		NativeScriptInstantiateCallbackMap mCallbackMap;       // class name - callbacks
-		NativeScriptFieldMap               mFieldMap;          // script instance - fields
+		NativeScriptInstantiateCallbackMap mCallbackMap;          // class name - callbacks
+		NativeScriptFieldMap               mFieldMap;             // script instance - fields
 
+		Vector<String>                     mRegisteredClassNames; // keys of mCallbackMap
 		Vector<Ref<NativeScript>>          mScriptInstances;
 
 		NativeScriptID mLastInstantiatedScriptID = -1;

@@ -98,9 +98,11 @@
 #   define CS_ASSERT_NOMSG(Condition)
 #endif
 
-#define CS_INVALID_ENUM(type) CS_ASSERT(false, "Invalid enum of type `{}` reached.", #type)
+// General
 
+#define CS_INVALID_ENUM(type) CS_ASSERT(false, "Invalid enum of type `{}` reached.", #type)
 #define CS_NOT_IMPLEMENTED() CS_ASSERT(false, "Feature not yet implemented.")
+#define CS_STRINGIFY(x) #x
 
 // Logging
 

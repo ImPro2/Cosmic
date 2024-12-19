@@ -45,18 +45,20 @@ namespace Cosmic
 		});
 	}
 
-	void NativeScriptRegistry::RegisterScriptClass(const String& className)
+	void NativeScriptRegistry::RegisterScriptClassStr(const String& className)
 	{
 		mCallbackMap[className] = (InstantiateNativeScriptCallback)OS::RetrieveFunctionFromDynamicLibrary(
 			Utils::GetInstantiateScriptFunctionNameFromScriptClass(className).c_str(),
 			NativeScriptEngine::GetLoadedScriptAssembly()
 		);
+
+		mRegisteredClassNames.push_back(className);
 	}
 
 	Ref<NativeScript> NativeScriptRegistry::InstantiateScript(const String& className, Entity entity)
 	{
 		if (mCallbackMap.find(className) == mCallbackMap.end())
-			RegisterScriptClass(className);
+			RegisterScriptClassStr(className);
 
 		Ref<NativeScript> instance = Ref<NativeScript>(mCallbackMap[className](entity));
 		instance->OnInstantiate();
@@ -97,7 +99,7 @@ namespace Cosmic
 	{
 		for (auto& [scriptClass, instantiateCallback] : mCallbackMap)
 		{
-			RegisterScriptClass(scriptClass);
+			RegisterScriptClassStr(scriptClass);
 		}
 	}
 
