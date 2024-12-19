@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Types.hpp"
 #include "Base/StaticBuffer.hpp"
-#include "Memory/IAllocator.hpp"
+#include "Memory/Allocator/Impl/IAllocator.hpp"
 
 namespace Cosmic
 {

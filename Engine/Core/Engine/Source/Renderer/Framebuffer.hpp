@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Base.hpp"
 #include "Texture.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 #include <initializer_list>
 

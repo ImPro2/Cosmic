@@ -1,5 +1,5 @@
 #pragma once
-#include "HeapAllocator.hpp"
+#include "Memory/Allocator/Impl/HeapAllocator.hpp"
 
 namespace Cosmic
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "Base/Base.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic
 {

@@ -12,7 +12,7 @@
 #include "Editor/Panels/SceneHierarchyPanel.hpp"
 #include "Editor/Panels/ContentBrowserPanel.hpp"
 
-#include "Memory/PersistentStackAllocator.hpp"
+#include "Memory/Memory.hpp"
 
 #include <imgui.h>
 

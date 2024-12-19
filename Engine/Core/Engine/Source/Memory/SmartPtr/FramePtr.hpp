@@ -1,5 +1,5 @@
 #pragma once
-#include "Memory/FrameStackAllocator.hpp"
+#include "Memory/Allocator/FrameStackAllocator.hpp"
 
 namespace Cosmic
 {

@@ -3,7 +3,7 @@
 #include "ECS/Entity.hpp"
 #include "Time/Time.hpp"
 #include "Time/DeltaTime.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 #include "Script/NativeScriptMacros.hpp"
 #include "Script/Field.hpp"

@@ -1,6 +1,4 @@
 #pragma once
-#include <entt/entt.hpp>
-
 #include "Time/DeltaTime.hpp"
 #include "Time/Time.hpp"
 #include "Renderer/Renderer2D.hpp"
@@ -10,7 +8,10 @@
 #include "ECS/Entity.hpp"
 #include "Renderer/OrthographicCamera.hpp"
 #include "ECS/SceneCamera.hpp"
-#include "entt/entity/fwd.hpp"
+#include "Memory/Memory.hpp"
+
+#include <entt/entt.hpp>
+#include <entt/entity/fwd.hpp>
 
 namespace Cosmic
 {

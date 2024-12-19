@@ -1,6 +1,5 @@
 #include "cspch.hpp"
 #include "PlayerScript.hpp"
-#include "Memory/DefaultAllocator.hpp"
 #include "App/Application.hpp"
 #include "ECS/Components.hpp"
 #include "App/Input.hpp"

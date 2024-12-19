@@ -5,7 +5,7 @@
 #include "ECS/Scene.hpp"
 #include "ECS/Entity.hpp"
 #include "ECS/Components.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic
 {

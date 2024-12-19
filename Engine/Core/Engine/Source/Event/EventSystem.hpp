@@ -1,7 +1,6 @@
 #pragma once
 #include "IEvent.hpp"
-#include "Memory/FramePtr.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 #include <queue>
 

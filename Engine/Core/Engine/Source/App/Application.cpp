@@ -15,7 +15,7 @@ CS_MODULE_LOG_INFO(Cosmic, App.Application);
 #include "Script/NativeScriptEngine.hpp"
 #include "Time/Time.hpp"
 
-#include "Memory/Allocations.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic
 {

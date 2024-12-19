@@ -1,7 +1,6 @@
 #pragma once
 #include "Base/Base.hpp"
-#include "Memory/SmartPtrs.hpp"
-#include "Memory/PersistentStackAllocator.hpp"
+#include "Memory/Memory.hpp"
 
 #include <functional>
 

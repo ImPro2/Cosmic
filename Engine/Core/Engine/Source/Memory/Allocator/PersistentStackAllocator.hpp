@@ -1,7 +1,7 @@
 #pragma once
-#include "Memory/StackAllocator.hpp"
-#include "Memory/DefaultAllocator.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Allocator/Impl/StackAllocator.hpp"
+#include "Memory/Allocator/DefaultAllocator.hpp"
+#include "Memory/SmartPtr/StrongRef.hpp"
 
 namespace Cosmic
 {

@@ -3,7 +3,7 @@
 #include "App/OS.hpp"
 #include "ECS/Entity.hpp"
 #include "ECS/Scene.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 #include "Script/NativeScript.hpp"
 #include "Script/NativeScriptRegistry.hpp"

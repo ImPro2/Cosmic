@@ -3,7 +3,7 @@
 
 #include "Base/Base.hpp"
 #include "Renderer/Shader.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic
 {

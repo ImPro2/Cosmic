@@ -1,9 +1,10 @@
 #pragma once
-#include "Memory/ScopedPtr.hpp"
-#include "Memory/StrongRef.hpp"
-#include "Memory/WeakRef.hpp"
-#include "Memory/FramePtr.hpp"
-#include "Memory/DefaultAllocator.hpp"
+#include "Memory/SmartPtr/ScopedPtr.hpp"
+#include "Memory/SmartPtr/StrongRef.hpp"
+#include "Memory/SmartPtr/WeakRef.hpp"
+#include "Memory/SmartPtr/FramePtr.hpp"
+
+#include "Memory/Allocator/DefaultAllocator.hpp"
 
 namespace Cosmic
 {

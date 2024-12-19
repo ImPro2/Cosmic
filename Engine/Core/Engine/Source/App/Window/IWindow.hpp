@@ -4,7 +4,7 @@
 #include "Base/Base.hpp"
 #include "Base/Tuples.hpp"
 #include "Renderer/GraphicsContext.hpp"
-#include "Memory/ScopedPtr.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic {
 

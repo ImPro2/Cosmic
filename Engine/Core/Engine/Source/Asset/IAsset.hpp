@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Types.hpp"
 #include "App/Path.hpp"
-#include "Memory/StrongRef.hpp"
+#include "Memory/Memory.hpp"
 
 #define CS_INVALID_ASSET_HANDLE 0
 

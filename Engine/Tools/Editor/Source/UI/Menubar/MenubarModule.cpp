@@ -2,7 +2,7 @@
 #include "MenubarModule.hpp"
 
 #include "App/Input.hpp"
-#include "Memory/PersistentStackAllocator.hpp"
+#include "Memory/Memory.hpp"
 
 #include "Editor/EditorModule.hpp"
 

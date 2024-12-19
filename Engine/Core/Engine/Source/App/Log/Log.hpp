@@ -11,7 +11,7 @@
 
 #include "Event/Type/LogEvents.hpp"
 
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic
 {

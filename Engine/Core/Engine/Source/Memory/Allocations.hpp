@@ -1,12 +1,12 @@
 #pragma once
 #include "Base/Types.hpp"
 
-#include "Memory/IAllocator.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Allocator/Impl/IAllocator.hpp"
+#include "Memory/SmartPtr/SmartPtrs.hpp"
 
-#include "Memory/DefaultAllocator.hpp"
-#include "Memory/FrameStackAllocator.hpp"
-#include "Memory/PersistentStackAllocator.hpp"
+#include "Memory/Allocator/DefaultAllocator.hpp"
+#include "Memory/Allocator/FrameStackAllocator.hpp"
+#include "Memory/Allocator/PersistentStackAllocator.hpp"
 
 namespace Cosmic
 {

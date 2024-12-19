@@ -1,6 +1,6 @@
 #pragma once
 #include "SceneEvents.hpp"
-#include "Memory/StrongRef.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic
 {

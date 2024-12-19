@@ -2,7 +2,7 @@
 #include "LayoutSerializer.hpp"
 
 #include "App/File.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 #include "Editor/Panels/Panels.hpp"
 
 #include "Editor/EditorModule.hpp"

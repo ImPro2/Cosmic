@@ -1,7 +1,7 @@
 #pragma once
 #include "Base/Base.hpp"
 #include "Time/DeltaTime.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Cosmic
 {

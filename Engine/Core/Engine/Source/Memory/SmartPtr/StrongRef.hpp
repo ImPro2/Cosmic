@@ -1,6 +1,5 @@
 #pragma once
 #include "Base/Types.hpp"
-#include "Memory/DefaultAllocator.hpp"
 
 namespace Cosmic
 {
@@ -22,6 +21,9 @@ namespace Cosmic
     template<class T, class Allocator>
     class StrongRef
     {
+    public:
+        static_assert(std::is_base_of_v<IRefCounted, T>, "T must be derived from IRefCounted.");
+
     public:
         // Default constructor & destructor
 

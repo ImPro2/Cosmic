@@ -1,7 +1,7 @@
 #pragma once
 #include "Script/NativeScript.hpp"
 #include "Script/Field.hpp"
-#include "Memory/SmartPtrs.hpp"
+#include "Memory/Memory.hpp"
 #include "ECS/Scene.hpp"
 #include "Base/Random.hpp"
 #include "ECS/Entity.hpp"
