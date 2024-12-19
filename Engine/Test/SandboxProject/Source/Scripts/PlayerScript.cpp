@@ -22,10 +22,13 @@ namespace Cosmic
     {
         auto& tc = GetComponent<TransformComponent>();
 
-        float3 acceleration = { 0.0f, mGravity, 0.0f };
-        mVelocity += acceleration * dt.InSeconds();
+        float3 acceleration = { 0.0f, -mGravity, 0.0f };
 
-        tc.Translation += dt.InSeconds() * mMovementMul * glm::vec3(mVelocity->x, mVelocity->y, mVelocity->z);
+        if (Input::IsKeyPressed(EKeyCode::Space))
+            acceleration.y = 1.0f;
+
+        mVelocity      += dt.InSeconds() * acceleration * mMovementMultiplier;
+        tc.Translation += dt.InSeconds() * glm::vec3(mVelocity->x, mVelocity->y, mVelocity->z);
     }
 
 }

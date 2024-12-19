@@ -51,12 +51,26 @@ namespace Cosmic
 			return *static_cast<T*>(GetDefaultValuePtr());
 		}
 
+		template<typename T>
+		const T& GetValue() const
+		{
+			return *static_cast<const T*>(GetValuePtr());
+		}
+
+		template<typename T>
+		const T& GetDefaultValue() const
+		{
+			return *static_cast<const T*>(GetDefaultValuePtr());
+		}
+
 		String GetEnumToStringFunctionName();
 		String GetEnumFromStringFunctionName();
 
 	public:
-		virtual void* GetValuePtr()        = 0;
-		virtual void* GetDefaultValuePtr() = 0;
+		virtual void*       GetValuePtr()              = 0;
+		virtual void*       GetDefaultValuePtr()       = 0;
+		virtual const void* GetValuePtr()        const = 0;
+		virtual const void* GetDefaultValuePtr() const = 0;
 
 		virtual void Reset() = 0;
 
@@ -117,9 +131,60 @@ namespace Cosmic
 		T*       operator->()       { return &mValue; }
 		const T* operator->() const { return &mValue; }
 
+		inline T& operator+=(const Field& other)
+		{
+			mValue = mValue + other;
+			return mValue;
+		}
+
+		inline T& operator+=(const T& other)
+		{
+			mValue = mValue + other;
+			return mValue;
+		}
+
+		inline T& operator-=(const Field& other)
+		{
+			mValue = mValue - other;
+			return mValue;
+		}
+
+		inline T& operator-=(const T& other)
+		{
+			mValue = mValue - other;
+			return mValue;
+		}
+
+		inline T& operator*=(const Field& other)
+		{
+			mValue = mValue * other;
+			return mValue;
+		}
+
+		inline T& operator*=(const T& other)
+		{
+			mValue = mValue * other;
+			return mValue;
+		}
+
+		inline T& operator/=(const Field& other)
+		{
+			mValue = mValue / other;
+			return mValue;
+		}
+
+		inline T& operator/=(const T& other)
+		{
+			mValue = mValue / other;
+			return mValue;
+		}
+
 	public:
-		void* GetValuePtr()        override { return &mValue;        }
-		void* GetDefaultValuePtr() override { return &mDefaultValue; }
+		void*       GetValuePtr()              override { return &mValue;        }
+		void*       GetDefaultValuePtr()       override { return &mDefaultValue; }
+
+		const void* GetValuePtr()        const override { return &mValue;        }
+		const void* GetDefaultValuePtr() const override { return &mDefaultValue; }
 
 		void Reset() override
 		{
@@ -184,5 +249,115 @@ namespace Cosmic
 
 		String mTypeName;
 	};
+
+	// Overloaded operators
+
+	template<class T>
+	bool operator==(const Field<T>& left, const Field<T>& right)
+	{
+		return left.GetValue<T>() == right.GetValue<T>();
+	}
+
+	template<class T, char... Chars>
+	bool operator==(const Field<T, Chars...>& left, const T& right)
+	{
+		return left.GetValue<T>() == right;
+	}
+
+	template<class T, char... Chars>
+	bool operator==(const T& left, const Field<T, Chars...>& right)
+	{
+		return left == right.GetValue<T>();
+	}
+
+	template<class T>
+	bool operator!=(const Field<T>& left, const Field<T>& right)
+	{
+		return left.GetValue<T>() != right.GetValue<T>();
+	}
+
+	template<class T, char... Chars>
+	bool operator!=(const Field<T, Chars...>& left, const T& right)
+	{
+		return left.GetValue<T>() != right;
+	}
+
+	template<class T, char... Chars>
+	bool operator!=(const T& left, const Field<T, Chars...>& right)
+	{
+		return left != right.GetValue<T>();
+	}
+
+	template<class T>
+	T operator+(const Field<T>& left, const Field<T>& right)
+	{
+		return left.GetValue<T>() + right.GetValue<T>();
+	}
+
+	template<class T, char... Chars>
+	T operator+(const Field<T, Chars...>& left, const T& right)
+	{
+		return left.GetValue<T>() + right;
+	}
+
+	template<class T>
+	T operator+(const T& left, const Field<T>& right)
+	{
+		return left + right.GetValue<T>();
+	}
+
+	template<class T>
+	T operator-(const Field<T>& left, const Field<T>& right)
+	{
+		return left.GetValue<T>() - right.GetValue<T>();
+	}
+
+	template<class T>
+	T operator-(const Field<T>& left, const T& right)
+	{
+		return left.GetValue<T>() - right;
+	}
+
+	template<class T>
+	T operator-(const T& left, const Field<T>& right)
+	{
+		return left - right.GetValue<T>();
+	}
+
+	template<class T>
+	T operator*(const Field<T>& left, const Field<T>& right)
+	{
+		return left.GetValue<T>() * right.GetValue<T>();
+	}
+
+	template<class T>
+	T operator*(const Field<T>& left, const T& right)
+	{
+		return left.GetValue<T>() * right;
+	}
+
+	template<class T>
+	T operator*(const T& left, const Field<T>& right)
+	{
+		return left * right.GetValue<T>();
+	}
+
+	template<class T>
+	T operator/(const Field<T>& left, const Field<T>& right)
+	{
+		return left.GetValue<T>() / right.GetValue<T>();
+	}
+
+	template<class T>
+	T operator/(const Field<T>& left, const T& right)
+	{
+		return left.GetValue<T>() / right;
+	}
+
+	template<class T>
+	T operator/(const T& left, const Field<T>& right)
+	{
+		return left / right.GetValue<T>();
+	}
 
 }
