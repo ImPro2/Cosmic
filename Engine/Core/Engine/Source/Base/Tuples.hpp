@@ -14,6 +14,34 @@ namespace Cosmic
     {
         union { float32 x, r, width;  };
         union { float32 y, g, height; };
+
+        inline Tuple<float32, 2>& operator+=(const Tuple<float32, 2>& other)
+        {
+            x += other.x;
+            y += other.y;
+            return *this;
+        }
+
+        inline Tuple<float32, 2>& operator-=(const Tuple<float32, 2>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            return *this;
+        }
+
+        inline Tuple<float32, 2>& operator*=(const Tuple<float32, 2>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            return *this;
+        }
+
+        inline Tuple<float32, 2>& operator/=(const Tuple<float32, 2>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            return *this;
+        }
     };
 
     template<>
@@ -22,6 +50,38 @@ namespace Cosmic
         union { float32 x, r, width;  };
         union { float32 y, g, height; };
         union { float32 z, b, depth;  };
+
+        inline Tuple<float32, 3>& operator+=(const Tuple<float32, 3>& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+            return *this;
+        }
+
+        inline Tuple<float32, 3>& operator-=(const Tuple<float32, 3>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            z -= other.z;
+            return *this;
+        }
+
+        inline Tuple<float32, 3>& operator*=(const Tuple<float32, 3>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            z *= other.z;
+            return *this;
+        }
+
+        inline Tuple<float32, 3>& operator/=(const Tuple<float32, 3>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            z /= other.z;
+            return *this;
+        }
     };
 
     template<>
@@ -31,6 +91,42 @@ namespace Cosmic
         union { float32 y, g; };
         union { float32 z, b; };
         union { float32 w, a; };
+
+        inline Tuple<float32, 4>& operator+=(const Tuple<float32, 4>& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+            w += other.w;
+            return *this;
+        }
+
+        inline Tuple<float32, 4>& operator-=(const Tuple<float32, 4>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            z -= other.z;
+            w -= other.w;
+            return *this;
+        }
+
+        inline Tuple<float32, 4>& operator*=(const Tuple<float32, 4>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            z *= other.z;
+            w *= other.w;
+            return *this;
+        }
+
+        inline Tuple<float32, 4>& operator/=(const Tuple<float32, 4>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            z /= other.z;
+            w /= other.w;
+            return *this;
+        }
     };
 
     template<>
@@ -38,6 +134,34 @@ namespace Cosmic
     {
         union { int32 x, r, width;  };
         union { int32 y, g, height; };
+
+        inline Tuple<int32, 2>& operator+=(const Tuple<int32, 2>& other)
+        {
+            x += other.x;
+            y += other.y;
+            return *this;
+        }
+
+        inline Tuple<int32, 2>& operator-=(const Tuple<int32, 2>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            return *this;
+        }
+
+        inline Tuple<int32, 2>& operator*=(const Tuple<int32, 2>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            return *this;
+        }
+
+        inline Tuple<int32, 2>& operator/=(const Tuple<int32, 2>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            return *this;
+        }
     };
 
     template<>
@@ -46,6 +170,38 @@ namespace Cosmic
         union { int32 x, r, width;  };
         union { int32 y, g, height; };
         union { int32 z, b, depth;  };
+
+        inline Tuple<int32, 3>& operator+=(const Tuple<int32, 3>& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+            return *this;
+        }
+
+        inline Tuple<int32, 3>& operator-=(const Tuple<int32, 3>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            z -= other.z;
+            return *this;
+        }
+
+        inline Tuple<int32, 3>& operator*=(const Tuple<int32, 3>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            z *= other.z;
+            return *this;
+        }
+
+        inline Tuple<int32, 3>& operator/=(const Tuple<int32, 3>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            z /= other.z;
+            return *this;
+        }
     };
 
     template<>
@@ -55,6 +211,42 @@ namespace Cosmic
         union { int32 y, g; };
         union { int32 z, b; };
         union { int32 w, a; };
+
+        inline Tuple<int32, 4>& operator+=(const Tuple<int32, 4>& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+            w += other.w;
+            return *this;
+        }
+
+        inline Tuple<int32, 4>& operator-=(const Tuple<int32, 4>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            z -= other.z;
+            w -= other.w;
+            return *this;
+        }
+
+        inline Tuple<int32, 4>& operator*=(const Tuple<int32, 4>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            z *= other.z;
+            w *= other.w;
+            return *this;
+        }
+
+        inline Tuple<int32, 4>& operator/=(const Tuple<int32, 4>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            z /= other.z;
+            w /= other.w;
+            return *this;
+        }
     };
 
     template<>
@@ -62,6 +254,34 @@ namespace Cosmic
     {
         union { uint32 x, r, width; };
         union { uint32 y, g, height; };
+
+        inline Tuple<uint32, 2>& operator+=(const Tuple<uint32, 2>& other)
+        {
+            x += other.x;
+            y += other.y;
+            return *this;
+        }
+
+        inline Tuple<uint32, 2>& operator-=(const Tuple<uint32, 2>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            return *this;
+        }
+
+        inline Tuple<uint32, 2>& operator*=(const Tuple<uint32, 2>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            return *this;
+        }
+
+        inline Tuple<uint32, 2>& operator/=(const Tuple<uint32, 2>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            return *this;
+        }
     };
 
     template<>
@@ -70,6 +290,38 @@ namespace Cosmic
         union { uint32 x, r, width; };
         union { uint32 y, g, height; };
         union { uint32 z, b, depth; };
+
+        inline Tuple<uint32, 3>& operator+=(const Tuple<uint32, 3>& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+            return *this;
+        }
+
+        inline Tuple<uint32, 3>& operator-=(const Tuple<uint32, 3>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            z -= other.z;
+            return *this;
+        }
+
+        inline Tuple<uint32, 3>& operator*=(const Tuple<uint32, 3>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            z *= other.z;
+            return *this;
+        }
+
+        inline Tuple<uint32, 3>& operator/=(const Tuple<uint32, 3>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            z /= other.z;
+            return *this;
+        }
     };
 
     template<>
@@ -79,9 +331,45 @@ namespace Cosmic
         union { uint32 y, g; };
         union { uint32 z, b; };
         union { uint32 w, a; };
+
+        inline Tuple<uint32, 4>& operator+=(const Tuple<uint32, 4>& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+            w += other.w;
+            return *this;
+        }
+
+        inline Tuple<uint32, 4>& operator-=(const Tuple<uint32, 4>& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            z -= other.z;
+            w -= other.w;
+            return *this;
+        }
+
+        inline Tuple<uint32, 4>& operator*=(const Tuple<uint32, 4>& other)
+        {
+            x *= other.x;
+            y *= other.y;
+            z *= other.z;
+            w *= other.w;
+            return *this;
+        }
+
+        inline Tuple<uint32, 4>& operator/=(const Tuple<uint32, 4>& other)
+        {
+            x /= other.x;
+            y /= other.y;
+            z /= other.z;
+            w /= other.w;
+            return *this;
+        }
     };
 
-    using float2 = Tuple<float32, 2>;
+ 	using float2 = Tuple<float32, 2>;
     using float3 = Tuple<float32, 3>;
     using float4 = Tuple<float32, 4>;
     using int2   = Tuple<int32,   2>;
@@ -90,4 +378,7 @@ namespace Cosmic
     using uint2  = Tuple<uint32,  2>;
     using uint3  = Tuple<uint32,  3>;
     using uint4  = Tuple<uint32,  4>;
+    
 }
+
+#include "Tuples.inl"

@@ -114,6 +114,9 @@ namespace Cosmic
 			}
 		}
 
+		T*       operator->()       { return &mValue; }
+		const T* operator->() const { return &mValue; }
+
 	public:
 		void* GetValuePtr()        override { return &mValue;        }
 		void* GetDefaultValuePtr() override { return &mDefaultValue; }

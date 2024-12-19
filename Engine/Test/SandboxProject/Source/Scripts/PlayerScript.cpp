@@ -22,15 +22,10 @@ namespace Cosmic
     {
         auto& tc = GetComponent<TransformComponent>();
 
-        glm::vec3 movementDir = {
-            (float32)Input::IsKeyPressed(EKeyCode::D) - (float32)Input::IsKeyPressed(EKeyCode::A),
-            (float32)Input::IsKeyPressed(EKeyCode::W) - (float32)Input::IsKeyPressed(EKeyCode::S),
-            0.0f
-        };
+        float3 acceleration = { 0.0f, mGravity, 0.0f };
+        mVelocity += acceleration * dt.InSeconds();
 
-        glm::normalize(movementDir);
-
-        tc.Translation += mMovementSpeed * (float32)dt * movementDir;
+        tc.Translation += dt.InSeconds() * mMovementMul * glm::vec3(mVelocity->x, mVelocity->y, mVelocity->z);
     }
 
 }
