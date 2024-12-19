@@ -91,10 +91,10 @@ namespace Cosmic
 
 	void NativeScriptEngine::ReloadScriptAssembly()
 	{
-		LoadScriptAssembly(sInstance->mScriptAssemblyFile);
+		sInstance->mRegistry.ReleaseScriptInstances();
+		sInstance->mRegistry.SetUnloadedScriptInstancesToLoad(sInstance->mActiveScene);
 
-		sInstance->mRegistry.ReleaseScriptInstances(sInstance->mActiveScene);
-		sInstance->mRegistry.ReloadInstantiateCallbacks();
+		LoadScriptAssembly(sInstance->mScriptAssemblyFile);
 	}
 
 }

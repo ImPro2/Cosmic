@@ -69,6 +69,11 @@ namespace Cosmic
 			return StrongRef<T, Allocator>(mPtr);
         }
 
+        void Reset()
+        {
+            mPtr = nullptr;
+        }
+
     public:
         bool IsValid() const
         {

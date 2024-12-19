@@ -221,14 +221,15 @@ namespace Cosmic
 			if (ImGuiUtils::DrawEnumStr("Script Class", component.ClassName, classNames, ""))
 				component.ShouldLoad = component.ClassName != "";
 
-			if (component.Instance && component.ClassName == "")
-				registry.DestroyScriptInstance(component.Instance);
+            Ref<NativeScript> instance = component.Instance.Own();
 
-			if (!component.Instance)
+            if (instance && component.ClassName == "")
+				registry.DestroyScriptInstance(instance);
+
+			if (!instance)
 				return;
 
-
-			Vector<IField*>& fields = registry.GetScriptInstanceFields(component.Instance);
+			Vector<IField*>& fields = registry.GetScriptInstanceFields(instance);
 
 			for (IField* field : fields)
 			{

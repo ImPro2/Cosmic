@@ -40,8 +40,8 @@ namespace Cosmic
                 nsc.ShouldLoad = false;
 			}
 
-            if (nsc.Instance)
-				nsc.Instance->OnUpdate(Time::GetDeltaTime());
+            if (Ref<NativeScript> instance = nsc.Instance.Own())
+				instance->OnUpdate(Time::GetDeltaTime());
 		});
 	}
 
@@ -110,7 +110,7 @@ namespace Cosmic
 		instance.Release();
 	}
 
-	void NativeScriptRegistry::ReleaseScriptInstances(const Ref<Scene>& scene)
+	void NativeScriptRegistry::ReleaseScriptInstances()
 	{
 		for (Ref<NativeScript>& instance : mScriptInstances)
 		{
@@ -119,11 +119,14 @@ namespace Cosmic
 		}
 
 		mScriptInstances.clear();
+	}
 
+	void NativeScriptRegistry::SetUnloadedScriptInstancesToLoad(const Ref<Scene>& scene)
+	{
 		scene->ForEach<NativeScriptComponent>([](Entity entity, NativeScriptComponent& nsc)
 		{
-			nsc.ShouldLoad = true;
-			nsc.Instance   = nullptr;
+			if (!nsc.Instance)
+				nsc.ShouldLoad = true;
 		});
 	}
 

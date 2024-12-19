@@ -148,16 +148,16 @@ namespace Cosmic
 
     struct NativeScriptComponent : public IComponent
     {
-        Ref<NativeScript> Instance   = nullptr;
-        String            ClassName  = "";
-        bool              ShouldLoad = false;
+        WeakRef<NativeScript> Instance   = nullptr;
+        String                ClassName  = "";
+        bool                  ShouldLoad = false;
 
         NativeScriptComponent()                             = default;
         NativeScriptComponent(const NativeScriptComponent&) = default;
 
         void Reset() override
         {
-            Instance   = nullptr;
+            Instance.Reset();
             ClassName  = "";
             ShouldLoad = false;
         }

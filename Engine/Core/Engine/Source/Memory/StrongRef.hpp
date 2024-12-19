@@ -284,6 +284,11 @@ namespace Cosmic
             return PersistentStrongRef<T2, Allocator>(*this);
         }
 
+        bool IsValid()
+        {
+            return (mPtr != nullptr) ? mPtr->GetRefCount() > 0 : false;
+        }
+
     public:
         T* operator->()       { return mPtr; }
         T* operator->() const { return mPtr; }
@@ -291,8 +296,8 @@ namespace Cosmic
         T&       operator*()       { return *mPtr; }
         const T& operator*() const { return *mPtr; }
 
-        operator bool()       { return mPtr != nullptr; }
-        operator bool() const { return mPtr != nullptr; }
+        operator bool()       { return IsValid(); }
+        operator bool() const { return IsValid(); }
 
     private:
         void IncRef() const

@@ -47,7 +47,8 @@ namespace Cosmic
 		void              DestroyScriptInstance(Ref<NativeScript>& instance);
 
 	public:
-		void ReleaseScriptInstances(const Ref<Scene>& scene);
+		void ReleaseScriptInstances();
+		void SetUnloadedScriptInstancesToLoad(const Ref<Scene>& scene);
 		void ReloadInstantiateCallbacks();
 
 	public:
