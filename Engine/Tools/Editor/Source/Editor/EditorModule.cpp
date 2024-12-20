@@ -34,8 +34,10 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
         
-        NewProject();
-        NewScene();
+        mActiveProject = ProjectManager::NewProject();
+        mActiveScene   = mActiveProject->GetActiveScene();
+
+        SetWindowTitle();
 
         mPanels.Init();
         mLayoutManager.Init(FileSystem::GetCurrentWorkingDirectory() / "Engine/Tools/Editor/Assets/EditorLayouts.yaml");
@@ -63,7 +65,6 @@ namespace Cosmic
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(FileAddedEvent, OnFileAdded);
-        CS_DISPATCH_EVENT(FileModifiedEvent, OnFileModified);
         CS_DISPATCH_EVENT(SceneOpenedEvent, OnSceneOpened);
         CS_DISPATCH_EVENT(SceneNewEvent, OnSceneNew);
 
@@ -74,8 +75,6 @@ namespace Cosmic
     void EditorModule::OnImGuiRender()
     {
         CS_PROFILE_FN();
-
-        //SetupDockSpace();
 
         if (mShowDemoWindow)
             ImGui::ShowDemoWindow(&mShowDemoWindow);
@@ -99,24 +98,6 @@ namespace Cosmic
             return false;
 
         if (modifiedPath.GetAbsolutePath() == scriptAssemblyFile.GetAbsolutePath())
-        {
-            NativeScriptEngine::ReloadScriptAssembly();
-            return true;
-        }
-
-
-        return false;
-    }
-
-    bool EditorModule::OnFileModified(const FileModifiedEvent& e)
-    {
-        const File& modifiedPath       = e.GetFile();
-        const File& scriptAssemblyFile = NativeScriptEngine::GetScriptAssemblyFile();
-
-        if (scriptAssemblyFile.GetAbsolutePath() == "")
-            return false;
-
-        if (FileSystem::GetParentDirectory(modifiedPath) == FileSystem::GetParentDirectory(scriptAssemblyFile))
         {
             NativeScriptEngine::ReloadScriptAssembly();
             return true;
@@ -150,7 +131,6 @@ namespace Cosmic
         }
 
         ProjectManager::SaveActiveProject(info.ProjectFilePath);
-        SetWindowTitle();
 
         EventSystem::DeferEvent<ProjectSavedEvent>(mActiveProject);
     }
@@ -192,17 +172,37 @@ namespace Cosmic
         }
 
         mActiveProject = ProjectManager::LoadProject(file);
+
+        mActiveScene     = mActiveProject->GetActiveScene();
+        mActiveScenePath = mActiveProject->GetParentPath() / mActiveProject->GetInfo().StartScenePath.GetAbsolutePath();
+
         SetWindowTitle();
 
         EventSystem::DeferEvent<ProjectOpenedEvent>(mActiveProject);
+        EventSystem::DeferEvent<SceneOpenedEvent>(mActiveScene);
     }
 
     void EditorModule::NewProject()
     {
-        mActiveProject = ProjectManager::NewProject();
+        Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFront<FileDialogModule>();
+
+        fileDialogModule->SetOpenFileCallback("Cosmic Project", { ".cosmic" }, [this](const File& file)
+		{
+			NewProject(file);
+		});
+    }
+
+    void EditorModule::NewProject(File file)
+    {
+        mActiveProject = ProjectManager::NewProject(file);
+
+        mActiveScene     = mActiveProject->GetActiveScene();
+        mActiveScenePath = mActiveProject->GetParentPath() / mActiveProject->GetInfo().StartScenePath.GetAbsolutePath();
+
         SetWindowTitle();
 
         EventSystem::DeferEvent<ProjectNewEvent>(mActiveProject);
+        EventSystem::DeferEvent<SceneNewEvent>(mActiveScene);
     }
 
     void EditorModule::SaveScene()
@@ -216,15 +216,6 @@ namespace Cosmic
         }
     }
 
-    void EditorModule::SaveSceneAs(File file)
-    {
-        mActiveScenePath = file.GetAbsolutePath();
-        SceneSerializer serializer(mActiveScene);
-        serializer.Serialize(mActiveScenePath);
-
-        EventSystem::DeferEvent<SceneSavedAsEvent>(mActiveScene);
-    }
-
     void EditorModule::SaveSceneAs()
     {
         Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>();
@@ -232,15 +223,13 @@ namespace Cosmic
         fileDialogModule->SetSaveFileCallback("Scene.cscene", { "Cosmic Scene (*.cscene)" }, [this](File file) { SaveSceneAs(file); });
     }
 
-    void EditorModule::OpenScene(File file)
+    void EditorModule::SaveSceneAs(File file)
     {
         mActiveScenePath = file.GetAbsolutePath();
-        mActiveScene = CreateRef<Scene>();
-
         SceneSerializer serializer(mActiveScene);
-        serializer.Deserialize(mActiveScenePath);
+        serializer.Serialize(mActiveScenePath);
 
-        EventSystem::DeferEvent<SceneOpenedEvent>(mActiveScene);
+        EventSystem::DeferEvent<SceneSavedAsEvent>(mActiveScene);
     }
 
     void EditorModule::OpenScene()
@@ -254,6 +243,17 @@ namespace Cosmic
         fileDialogModule->SetOpenFileCallback("Cosmic Scene", { ".cscene" }, [this](File file) { OpenScene(file); });
     }
 
+    void EditorModule::OpenScene(File file)
+    {
+        mActiveScenePath = file.GetAbsolutePath();
+        mActiveScene = CreateRef<Scene>();
+
+        SceneSerializer serializer(mActiveScene);
+        serializer.Deserialize(mActiveScenePath);
+
+        EventSystem::DeferEvent<SceneOpenedEvent>(mActiveScene);
+    }
+
     void EditorModule::NewScene()
     {
         mActiveScene = CreateRef<Scene>();
@@ -262,12 +262,16 @@ namespace Cosmic
 
     void EditorModule::SetWindowTitle()
     {
-        String prjPath = mActiveProject->GetInfo().ProjectFilePath.GetAbsolutePath();
+        String projectPath = mActiveProject->GetInfo().ProjectFilePath.GetAbsolutePath();
+        String scenePath   = mActiveScenePath;
 
-        if (prjPath.empty())
-            prjPath = "Unsaved Project";
+        if (projectPath.empty())
+            projectPath = "Unsaved Project";
 
-        Application::Get()->GetWindow()->SetTitle(std::format("Cosmic Editor - {}", prjPath));
+        if (scenePath.empty())
+            scenePath = "Unsaved Scene";
+
+        Application::Get()->GetWindow()->SetTitle(std::format("Cosmic Editor - {} - {}", projectPath, scenePath));
     }
 
 }

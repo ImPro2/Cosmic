@@ -47,9 +47,10 @@ namespace Cosmic
         void SaveProject();
         void SaveProjectAs();
         void SaveProjectAs(File file);
-        void OpenProject(File file);
         void OpenProject();
+        void OpenProject(File file);
         void NewProject();
+        void NewProject(File file);
 
         void SaveScene();
         void SaveSceneAs(File file);
@@ -95,7 +96,6 @@ namespace Cosmic
         ActionManager mActionManager;
         LayoutManager mLayoutManager;
 
-        bool mSetupDefaultLayout = true;
         bool mShowDemoWindow = false;
     };
 

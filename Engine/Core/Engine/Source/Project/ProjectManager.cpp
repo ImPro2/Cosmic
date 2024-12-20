@@ -26,6 +26,7 @@ namespace Cosmic
     Ref<Project> ProjectManager::NewProject()
     {
         sInstance->mActiveProject = CreateRef<Project>();
+        sInstance->mActiveProject->SetActiveScene(CreateRef<Scene>());
 
         CS_LOG_INFO("Created new project");
 
@@ -66,6 +67,7 @@ namespace Cosmic
 
         if (FileSystem::FileExists(scriptAssemblyPath))
         {
+            NativeScriptEngine::SetActiveScene(sInstance->mActiveProject->GetActiveScene());
             NativeScriptEngine::LoadScriptAssembly(scriptAssemblyPath);
         }
         else
@@ -80,6 +82,7 @@ namespace Cosmic
 
         if (FileSystem::FileExists(startScenePath))
         {
+            sInstance->mActiveProject->SetActiveScene(CreateRef<Scene>());
             SceneSerializer serializer(sInstance->mActiveProject->GetActiveScene());
             serializer.Deserialize(startScenePath);
         }

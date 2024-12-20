@@ -22,12 +22,21 @@ namespace Cosmic
     {
         auto& tc = GetComponent<TransformComponent>();
 
-        float3 acceleration = { 0.0f, -mGravity, 0.0f };
+        bool isGrounded = tc.Translation.y <= mFloorBoundary;
 
-        if (Input::IsKeyPressed(EKeyCode::Space))
-            acceleration.y = 1.0f;
+        if (isGrounded)
+        {
+            mVelocity->x = 0.0f;
+            mVelocity->y = Input::IsKeyPressed(EKeyCode::Space) ? (float32)mJumpStrength : 0.0f;
+        }
+        else
+            mVelocity->y -= mGravity * dt;
 
-        mVelocity      += dt.InSeconds() * acceleration * mMovementMultiplier;
+        if (Input::IsKeyPressed(EKeyCode::A))
+            mVelocity->x = -mSpeed;
+        if (Input::IsKeyPressed(EKeyCode::D))
+            mVelocity->x = mSpeed;
+
         tc.Translation += dt.InSeconds() * glm::vec3(mVelocity->x, mVelocity->y, mVelocity->z);
     }
 

@@ -1,0 +1,13 @@
+Scene: Untitled Scene
+Entities:
+  - Entity: 137457221
+    Tag Component:
+      Tag: New Entity
+    Transform Component:
+      Translation: [0, -5.01035261, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    Sprite Renderer Component:
+      Color: [1, 0, 0, 1]
+    Native Script Component:
+      Class Name: PlayerScript

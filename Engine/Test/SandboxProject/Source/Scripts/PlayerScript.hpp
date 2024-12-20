@@ -17,11 +17,17 @@ namespace Cosmic
         Field<float32, CS_FIELD_NAME("Gravity")>
 			mGravity = 9.8f;
 
-        Field<float32, CS_FIELD_NAME("Movement Multiplier")>
-            mMovementMultiplier = 1.0f;
+        Field<float32, CS_FIELD_NAME("Movement Speed")>
+            mSpeed = 5.0f;
+
+        Field<float32, CS_FIELD_NAME("Jump Strength")>
+            mJumpStrength = 10.0f;
 
         Field<float3, CS_FIELD_NAME("Velocity")>
             mVelocity = float3 { 0.0f, 0.0f, 0.0f };
+
+        Field<float32, CS_FIELD_NAME("Floor Boundary")>
+            mFloorBoundary = -5.0f;
     };
 
 }
