@@ -1,13 +1,18 @@
-Scene: Untitled Scene
+Scene: StartScene
 Entities:
-  - Entity: 137457221
-    Tag Component:
+  - Entity: 484034740
+    EntityMetadataComponent:
       Tag: New Entity
-    Transform Component:
-      Translation: [0, -5.01035261, 0]
+      IsVisible: true
+      ChildrenCount: 0
+      FirstChildID: -1
+      NextID: -1
+      PrevID: -1
+      ParentID: -1
+    TransformComponent:
+      IsRelative: true
+      Translation: [-5.00360537, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    Sprite Renderer Component:
-      Color: [1, 0, 0, 1]
-    Native Script Component:
-      Class Name: PlayerScript
+    NativeScriptComponent:
+      ClassName: PlayerScript

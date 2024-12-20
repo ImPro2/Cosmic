@@ -178,7 +178,7 @@ namespace Cosmic
         bool hasChildren = false;
         auto entitySelectedIter = findEntity(mSelectedEntities, entity);
 
-        const String& tag = entity.GetComponent<TagComponent>().Tag;
+        const String& tag = entity.GetComponent<EntityMetadataComponent>().Tag;
         bool& isVisible = entity.GetComponent<EntityMetadataComponent>().IsVisible;
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;

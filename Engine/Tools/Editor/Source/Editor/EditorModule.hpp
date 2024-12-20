@@ -63,7 +63,7 @@ namespace Cosmic
         const Ref<Scene>&    GetActiveScene()     const { return mActiveScene;     }
         Ref<Scene>           GetActiveScene()           { return mActiveScene;     }
 
-        const String&        GetActiveScenePath() const { return mActiveScenePath; }
+        const File&          GetActiveSceneFile() const { return mActiveSceneFile; }
 
         const Panels&        GetPanels()          const { return mPanels;          }
         Panels&              GetPanels()                { return mPanels;          }
@@ -79,7 +79,6 @@ namespace Cosmic
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnFileAdded(const FileAddedEvent& e);
-        bool OnFileModified(const FileModifiedEvent& e);
         bool OnSceneOpened(const SceneOpenedEvent& e);
         bool OnSceneNew(const SceneNewEvent& e);
 
@@ -90,7 +89,7 @@ namespace Cosmic
         Ref<Project> mActiveProject;
 
         Ref<Scene> mActiveScene;
-        String     mActiveScenePath;
+        File       mActiveSceneFile;
 
         Panels        mPanels;
         ActionManager mActionManager;

@@ -24,9 +24,9 @@ namespace Cosmic
         operator Path() const { return mAbsolutePath; }
 
     public:
-        const String GetName();
-        const String GetExtension();
-        const String GetNameAndExtension();
+        const String GetName() const;
+        const String GetExtension() const;
+        const String GetNameAndExtension() const;
 
         const Path GetAbsolutePath() const;
 

@@ -16,8 +16,8 @@ namespace Cosmic
 		SceneSerializer(const Ref<Scene>& scene);
 
 	public:
-		void Serialize(const String& path);
-		void Deserialize(const String& path);
+		void Serialize(const File& path);
+		void Deserialize(const File& path);
 
 		void SerializeRuntime(const String& path);
 		void DeserializeRuntime(const String& path);

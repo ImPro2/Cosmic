@@ -9,9 +9,6 @@
 #include "Base/Base.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "Script/NativeScript.hpp"
-#include "Script/NativeScriptEngine.hpp"
-#include "Time/DeltaTime.hpp"
-#include "Time/Time.hpp"
 
 #define CS_COMPONENT_TYPE(type)                                      \
 	EComponentType        GetType() const override { return type; }  \
@@ -23,7 +20,7 @@ namespace Cosmic
 
     enum class EComponentType
     {
-        Tag, EntityMetadata, Transform, SpriteRenderer, Camera, NativeScript
+        EntityMetadata, Transform, SpriteRenderer, Camera, NativeScript
     };
 
     struct IComponent
@@ -32,44 +29,34 @@ namespace Cosmic
         virtual EComponentType GetType() const = 0;
     };
 
-    struct TagComponent : public IComponent
-    {
-        String Tag = "";
-
-        TagComponent()                    = default;
-        TagComponent(const TagComponent&) = default;
-        TagComponent(const String& tag)
-            : Tag(tag)
-        {
-        }
-
-        void Reset() override
-        {
-            Tag = "";
-        }
-
-        operator String& ()             { return Tag; }
-        operator const String& () const { return Tag; }
-
-        CS_COMPONENT_TYPE(EComponentType::Tag);
-    };
-
     struct EntityMetadataComponent : public IComponent
     {
-        int32 ID        = -1;
-        bool  IsVisible = true;
+        int32  ID        = -1;
+        String Tag       = "";
+        bool   IsVisible = true;
+
+        size_t ChildrenCount = 0;
+        Entity FirstChild, Next, Prev, Parent;
     
         EntityMetadataComponent() = default;
         EntityMetadataComponent(const EntityMetadataComponent&) = default;
-        EntityMetadataComponent(int32 id, bool isVisible)
-            : ID(id), IsVisible(isVisible)
+        EntityMetadataComponent(int32 id, const String& tag, bool isVisible, size_t childrenCount, Entity first, Entity next, Entity prev, Entity parent)
+            : ID(id), Tag(tag), IsVisible(isVisible), ChildrenCount(childrenCount), FirstChild(first), Next(next), Prev(prev), Parent(parent)
         {
         }
 
         void Reset() override
         {
             ID        = -1;
+            Tag       = "";
             IsVisible = true;
+
+            ChildrenCount = 0;
+
+            FirstChild = Entity();
+            Next       = Entity();
+            Prev       = Entity();
+            Parent     = Entity();
         }
 
         CS_COMPONENT_TYPE(EComponentType::EntityMetadata);
@@ -77,6 +64,8 @@ namespace Cosmic
 
     struct TransformComponent : public IComponent
     {
+        bool IsRelative = true;
+
         glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
         glm::vec3 Rotation    = { 0.0f, 0.0f, 0.0f };
         glm::vec3 Scale       = { 1.0f, 1.0f, 1.0f };
@@ -97,6 +86,8 @@ namespace Cosmic
 
         void Reset() override
         {
+            IsRelative = true;
+
             Translation = { 0.0f, 0.0f, 0.0f };
             Rotation    = { 0.0f, 0.0f, 0.0f };
             Scale       = { 1.0f, 1.0f, 1.0f };

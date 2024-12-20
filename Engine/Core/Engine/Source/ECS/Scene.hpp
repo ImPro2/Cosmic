@@ -6,6 +6,7 @@
 #include "Base/Base.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "ECS/Entity.hpp"
+#include "ECS/Components.hpp"
 #include "Renderer/OrthographicCamera.hpp"
 #include "ECS/SceneCamera.hpp"
 #include "Memory/Memory.hpp"
@@ -28,13 +29,21 @@ namespace Cosmic
         void OnViewportResize(uint32 width, uint32 height);
 
     public:
-        Entity CreateEntity(const String& name = "");
+        Entity CreateEntity(const String& name = "", Entity parent = Entity());
+        Entity CreateSerializedEntity(const EntityMetadataComponent& metadata);
         Entity AddEntity(Entity entity);
         void   RemoveEntity(Entity entity);
+
         Entity FindEntityByTag(const String& tag);
+        Entity FindEntityByID(int32 id);
+        Entity FindRootParent(Entity entity);
 
         void ForEachEntity(std::function<void(Entity)> fn);
         void ForEachEntityIndexed(std::function<void(Entity, int32)> fn);
+        void ForEachChild(Entity parent, std::function<void(Entity)> fn);
+        void ForEachChild(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn);
+        void ForEachChildRecurse(Entity parent, std::function<void(Entity)> fn);
+        void ForEachChildRecurse(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn);
 
         template<typename... T, typename F>
         void ForEach(F callback)
@@ -49,7 +58,11 @@ namespace Cosmic
         entt::registry* GetRegistryPtr() { return &mRegistry; }
 
     private:
+        void RecurseEntityForAbsoluteTransforms(Entity entity, std::function<void(Entity, const TransformComponent&)> fn);
+
+    private:
         entt::registry mRegistry;
+        EntityMetadataComponent mSceneRootMetadata;
 
     private:
         friend class Entity;

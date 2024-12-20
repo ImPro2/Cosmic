@@ -2,9 +2,9 @@
 #include "Script/NativeScript.hpp"
 #include "Script/Field.hpp"
 #include "Memory/Memory.hpp"
-#include "ECS/Scene.hpp"
 #include "Base/Random.hpp"
 #include "ECS/Entity.hpp"
+#include "ECS/Scene.hpp"
 
 namespace Cosmic
 {
@@ -15,6 +15,7 @@ namespace Cosmic
 	using EnumStringConversionCallbackMap = UnorderedMap<String, Pair<EnumToStringCallback, EnumFromStringCallback>>;
 	using EnumStringMap = UnorderedMap<String, Vector<String>>;
 
+	class Scene;
 	class NativeScriptEngine;
 
 	class NativeScriptRegistry

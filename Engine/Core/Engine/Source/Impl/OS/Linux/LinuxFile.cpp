@@ -17,14 +17,14 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Linux.LinuxFile);
 namespace Cosmic
 {
 
-    const String File::GetName()
+    const String File::GetName() const
     {
         //const StringView nameAndExt = GetNameAndExtension();
         //return StringView(nameAndExt.data(), nameAndExt.find('.'));
         return std::filesystem::path(mAbsolutePath).filename();
     }
 
-    const String File::GetExtension()
+    const String File::GetExtension() const
     {
         //const StringView nameAndExt = GetNameAndExtension();
         //return nameAndExt.substr(nameAndExt.find('.') + 1, nameAndExt.size() - 1);
@@ -32,7 +32,7 @@ namespace Cosmic
         return std::filesystem::path(mAbsolutePath).extension();
     }
 
-    const String File::GetNameAndExtension()
+    const String File::GetNameAndExtension() const
     {
         /*if (mAbsolutePath.find('/') != String::npos)
         {

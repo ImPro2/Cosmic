@@ -9,7 +9,6 @@ namespace Cosmic
 	{
 		switch (type)
 		{
-			case EComponentType::Tag:            AddComponent<TagComponent>           (*static_cast<TagComponent*>           (component)); break;
 			case EComponentType::EntityMetadata: AddComponent<EntityMetadataComponent>(*static_cast<EntityMetadataComponent*>(component)); break;
 			case EComponentType::Transform:      AddComponent<TransformComponent>     (*static_cast<TransformComponent*>     (component)); break;
 			case EComponentType::SpriteRenderer: AddComponent<SpriteRendererComponent>(*static_cast<SpriteRendererComponent*>(component)); break;
@@ -22,7 +21,6 @@ namespace Cosmic
 	{
 		switch (type)
 		{
-			case EComponentType::Tag:            RemoveComponent<TagComponent>();            break;
 			case EComponentType::EntityMetadata: RemoveComponent<EntityMetadataComponent>(); break;
 			case EComponentType::Transform:      RemoveComponent<TransformComponent>();      break;
 			case EComponentType::SpriteRenderer: RemoveComponent<SpriteRendererComponent>(); break;
@@ -36,7 +34,6 @@ namespace Cosmic
 	{
 		switch (type)
 		{
-			case EComponentType::Tag:            return static_cast<IComponent*>(&GetComponent<TagComponent>());
 			case EComponentType::EntityMetadata: return static_cast<IComponent*>(&GetComponent<EntityMetadataComponent>());
 			case EComponentType::Transform:      return static_cast<IComponent*>(&GetComponent<TransformComponent>());
 			case EComponentType::SpriteRenderer: return static_cast<IComponent*>(&GetComponent<SpriteRendererComponent>());
@@ -49,7 +46,6 @@ namespace Cosmic
 	{
 		switch (type)
 		{
-			case EComponentType::Tag:            return HasComponent<TagComponent>();
 			case EComponentType::EntityMetadata: return HasComponent<EntityMetadataComponent>();
 			case EComponentType::Transform:      return HasComponent<TransformComponent>();
 			case EComponentType::SpriteRenderer: return HasComponent<SpriteRendererComponent>();

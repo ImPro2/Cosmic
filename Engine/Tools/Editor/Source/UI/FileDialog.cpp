@@ -1,7 +1,7 @@
+#include "cspch.hpp"
 #include "App/FileSystem.hpp"
 #include "App/Log/LogMacros.hpp"
 #include "Base/Macros.hpp"
-#include "cspch.hpp"
 #include "FileDialog.hpp"
 #include "Time/Time.hpp"
 #include "Project/ProjectManager.hpp"

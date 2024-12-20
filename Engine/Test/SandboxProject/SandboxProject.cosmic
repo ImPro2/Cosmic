@@ -1,5 +1,5 @@
 ScriptAssemblyPath: bin/Debug-windows-x86_64/SandboxProject/SandboxProject.dll
-StartScenePath: Assets/Scenes/StartScene.cscene
+StartScenePath: ""
 BinaryDirectory: bin
 AssetsDirectory: Assets
 SourceDirectory: Source

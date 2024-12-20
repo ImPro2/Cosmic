@@ -13,7 +13,10 @@ namespace Cosmic
     class Entity
     {
     public:
-        Entity() = default;
+        Entity()
+        {
+        }
+
         void operator=(const Entity& other)
         {
             mEntityHandle = other.mEntityHandle;

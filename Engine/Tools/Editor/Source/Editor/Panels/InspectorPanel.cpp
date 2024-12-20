@@ -121,7 +121,7 @@ namespace Cosmic
         ImVec2 buttonSize = { labelSize.x + style.FramePadding.x, labelSize.y + 2.0f * style.FramePadding.y };
 
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - buttonSize.x - 10.0f);
-        auto& tag = entity.GetComponent<TagComponent>().Tag;
+        auto& tag = entity.GetComponent<EntityMetadataComponent>().Tag;
         char tagBuffer[256];
         memset(tagBuffer, 0, sizeof(tagBuffer));
         std::strncpy(tagBuffer, tag.c_str(), sizeof(tagBuffer));

@@ -174,7 +174,7 @@ namespace Cosmic
         mActiveProject = ProjectManager::LoadProject(file);
 
         mActiveScene     = mActiveProject->GetActiveScene();
-        mActiveScenePath = mActiveProject->GetParentPath() / mActiveProject->GetInfo().StartScenePath.GetAbsolutePath();
+        mActiveSceneFile = mActiveProject->GetParentPath() / mActiveProject->GetInfo().StartScenePath.GetAbsolutePath();
 
         SetWindowTitle();
 
@@ -197,7 +197,7 @@ namespace Cosmic
         mActiveProject = ProjectManager::NewProject(file);
 
         mActiveScene     = mActiveProject->GetActiveScene();
-        mActiveScenePath = mActiveProject->GetParentPath() / mActiveProject->GetInfo().StartScenePath.GetAbsolutePath();
+        mActiveSceneFile = mActiveProject->GetParentPath() / mActiveProject->GetInfo().StartScenePath.GetAbsolutePath();
 
         SetWindowTitle();
 
@@ -207,10 +207,10 @@ namespace Cosmic
 
     void EditorModule::SaveScene()
     {
-        if (!mActiveScenePath.empty())
+        if (!mActiveSceneFile.GetAbsolutePath().GetString().empty())
         {
             SceneSerializer serializer(mActiveScene);
-            serializer.Serialize(mActiveScenePath);
+            serializer.Serialize(mActiveSceneFile);
 
             EventSystem::DeferEvent<SceneSavedEvent>(mActiveScene);
         }
@@ -225,9 +225,9 @@ namespace Cosmic
 
     void EditorModule::SaveSceneAs(File file)
     {
-        mActiveScenePath = file.GetAbsolutePath();
+        mActiveSceneFile = file.GetAbsolutePath();
         SceneSerializer serializer(mActiveScene);
-        serializer.Serialize(mActiveScenePath);
+        serializer.Serialize(mActiveSceneFile);
 
         EventSystem::DeferEvent<SceneSavedAsEvent>(mActiveScene);
     }
@@ -236,7 +236,7 @@ namespace Cosmic
     {
         {
             SceneSerializer serializer(mActiveScene);
-            serializer.Serialize(mActiveScenePath);
+            serializer.Serialize(mActiveSceneFile);
         }
 
         Ref<FileDialogModule> fileDialogModule = ModuleSystem::AddFrontDeferred<FileDialogModule>();
@@ -245,11 +245,11 @@ namespace Cosmic
 
     void EditorModule::OpenScene(File file)
     {
-        mActiveScenePath = file.GetAbsolutePath();
-        mActiveScene = CreateRef<Scene>();
+        mActiveSceneFile = file.GetAbsolutePath();
+        mActiveScene     = CreateRef<Scene>();
 
         SceneSerializer serializer(mActiveScene);
-        serializer.Deserialize(mActiveScenePath);
+        serializer.Deserialize(mActiveSceneFile);
 
         EventSystem::DeferEvent<SceneOpenedEvent>(mActiveScene);
     }
@@ -263,7 +263,7 @@ namespace Cosmic
     void EditorModule::SetWindowTitle()
     {
         String projectPath = mActiveProject->GetInfo().ProjectFilePath.GetAbsolutePath();
-        String scenePath   = mActiveScenePath;
+        String scenePath   = mActiveSceneFile.GetAbsolutePath();
 
         if (projectPath.empty())
             projectPath = "Unsaved Project";

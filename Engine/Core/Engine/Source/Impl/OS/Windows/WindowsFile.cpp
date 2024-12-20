@@ -38,17 +38,17 @@ namespace Cosmic
 
     }
 
-    const String File::GetName()
+    const String File::GetName() const
     {
         return std::filesystem::path(mAbsolutePath.GetString()).stem().string();
     }
 
-    const String File::GetExtension()
+    const String File::GetExtension() const
     {
         return std::filesystem::path(mAbsolutePath.GetString()).extension().string();
     }
 
-    const String File::GetNameAndExtension()
+    const String File::GetNameAndExtension() const
     {
         return std::filesystem::path(mAbsolutePath.GetString()).filename().string();
     }
