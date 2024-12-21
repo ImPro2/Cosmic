@@ -249,8 +249,8 @@ namespace Cosmic
 
             while (child)
             {
-                RenderEntity(child, index);
                 index++;
+                RenderEntity(child, index);
 
                 child = child.GetComponent<EntityMetadataComponent>().Next;
             }

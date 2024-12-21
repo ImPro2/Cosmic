@@ -109,14 +109,14 @@ namespace Cosmic
 
         auto absoluteTransformCallback = [](Entity entity, const TransformComponent& transformComponent)
 		{
-			if (entity.HasComponent<SpriteRendererComponent>())
+			if (entity.HasComponent<SpriteRendererComponent>() && entity.GetComponent<EntityMetadataComponent>().IsVisible)
 			{
                 SpriteRendererComponent& sprite = entity.GetComponent<SpriteRendererComponent>();
 				Renderer2D::RenderQuad(transformComponent.GetTransform(), sprite.Color, (int32)entity);
 			}
 		};
 
-        ForEachRootEntity([=](Entity entity) { RecurseEntityForAbsoluteTransforms(entity, absoluteTransformCallback); });
+        ForEachRootEntity([=](Entity entity) { RecurseEntityForRelativeProperties(entity, absoluteTransformCallback); });
 
 #if 0
         Entity entity = mSceneRootMetadata.FirstChild;
@@ -387,11 +387,11 @@ namespace Cosmic
         return mRegistry.view<entt::entity>().size();
     }
 
-	void Scene::RecurseEntityForAbsoluteTransforms(Entity entity, std::function<void(Entity, const TransformComponent&)> fn)
+	void Scene::RecurseEntityForRelativeProperties(Entity entity, std::function<void(Entity, const TransformComponent&)> fn)
     {
-        std::function<void(Entity, const TransformComponent&, decltype(fn))> recurse;
+        std::function<void(Entity, const EntityMetadataComponent&, const TransformComponent&, decltype(fn))> recurse;
 
-        recurse = [&recurse](Entity entity, const TransformComponent& parentTransformComponent, decltype(fn) callback)
+        recurse = [&recurse](Entity entity, const EntityMetadataComponent& parentMetadata, const TransformComponent& parentTransformComponent, decltype(fn) callback)
 		{
 			TransformComponent transformComponent = entity.GetComponent<TransformComponent>();
 
@@ -402,19 +402,22 @@ namespace Cosmic
                 transformComponent.Scale       *= parentTransformComponent.Scale;
             }
 
+            if (!parentMetadata.IsVisible)
+				entity.GetComponent<EntityMetadataComponent>().IsVisible = false;
+
 			callback(entity, transformComponent);
 
 			Entity child = entity.GetComponent<EntityMetadataComponent>().FirstChild;
 
             while (child)
             {
-                recurse(child, transformComponent, callback);
+                recurse(child, entity.GetComponent<EntityMetadataComponent>(), transformComponent, callback);
 
                 child = child.GetComponent<EntityMetadataComponent>().Next;
             }
 		};
 
-        recurse(entity, TransformComponent(), fn);
+        recurse(entity, entity.GetComponent<EntityMetadataComponent>(), TransformComponent(), fn);
     }
 
 }

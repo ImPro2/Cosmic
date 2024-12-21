@@ -59,7 +59,7 @@ namespace Cosmic
         entt::registry* GetRegistryPtr() { return &mRegistry; }
 
     private:
-        void RecurseEntityForAbsoluteTransforms(Entity entity, std::function<void(Entity, const TransformComponent&)> fn);
+        void RecurseEntityForRelativeProperties(Entity entity, std::function<void(Entity, const TransformComponent&)> fn);
 
     private:
         entt::registry mRegistry;
