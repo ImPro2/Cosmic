@@ -60,6 +60,8 @@ namespace Cosmic
         CS_COMPONENT_TYPE(EComponentType::EntityMetadata);
     };
 
+    class Scene;
+
     struct TransformComponent : public IComponent
     {
         bool IsRelative = true;
@@ -68,6 +70,11 @@ namespace Cosmic
         glm::vec3 Rotation    = { 0.0f, 0.0f, 0.0f };
         glm::vec3 Scale       = { 1.0f, 1.0f, 1.0f };
 
+        const glm::vec3& GetAbsoluteTranslation() const { return mAbsoluteTranslation; }
+        const glm::vec3& GetAbsoluteRotation()    const { return mAbsoluteRotation;    }
+        const glm::vec3& GetAbsoluteScale()       const { return mAbsoluteScale;       }
+
+    public:
         TransformComponent()                          = default;
         TransformComponent(const TransformComponent&) = default;
         TransformComponent(const glm::vec3& translation)
@@ -82,6 +89,13 @@ namespace Cosmic
             return glm::translate(glm::mat4(1.0f), Translation) * rotation * glm::scale(glm::mat4(1.0f), Scale);
         }
 
+        glm::mat4 GetAbsoluteTransform() const
+        {
+            glm::mat4 rotation = glm::toMat4(glm::quat(mAbsoluteRotation));
+
+            return glm::translate(glm::mat4(1.0f), mAbsoluteTranslation) * rotation * glm::scale(glm::mat4(1.0f), mAbsoluteScale);
+        }
+
         void Reset() override
         {
             IsRelative = true;
@@ -89,9 +103,20 @@ namespace Cosmic
             Translation = { 0.0f, 0.0f, 0.0f };
             Rotation    = { 0.0f, 0.0f, 0.0f };
             Scale       = { 1.0f, 1.0f, 1.0f };
+
+            mAbsoluteTranslation = { 0.0f, 0.0f, 0.0f };
+            mAbsoluteRotation    = { 0.0f, 0.0f, 0.0f };
+            mAbsoluteScale       = { 1.0f, 1.0f, 1.0f };
         }
 
         CS_COMPONENT_TYPE(EComponentType::Transform);
+
+    private:
+        glm::vec3 mAbsoluteTranslation = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 mAbsoluteRotation    = { 0.0f, 0.0f, 0.0f };
+        glm::vec3 mAbsoluteScale       = { 1.0f, 1.0f, 1.0f };
+
+        friend class Scene;
     };
 
     struct SpriteRendererComponent : public IComponent

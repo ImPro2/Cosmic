@@ -59,71 +59,8 @@ namespace Cosmic
         entt::registry* GetRegistryPtr() { return &mRegistry; }
 
     private:
-        template<size_t I = 0, typename... Ts, typename F>
-        constexpr void IterateComponentsInTuple(std::tuple<Ts...> tup, F callback)
-        {
-            if constexpr (I != sizeof...(Ts))
-            {
-                callback(static_cast<IComponent*>(&std::get<I>(tup)));
-                IterateComponentsInTuple<I + 1>(tup, callback);
-            }
-        }
-
-        template<typename... Ts, typename F>
-        void ResolveRelativeChildPropertiesRecurse(Entity entity, F callback, const Ts&... components)
-        {
-            std::function<void(Entity, F, std::tuple<Ts...>)> recurseFn;
-
-            recurseFn = [this, &recurseFn](Entity entity, F callback, std::tuple<Ts...> parentComponents)
-			{
-				std::tuple<Ts...> components;
-
-                IterateComponentsInTuple<0, Ts...>(parentComponents, [&components, &entity](IComponent* parentComponent)
-				{
-					switch (parentComponent->GetType())
-					{
-						case EComponentType::EntityMetadata:
-						{
-                            const EntityMetadataComponent& component = *static_cast<EntityMetadataComponent*>(parentComponent);
-							EntityMetadataComponent& metadata = entity.GetComponent<EntityMetadataComponent>();
-
-							if (!component.IsVisible)
-								metadata.IsVisible = false;
-
-							std::get<EntityMetadataComponent>(components) = metadata;                           
-							break;
-						}
-						case EComponentType::Transform:
-						{
-                            const TransformComponent& component = *static_cast<TransformComponent*>(parentComponent);
-							TransformComponent tc = entity.CopyComponent<TransformComponent>();
-
-							if (tc.IsRelative)
-							{
-								tc.Translation += component.Translation;
-								tc.Rotation    += component.Rotation;
-								tc.Scale       *= component.Scale;
-							}
-
-							std::get<TransformComponent>(components) = tc;
-							break;
-						}
-                    }
-				});
-
-                std::apply([entity, &callback](const Ts&... components) { callback(entity, components...); }, components);
-
-                Entity child = entity.GetComponent<EntityMetadataComponent>().FirstChild;
-
-                while (child)
-                {
-                    recurseFn(child, callback, components);
-                    child = child.GetComponent<EntityMetadataComponent>().Next;
-                }
-			};
-
-            recurseFn(entity, callback, std::make_tuple(components...));
-        }
+        void ResolveRelativeChildProperties();
+        void ResolveRelativeChildPropertiesRecurse(Entity entity);
 
     private:
         entt::registry mRegistry;

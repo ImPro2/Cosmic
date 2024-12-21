@@ -176,7 +176,7 @@ namespace Cosmic
 
             const glm::mat4& cameraProj = mCamera.GetProjection();
             const glm::mat4& cameraView = mCamera.GetTransform();
-            glm::mat4        transform  = tc.GetTransform();
+            glm::mat4        transform  = tc.GetAbsoluteTransform();
 
             bool snap = Input::IsKeyPressed(EKeyCode::LeftControl);
 

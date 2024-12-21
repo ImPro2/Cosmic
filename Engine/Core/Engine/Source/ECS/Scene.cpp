@@ -99,6 +99,10 @@ namespace Cosmic
 
     void Scene::OnUpdateEditor(Dt dt, const Camera& camera, const glm::mat4& cameraTransform)
     {
+        // Resolve each root entity's relative child properties
+
+        ResolveRelativeChildProperties();
+
         // Update scripts
 
         NativeScriptEngine::OnUpdate(dt);
@@ -107,18 +111,12 @@ namespace Cosmic
 
         Renderer2D::BeginScene(camera, cameraTransform);
 
-        auto absolutePropertiesCallback = [](Entity entity, const EntityMetadataComponent& metadata, const TransformComponent& transformComponent)
+        mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](entt::entity entity, auto& metadata, auto& tc, auto& sprite)
 		{
-			if (entity.HasComponent<SpriteRendererComponent>() && metadata.IsVisible)
+			if (metadata.IsVisible)
 			{
-                SpriteRendererComponent& sprite = entity.GetComponent<SpriteRendererComponent>();
-				Renderer2D::RenderQuad(transformComponent.GetTransform(), sprite.Color, (int32)entity);
-			}
-		};
-
-        ForEachRootEntity([=](Entity entity)
-		{
-			ResolveRelativeChildPropertiesRecurse<EntityMetadataComponent, TransformComponent>(entity, absolutePropertiesCallback, entity.GetComponent<EntityMetadataComponent>(), TransformComponent());
+                Renderer2D::RenderQuad(tc.GetAbsoluteTransform(), sprite.Color, (int32)entity);
+            }
 		});
 
         Renderer2D::EndScene();
@@ -325,6 +323,47 @@ namespace Cosmic
     size_t Scene::GetEntityCount() const
     {
         return mRegistry.view<entt::entity>().size();
+    }
+
+    void Scene::ResolveRelativeChildProperties()
+    {
+        ForEachRootEntity([this](Entity entity) { ResolveRelativeChildPropertiesRecurse(entity); });
+    }
+
+    void Scene::ResolveRelativeChildPropertiesRecurse(Entity entity)
+    {
+        EntityMetadataComponent& metadata = entity.GetComponent<EntityMetadataComponent>();
+
+        if (!metadata.Parent)
+        {
+			TransformComponent& tc = entity.GetComponent<TransformComponent>();
+			tc.mAbsoluteTranslation = tc.Translation;
+			tc.mAbsoluteRotation    = tc.Rotation;
+			tc.mAbsoluteScale       = tc.Scale;
+        }
+        else
+        {
+            // EntityMetadataComponent
+
+			const EntityMetadataComponent& parentMetadata = metadata.Parent.GetComponent<EntityMetadataComponent>();
+
+			if (!parentMetadata.IsVisible)
+				metadata.IsVisible = false;
+
+            // TransformComponent
+
+			const TransformComponent& parentTransform = metadata.Parent.GetComponent<TransformComponent>();
+			TransformComponent& tc = entity.GetComponent<TransformComponent>();
+
+			if (tc.IsRelative)
+			{
+				tc.mAbsoluteTranslation = tc.Translation + parentTransform.mAbsoluteTranslation;
+				tc.mAbsoluteRotation    = tc.Rotation    + parentTransform.mAbsoluteRotation;
+				tc.mAbsoluteScale       = tc.Scale       * parentTransform.mAbsoluteScale;
+			}
+        }
+
+        ForEachChildRecurse(entity, [this](Entity child) { ResolveRelativeChildPropertiesRecurse(child); });
     }
 
 }
