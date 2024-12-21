@@ -153,24 +153,6 @@ namespace Cosmic
         EntityMetadataComponent& parentMetadata = parent ? parent.GetComponent<EntityMetadataComponent>() : mSceneRootMetadata;
         RegisterEntity(entity, parentMetadata);
 
-#if 0
-		parentMetadata.ChildrenCount++;
-
-        if (!parentMetadata.FirstChild && !parentMetadata.LastChild)
-        {
-            parentMetadata.FirstChild = entity;
-            parentMetadata.LastChild  = entity;
-        }
-        else
-        {
-            Entity lastChild = parentMetadata.LastChild;
-            lastChild.GetComponent<EntityMetadataComponent>().Next = entity;
-            metadata.Prev = lastChild;
-
-            parentMetadata.LastChild = entity;
-        }
-#endif
-
         return entity;
     }
 
@@ -209,6 +191,7 @@ namespace Cosmic
 			mRegistry.destroy((entt::entity)child);
 		});
 
+        UnregisterEntity(entity);
         mRegistry.destroy(entity);
     }
 
@@ -224,11 +207,13 @@ namespace Cosmic
         else
         {
             Entity lastChild = parentMetadata.LastChild;
+            parentMetadata.LastChild = entity;
+
             lastChild.GetComponent<EntityMetadataComponent>().Next = entity;
             entity.GetComponent<EntityMetadataComponent>().Prev = lastChild;
-
-            parentMetadata.LastChild = entity;
         }
+
+		entity.GetComponent<EntityMetadataComponent>().Parent = FindEntityByID(parentMetadata.ID);
     }
 
     void Scene::RegisterSerializedEntity(Entity entity)
@@ -249,6 +234,56 @@ namespace Cosmic
         {
             mSceneRootMetadata.LastChild = entity;
         }
+    }
+
+    void Scene::UnregisterEntity(Entity entity, bool releaseChildren)
+    {
+        auto& metadata = entity.GetComponent<EntityMetadataComponent>();
+
+        if (metadata.Parent)
+        {
+			auto& parentMetadata = metadata.Parent.GetComponent<EntityMetadataComponent>();
+
+            parentMetadata.ChildrenCount--;
+            
+            if (parentMetadata.FirstChild == parentMetadata.LastChild)
+            {
+                parentMetadata.FirstChild = Entity();
+                parentMetadata.LastChild  = Entity();
+            }
+            else if (parentMetadata.FirstChild == entity)
+				parentMetadata.FirstChild = parentMetadata.FirstChild.GetComponent<EntityMetadataComponent>().Next;
+			else if (parentMetadata.LastChild == entity)
+				parentMetadata.LastChild  = parentMetadata.LastChild.GetComponent<EntityMetadataComponent>().Prev;
+        }
+
+		Entity prev = metadata.Prev;
+		Entity next = metadata.Next;
+
+		if (prev)
+			prev.GetComponent<EntityMetadataComponent>().Next = next;
+
+		if (next)
+			next.GetComponent<EntityMetadataComponent>().Prev = prev;
+
+        if (releaseChildren)
+        {
+            metadata.FirstChild = Entity();
+            metadata.LastChild = Entity();
+        }
+
+        metadata.Prev       = Entity();
+        metadata.Next       = Entity();
+        metadata.Parent     = Entity();
+    }
+
+    void Scene::ReparentEntity(Entity entity, Entity parent)
+    {
+        if (entity.GetComponent<EntityMetadataComponent>().Parent == parent)
+            return;
+
+        UnregisterEntity(entity, false);
+        RegisterEntity(entity, parent.GetComponent<EntityMetadataComponent>());
     }
 
     Entity Scene::FindEntityByTag(const String& tag)

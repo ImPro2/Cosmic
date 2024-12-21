@@ -74,7 +74,7 @@ namespace Cosmic
             int32 pixelData;
             pixelData = (int32)mFramebuffer->ReadPixel(1, { (int32)x, (int32)y });
 
-            if (pixelData > 0)
+            if (pixelData >= 0)
             {
                 Entity entity = Entity((entt::entity)pixelData, mScene->GetRegistryPtr());
                 mSceneHierarchyPanel->SetSelectedEntities({ entity });

@@ -36,6 +36,9 @@ namespace Cosmic
 
         void RegisterEntity(Entity entity, EntityMetadataComponent& parentMetadata);
         void RegisterSerializedEntity(Entity entity);
+        void UnregisterEntity(Entity entity, bool releaseChildren = true);
+
+        void ReparentEntity(Entity entity, Entity parent);
 
         Entity FindEntityByTag(const String& tag);
         Entity FindEntityByID(int32 id);

@@ -95,7 +95,8 @@ namespace Cosmic
             RenderEntities();
             RenderRightClickMenu();
 
-            if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
+            //if (ImGui::IsWindowHovered() || mMouseSelectionStarted)
+			if (false)
             {
                 bool first = !mMouseSelectionStarted;
                 mMouseSelectionStarted = !ImGuiUtils::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
@@ -160,8 +161,33 @@ namespace Cosmic
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
         ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyleColorVec4(ImGuiCol_TabActive));
 
+        ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
+
         bool open    = ImGui::TreeNodeEx(metadata.Tag.c_str(), flags);
         bool clicked = ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right);
+
+        // Drag & Drop
+
+        ImGuiDragDropFlags dragDropPayloadFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+        static const char* dragDropID = "";
+
+        if (ImGui::BeginDragDropSource())
+        {
+            ImGui::SetDragDropPayload(dragDropID, &metadata.ID, sizeof(int32));
+            ImGui::Text(metadata.Tag.c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(dragDropID, dragDropPayloadFlags))
+            {
+                Entity entityToReparent = mScene->FindEntityByID(*(int32*)payload->Data);
+                mScene->ReparentEntity(entityToReparent, entity);
+            }
+
+            ImGui::EndDragDropTarget();
+        }
 
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();

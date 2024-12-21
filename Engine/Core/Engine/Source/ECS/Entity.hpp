@@ -79,9 +79,10 @@ namespace Cosmic
 
         entt::registry& GetRegistry() const { return *mRegistry; }
         
-        operator bool()         const { return mEntityHandle != entt::null; }
-        operator entt::entity() const { return mEntityHandle;               }
-        operator uint32()       const { return (uint32)mEntityHandle;       }
+        operator bool()          const { return mEntityHandle != entt::null; }
+        operator entt::entity()  const { return mEntityHandle;               }
+        operator entt::entity&()       { return mEntityHandle;               }
+        operator uint32()        const { return (uint32)mEntityHandle;       }
 
     private:
         entt::entity mEntityHandle{ entt::null };
