@@ -56,6 +56,12 @@ namespace Cosmic
         }
 
         template<typename T>
+        T CopyComponent() const
+        {
+			return mRegistry->get<T>(mEntityHandle);
+        }
+
+        template<typename T>
         bool HasComponent()
         {
             return mRegistry->all_of<T>(mEntityHandle);

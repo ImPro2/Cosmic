@@ -107,47 +107,19 @@ namespace Cosmic
 
         Renderer2D::BeginScene(camera, cameraTransform);
 
-        auto absoluteTransformCallback = [](Entity entity, const TransformComponent& transformComponent)
+        auto absolutePropertiesCallback = [](Entity entity, const EntityMetadataComponent& metadata, const TransformComponent& transformComponent)
 		{
-			if (entity.HasComponent<SpriteRendererComponent>() && entity.GetComponent<EntityMetadataComponent>().IsVisible)
+			if (entity.HasComponent<SpriteRendererComponent>() && metadata.IsVisible)
 			{
                 SpriteRendererComponent& sprite = entity.GetComponent<SpriteRendererComponent>();
 				Renderer2D::RenderQuad(transformComponent.GetTransform(), sprite.Color, (int32)entity);
 			}
 		};
 
-        ForEachRootEntity([=](Entity entity) { RecurseEntityForRelativeProperties(entity, absoluteTransformCallback); });
-
-#if 0
-        Entity entity = mSceneRootMetadata.FirstChild;
-
-        while (entity)
-        {
-            RecurseEntityForAbsoluteTransforms(entity, absoluteTransformCallback);
-            entity = entity.GetComponent<EntityMetadataComponent>().Next;
-        }
-#endif
-
-#if 0
-        mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](auto entity, auto& metadata, auto& transformComponent, auto& spriteComponent)
-        {
-			if (metadata.IsVisible)
-			{
-                glm::mat4 transform;
-
-                if (transformComponent.IsRelative)
-                {
-
-                }
-                else
-                {
-                    transform = TransformComponent.GetTransform();
-                }
-
-				Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color, (int32)entity);
-			}
-        });
-#endif
+        ForEachRootEntity([=](Entity entity)
+		{
+			ResolveRelativeChildPropertiesRecurse<EntityMetadataComponent, TransformComponent>(entity, absolutePropertiesCallback, entity.GetComponent<EntityMetadataComponent>(), TransformComponent());
+		});
 
         Renderer2D::EndScene();
     }
@@ -198,23 +170,6 @@ namespace Cosmic
             parentMetadata.LastChild = entity;
         }
 
-#if 0
-		else
-		{
-			// Iterate parent children and assign entity to the list
-
-            Entity lastChild = parentMetadata.FirstChild;
-
-            ForEachChild(parentMetadata, [&lastChild](Entity child)
-			{
-				lastChild = child;
-			});
-
-            lastChild.GetComponent<EntityMetadataComponent>().Next = entity;
-            metadata.Prev = lastChild;
-		}
-#endif
-
         return entity;
     }
 
@@ -259,21 +214,6 @@ namespace Cosmic
 		});
 
         mRegistry.destroy(entity);
-
-#if 0
-        int32 ID = entity.GetComponent<EntityMetadataComponent>().ID;
-
-        for (entt::entity other : mRegistry.view<EntityMetadataComponent>())
-        {
-            int32 otherID = mRegistry.get<EntityMetadataComponent>(other).ID;
-
-            if (ID == otherID)
-            {
-                mRegistry.destroy(other);
-                break;
-            }
-        }
-#endif
     }
 
     Entity Scene::FindEntityByTag(const String& tag)
@@ -385,39 +325,6 @@ namespace Cosmic
     size_t Scene::GetEntityCount() const
     {
         return mRegistry.view<entt::entity>().size();
-    }
-
-	void Scene::RecurseEntityForRelativeProperties(Entity entity, std::function<void(Entity, const TransformComponent&)> fn)
-    {
-        std::function<void(Entity, const EntityMetadataComponent&, const TransformComponent&, decltype(fn))> recurse;
-
-        recurse = [&recurse](Entity entity, const EntityMetadataComponent& parentMetadata, const TransformComponent& parentTransformComponent, decltype(fn) callback)
-		{
-			TransformComponent transformComponent = entity.GetComponent<TransformComponent>();
-
-            if (transformComponent.IsRelative)
-            {
-                transformComponent.Translation += parentTransformComponent.Translation;
-                transformComponent.Rotation    += parentTransformComponent.Rotation;
-                transformComponent.Scale       *= parentTransformComponent.Scale;
-            }
-
-            if (!parentMetadata.IsVisible)
-				entity.GetComponent<EntityMetadataComponent>().IsVisible = false;
-
-			callback(entity, transformComponent);
-
-			Entity child = entity.GetComponent<EntityMetadataComponent>().FirstChild;
-
-            while (child)
-            {
-                recurse(child, entity.GetComponent<EntityMetadataComponent>(), transformComponent, callback);
-
-                child = child.GetComponent<EntityMetadataComponent>().Next;
-            }
-		};
-
-        recurse(entity, entity.GetComponent<EntityMetadataComponent>(), TransformComponent(), fn);
     }
 
 }
