@@ -34,6 +34,9 @@ namespace Cosmic
         Entity AddEntity(Entity entity);
         void   RemoveEntity(Entity entity);
 
+        void RegisterEntity(Entity entity, EntityMetadataComponent& parentMetadata);
+        void RegisterSerializedEntity(Entity entity);
+
         Entity FindEntityByTag(const String& tag);
         Entity FindEntityByID(int32 id);
         Entity FindRootParent(Entity entity);
@@ -43,8 +46,10 @@ namespace Cosmic
         void ForEachEntityIndexed(std::function<void(Entity, int32)> fn);
         void ForEachChild(Entity parent, std::function<void(Entity)> fn);
         void ForEachChild(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn);
-        void ForEachChildRecurse(Entity parent, std::function<void(Entity)> fn);
-        void ForEachChildRecurse(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn);
+        void ForEachChildRecurseTopDown(Entity parent, std::function<void(Entity)> fn);
+        void ForEachChildRecurseTopDown(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn);
+        void ForEachChildRecurseBottomUp(Entity parent, std::function<void(Entity)> fn);
+        void ForEachChildRecurseBottomUp(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn);
 
         template<typename... T, typename F>
         void ForEach(F callback)
@@ -57,6 +62,8 @@ namespace Cosmic
 
         size_t GetEntityCount() const;
         entt::registry* GetRegistryPtr() { return &mRegistry; }
+
+        EntityMetadataComponent& GetSceneRootMetadata() { return mSceneRootMetadata; }
 
     private:
         void ResolveRelativeChildProperties();

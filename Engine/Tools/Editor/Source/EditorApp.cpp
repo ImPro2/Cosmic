@@ -6,8 +6,6 @@
 #include "EditorApp.hpp"
 #include <entt/entt.hpp>
 
-//#include "Project/ProjectModule.hpp"
-
 CS_MODULE_LOG_INFO(Editor, EditorApp)
 
 namespace Cosmic
@@ -28,6 +26,9 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         Ref<EditorModule> editorModule = ModuleSystem::AddFront<EditorModule>();
+
+        if (mProjectToOpen.GetString() != "")
+            editorModule->OpenProject(mProjectToOpen);
 
         return false;
     }

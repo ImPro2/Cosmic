@@ -1,18 +1,79 @@
 Scene: StartScene
 Entities:
-  - Entity: 484034740
+  - Entity: 279201282
     EntityMetadataComponent:
-      Tag: New Entity
+      Tag: Parent Entity
       IsVisible: true
-      ChildrenCount: 0
-      FirstChildID: -1
+      ChildrenCount: 3
+      FirstChildID: 33380946
+      LastChildID: 170524768
       NextID: -1
       PrevID: -1
       ParentID: -1
     TransformComponent:
       IsRelative: true
-      Translation: [-5.00360537, 0, 0]
+      Translation: [1, 1, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    NativeScriptComponent:
-      ClassName: PlayerScript
+  - Entity: 33380946
+    EntityMetadataComponent:
+      Tag: Child Entity 1
+      IsVisible: true
+      ChildrenCount: 0
+      FirstChildID: -1
+      LastChildID: -1
+      NextID: 1324269465
+      PrevID: -1
+      ParentID: 279201282
+    TransformComponent:
+      IsRelative: true
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 1324269465
+    EntityMetadataComponent:
+      Tag: Child Entity 2
+      IsVisible: true
+      ChildrenCount: 0
+      FirstChildID: -1
+      LastChildID: -1
+      NextID: 170524768
+      PrevID: -1
+      ParentID: 279201282
+    TransformComponent:
+      IsRelative: true
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 1634711730
+    EntityMetadataComponent:
+      Tag: Child Entity 3 Child
+      IsVisible: true
+      ChildrenCount: 0
+      FirstChildID: -1
+      LastChildID: -1
+      NextID: -1
+      PrevID: -1
+      ParentID: 170524768
+    TransformComponent:
+      IsRelative: true
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+  - Entity: 170524768
+    EntityMetadataComponent:
+      Tag: Child Entity 3
+      IsVisible: true
+      ChildrenCount: 1
+      FirstChildID: 1634711730
+      LastChildID: 1634711730
+      NextID: -1
+      PrevID: -1
+      ParentID: 279201282
+    TransformComponent:
+      IsRelative: true
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]

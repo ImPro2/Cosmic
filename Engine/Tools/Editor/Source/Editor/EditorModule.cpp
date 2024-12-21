@@ -47,6 +47,7 @@ namespace Cosmic
 
         // Temporary
 
+#if 0
         Entity parent = mActiveScene->CreateEntity("Parent Entity");
         parent.GetComponent<TransformComponent>().Translation = { 1.0f, 1.0f, 0.0f };
 
@@ -55,6 +56,7 @@ namespace Cosmic
         Entity child3 = mActiveScene->CreateEntity("Child Entity 3", parent);
         Entity child3child = mActiveScene->CreateEntity("Child Entity 3 Child", child3);
         child3child.AddComponent<SpriteRendererComponent>();
+#endif
     }
 
     void EditorModule::OnShutdown()

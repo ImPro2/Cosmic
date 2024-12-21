@@ -39,14 +39,12 @@ namespace Cosmic
     }
 
     FileDialogModule::FileDialogModule(const Path& dir)
-        : mDirectory(dir)
+        : mDirectory(FileSystem::GetCurrentWorkingDirectory())
     {
-        if (mDirectory.GetString().empty())
+        if (dir.GetString() == "" && ProjectManager::GetActiveProject())
         {
             if (Ref<Project> project = ProjectManager::GetActiveProject())
-                mDirectory = project->GetParentPath();
-            else
-                mDirectory = FileSystem::GetCurrentWorkingDirectory();
+                mDirectory = project->GetParentPath() == "" ? mDirectory : project->GetParentPath();
         }
 
         memset(mFileInputBuffer, 0, 256);

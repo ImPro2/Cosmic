@@ -151,7 +151,9 @@ namespace Cosmic
         entity.AddComponent<EntityMetadataComponent>(metadata);
 
         EntityMetadataComponent& parentMetadata = parent ? parent.GetComponent<EntityMetadataComponent>() : mSceneRootMetadata;
+        RegisterEntity(entity, parentMetadata);
 
+#if 0
 		parentMetadata.ChildrenCount++;
 
         if (!parentMetadata.FirstChild && !parentMetadata.LastChild)
@@ -167,6 +169,7 @@ namespace Cosmic
 
             parentMetadata.LastChild = entity;
         }
+#endif
 
         return entity;
     }
@@ -176,11 +179,6 @@ namespace Cosmic
         Entity entity = { mRegistry.create(), &mRegistry };
         entity.AddComponent<TransformComponent>();
         entity.AddComponent<EntityMetadataComponent>(metadata);
-
-        mSceneRootMetadata.ChildrenCount++;
-
-        if (!mSceneRootMetadata.FirstChild)
-            mSceneRootMetadata.FirstChild = entity;
 
         return entity;
     }
@@ -206,12 +204,51 @@ namespace Cosmic
 
     void Scene::RemoveEntity(Entity entity)
     {
-        ForEachChildRecurse(entity, [this](Entity child)
+        ForEachChildRecurseTopDown(entity, [this](Entity child)
 		{
 			mRegistry.destroy((entt::entity)child);
 		});
 
         mRegistry.destroy(entity);
+    }
+
+    void Scene::RegisterEntity(Entity entity, EntityMetadataComponent& parentMetadata)
+    {
+		parentMetadata.ChildrenCount++;
+
+        if (!parentMetadata.FirstChild && !parentMetadata.LastChild)
+        {
+            parentMetadata.FirstChild = entity;
+            parentMetadata.LastChild  = entity;
+        }
+        else
+        {
+            Entity lastChild = parentMetadata.LastChild;
+            lastChild.GetComponent<EntityMetadataComponent>().Next = entity;
+            entity.GetComponent<EntityMetadataComponent>().Prev = lastChild;
+
+            parentMetadata.LastChild = entity;
+        }
+    }
+
+    void Scene::RegisterSerializedEntity(Entity entity)
+    {
+        // Only register root entities
+
+        if (entity.GetComponent<EntityMetadataComponent>().Parent)
+            return;
+
+		mSceneRootMetadata.ChildrenCount++;
+
+        if (!mSceneRootMetadata.FirstChild && !mSceneRootMetadata.LastChild)
+        {
+            mSceneRootMetadata.FirstChild = entity;
+            mSceneRootMetadata.LastChild  = entity;
+        }
+        else
+        {
+            mSceneRootMetadata.LastChild = entity;
+        }
     }
 
     Entity Scene::FindEntityByTag(const String& tag)
@@ -299,12 +336,12 @@ namespace Cosmic
         }
     }
 
-    void Scene::ForEachChildRecurse(Entity parent, std::function<void(Entity)> fn)
+    void Scene::ForEachChildRecurseTopDown(Entity parent, std::function<void(Entity)> fn)
     {
-        ForEachChildRecurse(parent.GetComponent<EntityMetadataComponent>(), fn);
+        ForEachChildRecurseTopDown(parent.GetComponent<EntityMetadataComponent>(), fn);
     }
 
-    void Scene::ForEachChildRecurse(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn)
+    void Scene::ForEachChildRecurseTopDown(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn)
     {
 		Entity child = parentMetadata.FirstChild;
 
@@ -314,7 +351,28 @@ namespace Cosmic
 
 			auto& metadata = child.GetComponent<EntityMetadataComponent>();
 			if (metadata.ChildrenCount > 0)
-				ForEachChildRecurse(child, fn);
+				ForEachChildRecurseTopDown(child, fn);
+
+            child = metadata.Next;
+		}
+    }
+
+    void Scene::ForEachChildRecurseBottomUp(Entity parent, std::function<void(Entity)> fn)
+    {
+        ForEachChildRecurseBottomUp(parent.GetComponent<EntityMetadataComponent>(), fn);
+    }
+
+    void Scene::ForEachChildRecurseBottomUp(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn)
+    {
+		Entity child = parentMetadata.FirstChild;
+
+		while (child)
+		{
+			auto& metadata = child.GetComponent<EntityMetadataComponent>();
+			if (metadata.ChildrenCount > 0)
+				ForEachChildRecurseTopDown(child, fn);
+
+            fn(child);
 
             child = metadata.Next;
 		}
@@ -363,7 +421,7 @@ namespace Cosmic
 			}
         }
 
-        ForEachChildRecurse(entity, [this](Entity child) { ResolveRelativeChildPropertiesRecurse(child); });
+        ForEachChildRecurseTopDown(entity, [this](Entity child) { ResolveRelativeChildPropertiesRecurse(child); });
     }
 
 }

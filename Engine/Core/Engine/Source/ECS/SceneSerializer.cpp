@@ -190,9 +190,14 @@ namespace Cosmic
 		out << YAML::Key << "Scene"    << YAML::Value << path.GetName().c_str();
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 
-		mScene->ForEachEntity([&](Entity entity)
+		mScene->ForEachRootEntity([&](Entity entity)
 		{
 			SerializeEntity(out, entity);
+
+			mScene->ForEachChildRecurseBottomUp(entity, [&](Entity entity)
+			{
+				SerializeEntity(out, entity);
+			});
 		});
 
 		out << YAML::EndSeq;
@@ -212,6 +217,16 @@ namespace Cosmic
 
 		if (entities)
 		{
+			struct EntityIDMetadata
+			{
+				int32 FirstChildID, LastChildID;
+				int32 NextID, PrevID, ParentID;
+			};
+
+			using EntityIDMetadataMap = UnorderedMap<int32, EntityIDMetadata>;
+
+			EntityIDMetadataMap idMetadataMap;
+
 			for (auto entity : entities)
 			{
 				auto entityMetadataComponent = entity["EntityMetadataComponent"];
@@ -221,11 +236,15 @@ namespace Cosmic
 				metadata.Tag           = entityMetadataComponent["Tag"].as<String>();
 				metadata.IsVisible     = entityMetadataComponent["IsVisible"].as<bool>();
 				metadata.ChildrenCount = entityMetadataComponent["ChildrenCount"].as<size_t>();
-				metadata.FirstChild    = mScene->FindEntityByID(entityMetadataComponent["FirstChildID"].as<int32>());
-				metadata.LastChild     = mScene->FindEntityByID(entityMetadataComponent["LastChildID"].as<int32>());
-				metadata.Next          = mScene->FindEntityByID(entityMetadataComponent["NextID"].as<int32>());
-				metadata.Prev          = mScene->FindEntityByID(entityMetadataComponent["PrevID"].as<int32>());
-				metadata.Parent        = mScene->FindEntityByID(entityMetadataComponent["ParentID"].as<int32>());
+
+				EntityIDMetadata idMetadata;
+				idMetadata.FirstChildID = entityMetadataComponent["FirstChildID"].as<int32>();
+				idMetadata.LastChildID  = entityMetadataComponent["LastChildID"].as<int32>();
+				idMetadata.NextID       = entityMetadataComponent["NextID"].as<int32>();
+				idMetadata.PrevID       = entityMetadataComponent["PrevID"].as<int32>();
+				idMetadata.ParentID     = entityMetadataComponent["ParentID"].as<int32>();
+
+				idMetadataMap[metadata.ID] = idMetadata;
 
 				Entity deserializedEntity = mScene->CreateSerializedEntity(metadata);
 
@@ -278,6 +297,20 @@ namespace Cosmic
 					component.ShouldLoad = true;
 				}
 			}
+
+			mScene->ForEachEntity([this, idMetadataMap](Entity entity)
+			{
+				auto& metadata = entity.GetComponent<EntityMetadataComponent>();
+				const EntityIDMetadata& idMetadata = idMetadataMap.at(metadata.ID);
+
+				metadata.FirstChild = mScene->FindEntityByID(idMetadata.FirstChildID);
+				metadata.LastChild  = mScene->FindEntityByID(idMetadata.LastChildID);
+				metadata.Next       = mScene->FindEntityByID(idMetadata.NextID);
+				metadata.Prev       = mScene->FindEntityByID(idMetadata.PrevID);
+				metadata.Parent     = mScene->FindEntityByID(idMetadata.ParentID);
+
+				mScene->RegisterSerializedEntity(entity);
+			});
 		}
 	}
 
