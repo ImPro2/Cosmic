@@ -38,6 +38,7 @@ namespace Cosmic
         Entity FindEntityByID(int32 id);
         Entity FindRootParent(Entity entity);
 
+        void ForEachRootEntity(std::function<void(Entity)> fn);
         void ForEachEntity(std::function<void(Entity)> fn);
         void ForEachEntityIndexed(std::function<void(Entity, int32)> fn);
         void ForEachChild(Entity parent, std::function<void(Entity)> fn);

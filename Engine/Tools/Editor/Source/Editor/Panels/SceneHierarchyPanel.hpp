@@ -46,7 +46,7 @@ namespace Cosmic
 
     private:
         void RenderEntities();
-        void RenderEntity(Entity entity, int32 index);
+        void RenderEntity(Entity entity, int32& index);
         void RenderRightClickMenu();
 
     private:
@@ -58,8 +58,6 @@ namespace Cosmic
     private:
         Ref<Scene> mScene;
 
-        Entity mLastSelectedEntity;
-        int32 mLastSelectedEntityIndex;
         Vector<Entity> mSelectedEntities;
 
         bool mWindowHovered = false;

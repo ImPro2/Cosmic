@@ -104,6 +104,7 @@ namespace Cosmic
 
 			out << YAML::Key << "ChildrenCount" << YAML::Value << metadata.ChildrenCount;
 			out << YAML::Key << "FirstChildID"  << YAML::Value << (metadata.FirstChild ? metadata.FirstChild.GetComponent<EntityMetadataComponent>().ID : -1);
+			out << YAML::Key << "LastChildID"   << YAML::Value << (metadata.LastChild  ? metadata.LastChild.GetComponent<EntityMetadataComponent>().ID  : -1);
 			out << YAML::Key << "NextID"        << YAML::Value << (metadata.Next       ? metadata.Next.GetComponent<EntityMetadataComponent>().ID       : -1);
 			out << YAML::Key << "PrevID"        << YAML::Value << (metadata.Prev       ? metadata.Prev.GetComponent<EntityMetadataComponent>().ID       : -1);
 			out << YAML::Key << "ParentID"      << YAML::Value << (metadata.Parent     ? metadata.Parent.GetComponent<EntityMetadataComponent>().ID     : -1);
@@ -221,6 +222,7 @@ namespace Cosmic
 				metadata.IsVisible     = entityMetadataComponent["IsVisible"].as<bool>();
 				metadata.ChildrenCount = entityMetadataComponent["ChildrenCount"].as<size_t>();
 				metadata.FirstChild    = mScene->FindEntityByID(entityMetadataComponent["FirstChildID"].as<int32>());
+				metadata.LastChild     = mScene->FindEntityByID(entityMetadataComponent["LastChildID"].as<int32>());
 				metadata.Next          = mScene->FindEntityByID(entityMetadataComponent["NextID"].as<int32>());
 				metadata.Prev          = mScene->FindEntityByID(entityMetadataComponent["PrevID"].as<int32>());
 				metadata.Parent        = mScene->FindEntityByID(entityMetadataComponent["ParentID"].as<int32>());

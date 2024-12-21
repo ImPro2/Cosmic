@@ -76,6 +76,9 @@ namespace Cosmic
 
         bool* GetShowImGuiDemoWindowPtr() { return &mShowDemoWindow; }
 
+    public:
+        void ToggleShowImGuiDemoWindow() { mShowDemoWindow = !mShowDemoWindow; }
+
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnFileAdded(const FileAddedEvent& e);

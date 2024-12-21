@@ -44,6 +44,17 @@ namespace Cosmic
 
         ModuleSystem::Add<MenubarModule>(MenubarLayout::Default());
         ModuleSystem::AddFront<DockspaceModule>();
+
+        // Temporary
+
+        Entity parent = mActiveScene->CreateEntity("Parent Entity");
+        parent.GetComponent<TransformComponent>().Translation = { 1.0f, 1.0f, 0.0f };
+
+        Entity child1 = mActiveScene->CreateEntity("Child Entity 1", parent);
+        Entity child2 = mActiveScene->CreateEntity("Child Entity 2", parent);
+        Entity child3 = mActiveScene->CreateEntity("Child Entity 3", parent);
+        Entity child3child = mActiveScene->CreateEntity("Child Entity 3 Child", child3);
+        child3child.AddComponent<SpriteRendererComponent>();
     }
 
     void EditorModule::OnShutdown()

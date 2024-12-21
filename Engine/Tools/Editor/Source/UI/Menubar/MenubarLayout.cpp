@@ -62,7 +62,7 @@ namespace Cosmic
 
         menubar.EndMenu();
 
-        menubar.Item(MenubarItem("Show ImGui Demo Window", "", {}, editorModule->GetShowImGuiDemoWindowPtr()));
+        menubar.Item(MenubarItem("Show ImGui Demo Window", "", {}, nullptr, [=]() { editorModule->ToggleShowImGuiDemoWindow(); }));
 
         menubar.EndMenu();
 

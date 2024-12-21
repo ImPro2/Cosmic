@@ -29,9 +29,6 @@ namespace Cosmic
 
         Ref<EditorModule> editorModule = ModuleSystem::AddFront<EditorModule>();
 
-        if (mProjectToOpen != "")
-            editorModule->OpenProject(mProjectToOpen);
-
         return false;
     }
 

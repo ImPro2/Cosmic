@@ -116,6 +116,9 @@ namespace Cosmic
 			}
 		};
 
+        ForEachRootEntity([=](Entity entity) { RecurseEntityForAbsoluteTransforms(entity, absoluteTransformCallback); });
+
+#if 0
         Entity entity = mSceneRootMetadata.FirstChild;
 
         while (entity)
@@ -123,6 +126,7 @@ namespace Cosmic
             RecurseEntityForAbsoluteTransforms(entity, absoluteTransformCallback);
             entity = entity.GetComponent<EntityMetadataComponent>().Next;
         }
+#endif
 
 #if 0
         mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](auto entity, auto& metadata, auto& transformComponent, auto& spriteComponent)
@@ -180,28 +184,36 @@ namespace Cosmic
 
 		parentMetadata.ChildrenCount++;
 
-		if (!parentMetadata.FirstChild)
-			parentMetadata.FirstChild = entity;
+        if (!parentMetadata.FirstChild && !parentMetadata.LastChild)
+        {
+            parentMetadata.FirstChild = entity;
+            parentMetadata.LastChild  = entity;
+        }
+        else
+        {
+            Entity lastChild = parentMetadata.LastChild;
+            lastChild.GetComponent<EntityMetadataComponent>().Next = entity;
+            metadata.Prev = lastChild;
+
+            parentMetadata.LastChild = entity;
+        }
+
+#if 0
 		else
 		{
 			// Iterate parent children and assign entity to the list
 
-			Entity child = parentMetadata.FirstChild;
-			auto& childMetadata = child.GetComponent<EntityMetadataComponent>();
+            Entity lastChild = parentMetadata.FirstChild;
 
-			while (child)
+            ForEachChild(parentMetadata, [&lastChild](Entity child)
 			{
-				childMetadata = child.GetComponent<EntityMetadataComponent>();
+				lastChild = child;
+			});
 
-				if (!childMetadata.Next)
-					break;
-
-				child = childMetadata.Next;
-			}
-
-			childMetadata.Next = entity;
-			metadata.Prev = child;
+            lastChild.GetComponent<EntityMetadataComponent>().Next = entity;
+            metadata.Prev = lastChild;
 		}
+#endif
 
         return entity;
     }
@@ -300,6 +312,17 @@ namespace Cosmic
             return FindRootParent(parent);
 
 		return entity;
+    }
+
+    void Scene::ForEachRootEntity(std::function<void(Entity)> fn)
+    {
+        Entity entity = mSceneRootMetadata.FirstChild;
+
+        while (entity)
+        {
+            fn(entity);
+            entity = entity.GetComponent<EntityMetadataComponent>().Next;
+        }
     }
 
     void Scene::ForEachEntity(std::function<void(Entity)> fn)

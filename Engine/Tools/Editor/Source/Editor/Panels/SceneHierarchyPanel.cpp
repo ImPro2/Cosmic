@@ -19,6 +19,7 @@ namespace Cosmic
     SceneHierarchyPanel::SceneHierarchyPanel()
         : IPanel("Scene Hierarchy")
     {
+        mSelectedEntities.clear();
     }
 
     void SceneHierarchyPanel::OnInit()
@@ -45,30 +46,10 @@ namespace Cosmic
 
         switch (e.GetKeyCode())
         {
-        case EKeyCode::A:
-        {
-            if (control)
-                SelectAllEntities();
-            break;
-        }
-        case EKeyCode::N:
-        {
-            if (control)
-                AddNewEntity();
-            break;
-        }
-        case EKeyCode::X:
-        {
-            if (control)
-                DeleteSelectedEntities();
-            break;
-        }
-        case EKeyCode::D:
-        {
-            if (control)
-                DuplicateSelectedEntities();
-            break;
-        }
+			case EKeyCode::A: if (control) SelectAllEntities();         break;
+			case EKeyCode::N: if (control) AddNewEntity();              break;
+			case EKeyCode::X: if (control) DeleteSelectedEntities();    break;
+			case EKeyCode::D: if (control) DuplicateSelectedEntities(); break;
         }
 
         return false;
@@ -78,8 +59,6 @@ namespace Cosmic
     {
         mScene = e.GetScene();
         mSelectedEntities.clear();
-        mLastSelectedEntity = {};
-        mLastSelectedEntityIndex = -1;
 
         return true;
     }
@@ -107,10 +86,7 @@ namespace Cosmic
             char tag[128] = "";
 
             if (ImGui::InputTextWithHint("Add Entity", "Enter Tag Here", tag, 128, ImGuiInputTextFlags_EnterReturnsTrue))
-            {
-                mLastSelectedEntity = mScene->CreateEntity(tag);
-                mSelectedEntities.clear();
-            }
+                mSelectedEntities = { mScene->CreateEntity(tag) };
 
             ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5.0f, 5.0f));
@@ -125,11 +101,7 @@ namespace Cosmic
                 mMouseSelectionStarted = !ImGuiUtils::SelectionRect(&mMouseSelectionStart, &mMouseSelectionEnd, ImGuiMouseButton_Left);
 
                 if (first && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                {
                     mSelectedEntities.clear();
-                    mLastSelectedEntity = {};
-                    mLastSelectedEntityIndex = -1;
-                }
             }
 
             ImGui::PopStyleVar(2);
@@ -151,84 +123,73 @@ namespace Cosmic
             ImGui::TableSetupColumn(ICON_FA_EYE, ImGuiTableColumnFlags_WidthFixed, 20.0f);
             ImGui::TableHeadersRow();
 
-            mScene->ForEachEntityIndexed([this](Entity e, int32 i) { this->RenderEntity(e, i); });
+            //mScene->ForEachEntityIndexed([this](Entity e, int32 i) { RenderEntity(e, i); });
+
+            int32 i = 0;
+            mScene->ForEachRootEntity([this, &i](Entity entity) { RenderEntity(entity, i); i++; });
 
             ImGui::EndTable();
         }
     }
 
-    void SceneHierarchyPanel::RenderEntity(Entity entity, int32 index)
+    void SceneHierarchyPanel::RenderEntity(Entity entity, int32& index)
     {
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
 
-        auto findEntity = [](Vector<Entity>& entities, Entity entity) -> Vector<Entity>::iterator
+        auto findEntity = [this](Entity entity) -> Vector<Entity>::iterator
         {
-            for (Vector<Entity>::iterator it = entities.begin(); it != entities.end();)
+            for (Vector<Entity>::iterator it = mSelectedEntities.begin(); it != mSelectedEntities.end(); it++)
             {
                 if (entity == *it)
                     return it;
-
-                ++it;
             }
 
-            return entities.end();
+            return mSelectedEntities.end();
         };
 
-        bool hasChildren = false;
-        auto entitySelectedIter = findEntity(mSelectedEntities, entity);
-
-        const String& tag = entity.GetComponent<EntityMetadataComponent>().Tag;
-        bool& isVisible = entity.GetComponent<EntityMetadataComponent>().IsVisible;
+        auto& metadata = entity.GetComponent<EntityMetadataComponent>();
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
 
         // Set the entity selected if it is selected
 
-        if (entitySelectedIter != mSelectedEntities.end())
+        if (findEntity(entity) != mSelectedEntities.end())
             flags |= ImGuiTreeNodeFlags_Selected;
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
         ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyleColorVec4(ImGuiCol_TabActive));
 
-        bool open = ImGui::TreeNodeEx(tag.c_str(), flags);
+        bool open    = ImGui::TreeNodeEx(metadata.Tag.c_str(), flags);
+        bool clicked = ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right);
 
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
 
-        if (open)
-        {
-            ImGui::TreePop();
-        }
-
         // Entity Selection
 
-        if (mMouseSelectionStarted && entitySelectedIter == mSelectedEntities.end())
+        if (mMouseSelectionStarted && findEntity(entity) == mSelectedEntities.end())
         {
-            ImVec2 topLeft = ImGui::GetItemRectMin();
+            ImVec2 topLeft  = ImGui::GetItemRectMin();
             ImVec2 btmRight = ImGui::GetItemRectMax();
 
-            ImVec2 mouseTopLeft = ImVec2(std::min(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::min(mMouseSelectionStart.y, mMouseSelectionEnd.y));
+            ImVec2 mouseTopLeft  = ImVec2(std::min(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::min(mMouseSelectionStart.y, mMouseSelectionEnd.y));
             ImVec2 mouseBtmRight = ImVec2(std::max(mMouseSelectionStart.x, mMouseSelectionEnd.x), std::max(mMouseSelectionStart.y, mMouseSelectionEnd.y));
 
             if ((topLeft.y > mouseTopLeft.y && topLeft.y < mouseBtmRight.y) ||
                 (btmRight.y > mouseTopLeft.y && btmRight.y < mouseBtmRight.y))
             {
                 mSelectedEntities.push_back(entity);
-                mLastSelectedEntity = entity;
-                mLastSelectedEntityIndex = index;
             }
         }
 
-        if ((ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)) && ImGui::IsItemHovered())
+        if (clicked)
         {
-            mLastSelectedEntity = entity;
-
             if (Input::IsKeyPressed(EKeyCode::LeftControl) || Input::IsKeyPressed(EKeyCode::RightControl))
             {
                 // Adds entities to the selection one by one, or deselects them if they're already selected.
 
-                auto entityIter = findEntity(mSelectedEntities, entity);
+                auto entityIter = findEntity(entity);
 
                 if (entityIter != mSelectedEntities.end())
                     mSelectedEntities.erase(entityIter);
@@ -239,17 +200,19 @@ namespace Cosmic
             {
                 // Adds more than one entities to the selection.
 
+                int32 lastSelectedEntityIndex = mSelectedEntities.size() - 1;
+
                 mScene->ForEachEntityIndexed([&](Entity other, int32 i)
-                    {
-                        if (index > mLastSelectedEntityIndex && (i > mLastSelectedEntityIndex && i <= index))
-                        {
-                            mSelectedEntities.push_back(other);
-                        }
-                        else if (index < mLastSelectedEntityIndex && (i >= index && i < mLastSelectedEntityIndex))
-                        {
-                            mSelectedEntities.push_back(other);
-                        }
-                    });
+				{
+					if (index > lastSelectedEntityIndex && (i > lastSelectedEntityIndex && i <= index))
+					{
+						mSelectedEntities.push_back(other);
+					}
+					else if (index < lastSelectedEntityIndex && (i >= index && i < lastSelectedEntityIndex))
+					{
+						mSelectedEntities.push_back(other);
+					}
+				});
             }
             else
             {
@@ -258,9 +221,9 @@ namespace Cosmic
                 mSelectedEntities.clear();
                 mSelectedEntities.push_back(entity);
             }
-
-            mLastSelectedEntityIndex = index;
         }
+
+        // Render IsVisible radio button
 
         ImGui::TableNextColumn();
         ImGui::PushID(index);
@@ -271,13 +234,29 @@ namespace Cosmic
         currFont->Scale = 0.75f;
         ImGui::PushFont(currFont);
 
-        if (ImGui::RadioButton("", isVisible))
-            isVisible = !isVisible;
+        if (ImGui::RadioButton("", metadata.IsVisible))
+            metadata.IsVisible = !metadata.IsVisible;
 
         currFont->Scale = 1.0f;
         ImGui::PopFont();
-
         ImGui::PopID();
+
+        // Render children
+
+        if (open)
+        {
+            Entity child = metadata.FirstChild;
+
+            while (child)
+            {
+                RenderEntity(child, index);
+                index++;
+
+                child = child.GetComponent<EntityMetadataComponent>().Next;
+            }
+
+            ImGui::TreePop();
+        }
     }
 
     void SceneHierarchyPanel::RenderRightClickMenu()
@@ -320,16 +299,12 @@ namespace Cosmic
     void SceneHierarchyPanel::ClearSelectedEntities()
     {
         mSelectedEntities.clear();
-        mLastSelectedEntity = {};
-        mLastSelectedEntityIndex = -1;
     }
 
     void SceneHierarchyPanel::SetSelectedEntities(const Vector<Entity>& entities)
     {
         ClearSelectedEntities();
         mSelectedEntities = entities;
-        mLastSelectedEntity = mSelectedEntities[0];
-        mLastSelectedEntityIndex = 0;
     }
 
     void SceneHierarchyPanel::SelectAllEntities()
@@ -340,22 +315,13 @@ namespace Cosmic
         {
             mSelectedEntities.push_back(entity);
         });
-
-        if (!mSelectedEntities.empty())
-        {
-            mLastSelectedEntityIndex = mSelectedEntities.size() - 1;
-            mLastSelectedEntity = mSelectedEntities[mLastSelectedEntityIndex];
-        }
     }
 
     void SceneHierarchyPanel::AddNewEntity()
     {
-        mLastSelectedEntity = mScene->CreateEntity("New Entity");
+        mSelectedEntities = { mScene->CreateEntity() };
 
-        mSelectedEntities = { mLastSelectedEntity };
-        mLastSelectedEntityIndex = 0;
-
-        EventSystem::DeferEvent<EntityAddedEvent>(Vector<Entity> { mLastSelectedEntity }, mScene);
+        EventSystem::DeferEvent<EntityAddedEvent>(mSelectedEntities, mScene);
     }
 
     void SceneHierarchyPanel::DeleteSelectedEntities()
@@ -363,8 +329,6 @@ namespace Cosmic
         EventSystem::DeferEvent<EntityRemovedEvent>(mSelectedEntities, mScene);
 
         mSelectedEntities.clear();
-        mLastSelectedEntity = {};
-        mLastSelectedEntityIndex = -1;
     }
 
     void SceneHierarchyPanel::DuplicateSelectedEntities()

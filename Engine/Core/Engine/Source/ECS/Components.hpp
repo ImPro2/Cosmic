@@ -36,14 +36,11 @@ namespace Cosmic
         bool   IsVisible = true;
 
         size_t ChildrenCount = 0;
-        Entity FirstChild, Next, Prev, Parent;
+        Entity FirstChild, LastChild;
+		Entity Next, Prev, Parent;
     
         EntityMetadataComponent() = default;
         EntityMetadataComponent(const EntityMetadataComponent&) = default;
-        EntityMetadataComponent(int32 id, const String& tag, bool isVisible, size_t childrenCount, Entity first, Entity next, Entity prev, Entity parent)
-            : ID(id), Tag(tag), IsVisible(isVisible), ChildrenCount(childrenCount), FirstChild(first), Next(next), Prev(prev), Parent(parent)
-        {
-        }
 
         void Reset() override
         {
@@ -54,6 +51,7 @@ namespace Cosmic
             ChildrenCount = 0;
 
             FirstChild = Entity();
+            LastChild  = Entity();
             Next       = Entity();
             Prev       = Entity();
             Parent     = Entity();
