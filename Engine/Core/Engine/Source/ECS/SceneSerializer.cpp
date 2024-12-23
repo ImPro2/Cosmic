@@ -104,7 +104,6 @@ namespace Cosmic
 
 			out << YAML::Key << "ChildrenCount" << YAML::Value << metadata.ChildrenCount;
 			out << YAML::Key << "FirstChildID"  << YAML::Value << (metadata.FirstChild ? metadata.FirstChild.GetComponent<EntityMetadataComponent>().ID : -1);
-			out << YAML::Key << "LastChildID"   << YAML::Value << (metadata.LastChild  ? metadata.LastChild.GetComponent<EntityMetadataComponent>().ID  : -1);
 			out << YAML::Key << "NextID"        << YAML::Value << (metadata.Next       ? metadata.Next.GetComponent<EntityMetadataComponent>().ID       : -1);
 			out << YAML::Key << "PrevID"        << YAML::Value << (metadata.Prev       ? metadata.Prev.GetComponent<EntityMetadataComponent>().ID       : -1);
 			out << YAML::Key << "ParentID"      << YAML::Value << (metadata.Parent     ? metadata.Parent.GetComponent<EntityMetadataComponent>().ID     : -1);
@@ -219,7 +218,7 @@ namespace Cosmic
 		{
 			struct EntityIDMetadata
 			{
-				int32 FirstChildID, LastChildID;
+				int32 FirstChildID;
 				int32 NextID, PrevID, ParentID;
 			};
 
@@ -239,7 +238,6 @@ namespace Cosmic
 
 				EntityIDMetadata idMetadata;
 				idMetadata.FirstChildID = entityMetadataComponent["FirstChildID"].as<int32>();
-				idMetadata.LastChildID  = entityMetadataComponent["LastChildID"].as<int32>();
 				idMetadata.NextID       = entityMetadataComponent["NextID"].as<int32>();
 				idMetadata.PrevID       = entityMetadataComponent["PrevID"].as<int32>();
 				idMetadata.ParentID     = entityMetadataComponent["ParentID"].as<int32>();
@@ -304,7 +302,6 @@ namespace Cosmic
 				const EntityIDMetadata& idMetadata = idMetadataMap.at(metadata.ID);
 
 				metadata.FirstChild = mScene->FindEntityByID(idMetadata.FirstChildID);
-				metadata.LastChild  = mScene->FindEntityByID(idMetadata.LastChildID);
 				metadata.Next       = mScene->FindEntityByID(idMetadata.NextID);
 				metadata.Prev       = mScene->FindEntityByID(idMetadata.PrevID);
 				metadata.Parent     = mScene->FindEntityByID(idMetadata.ParentID);

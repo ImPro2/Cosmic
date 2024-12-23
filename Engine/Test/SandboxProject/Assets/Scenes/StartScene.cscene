@@ -1,12 +1,11 @@
 Scene: StartScene
 Entities:
-  - Entity: 132630443
+  - Entity: 682464905
     EntityMetadataComponent:
       Tag: Parent Entity
       IsVisible: true
       ChildrenCount: 3
-      FirstChildID: 278146907
-      LastChildID: 203935572
+      FirstChildID: 430842490
       NextID: -1
       PrevID: -1
       ParentID: -1
@@ -15,46 +14,15 @@ Entities:
       Translation: [1, 1, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-  - Entity: 278146907
-    EntityMetadataComponent:
-      Tag: Child Entity 1
-      IsVisible: true
-      ChildrenCount: 0
-      FirstChildID: -1
-      LastChildID: -1
-      NextID: 1742218732
-      PrevID: -1
-      ParentID: 132630443
-    TransformComponent:
-      IsRelative: true
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-  - Entity: 1742218732
-    EntityMetadataComponent:
-      Tag: Child Entity 2
-      IsVisible: true
-      ChildrenCount: 0
-      FirstChildID: -1
-      LastChildID: -1
-      NextID: 203935572
-      PrevID: 278146907
-      ParentID: 132630443
-    TransformComponent:
-      IsRelative: true
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-  - Entity: 267715821
+  - Entity: 1775282920
     EntityMetadataComponent:
       Tag: Child Entity 3 Child
       IsVisible: true
       ChildrenCount: 0
       FirstChildID: -1
-      LastChildID: -1
       NextID: -1
       PrevID: -1
-      ParentID: 203935572
+      ParentID: 430842490
     TransformComponent:
       IsRelative: true
       Translation: [0, 0, 0]
@@ -62,16 +30,43 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
-  - Entity: 203935572
+  - Entity: 430842490
     EntityMetadataComponent:
       Tag: Child Entity 3
       IsVisible: true
       ChildrenCount: 1
-      FirstChildID: 267715821
-      LastChildID: 267715821
+      FirstChildID: 1775282920
+      NextID: 1033422888
+      PrevID: -1
+      ParentID: 682464905
+    TransformComponent:
+      IsRelative: true
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 1033422888
+    EntityMetadataComponent:
+      Tag: Child Entity 2
+      IsVisible: true
+      ChildrenCount: 0
+      FirstChildID: -1
+      NextID: 1676294990
+      PrevID: 430842490
+      ParentID: 682464905
+    TransformComponent:
+      IsRelative: true
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 1676294990
+    EntityMetadataComponent:
+      Tag: Child Entity 1
+      IsVisible: true
+      ChildrenCount: 0
+      FirstChildID: -1
       NextID: -1
-      PrevID: 1742218732
-      ParentID: 132630443
+      PrevID: 1033422888
+      ParentID: 682464905
     TransformComponent:
       IsRelative: true
       Translation: [0, 0, 0]

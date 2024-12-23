@@ -21,6 +21,7 @@ workspace "Cosmic"
 		systemversion "latest"
 
 	filter "configurations:Debug"
+		debugdir "%{wks.location}"
 		defines "CS_DEBUG"
 		runtime "Debug"
 		symbols "On"

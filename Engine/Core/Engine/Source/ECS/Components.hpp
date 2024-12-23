@@ -36,8 +36,7 @@ namespace Cosmic
         bool   IsVisible = true;
 
         size_t ChildrenCount = 0;
-        Entity FirstChild, LastChild;
-		Entity Next, Prev, Parent;
+        Entity FirstChild, Next, Prev, Parent;
     
         EntityMetadataComponent() = default;
         EntityMetadataComponent(const EntityMetadataComponent&) = default;
@@ -51,7 +50,6 @@ namespace Cosmic
             ChildrenCount = 0;
 
             FirstChild = Entity();
-            LastChild  = Entity();
             Next       = Entity();
             Prev       = Entity();
             Parent     = Entity();

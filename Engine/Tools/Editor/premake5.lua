@@ -3,6 +3,9 @@ project "Editor"
 
 	flags { "MultiProcessorCompile" }
 
+	filter "configurations:Debug"
+		debugargs { "--project-dir=%{wks.location}/Engine/Test/SandboxProject/SandboxProject.cosmic" }
+
 	links
 	{
 	    "Engine",

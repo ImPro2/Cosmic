@@ -199,18 +199,15 @@ namespace Cosmic
     {
 		parentMetadata.ChildrenCount++;
 
-        if (!parentMetadata.FirstChild && !parentMetadata.LastChild)
-        {
+        if (!parentMetadata.FirstChild)
             parentMetadata.FirstChild = entity;
-            parentMetadata.LastChild  = entity;
-        }
         else
         {
-            Entity lastChild = parentMetadata.LastChild;
-            parentMetadata.LastChild = entity;
+            Entity firstChild = parentMetadata.FirstChild;
+            parentMetadata.FirstChild = entity;
 
-            lastChild.GetComponent<EntityMetadataComponent>().Next = entity;
-            entity.GetComponent<EntityMetadataComponent>().Prev = lastChild;
+            firstChild.GetComponent<EntityMetadataComponent>().Prev = entity;
+            entity.GetComponent<EntityMetadataComponent>().Next = firstChild;
         }
 
 		entity.GetComponent<EntityMetadataComponent>().Parent = FindEntityByID(parentMetadata.ID);
@@ -225,15 +222,10 @@ namespace Cosmic
 
 		mSceneRootMetadata.ChildrenCount++;
 
-        if (!mSceneRootMetadata.FirstChild && !mSceneRootMetadata.LastChild)
-        {
+        if (!mSceneRootMetadata.FirstChild)
             mSceneRootMetadata.FirstChild = entity;
-            mSceneRootMetadata.LastChild  = entity;
-        }
         else
-        {
-            mSceneRootMetadata.LastChild = entity;
-        }
+            mSceneRootMetadata.FirstChild = entity;
     }
 
     void Scene::UnregisterEntity(Entity entity, bool releaseChildren)
@@ -246,15 +238,8 @@ namespace Cosmic
 
             parentMetadata.ChildrenCount--;
             
-            if (parentMetadata.FirstChild == parentMetadata.LastChild)
-            {
-                parentMetadata.FirstChild = Entity();
-                parentMetadata.LastChild  = Entity();
-            }
-            else if (parentMetadata.FirstChild == entity)
+            if (parentMetadata.FirstChild == entity)
 				parentMetadata.FirstChild = parentMetadata.FirstChild.GetComponent<EntityMetadataComponent>().Next;
-			else if (parentMetadata.LastChild == entity)
-				parentMetadata.LastChild  = parentMetadata.LastChild.GetComponent<EntityMetadataComponent>().Prev;
         }
 
 		Entity prev = metadata.Prev;
@@ -267,14 +252,11 @@ namespace Cosmic
 			next.GetComponent<EntityMetadataComponent>().Prev = prev;
 
         if (releaseChildren)
-        {
             metadata.FirstChild = Entity();
-            metadata.LastChild = Entity();
-        }
 
-        metadata.Prev       = Entity();
-        metadata.Next       = Entity();
-        metadata.Parent     = Entity();
+        metadata.Prev   = Entity();
+        metadata.Next   = Entity();
+        metadata.Parent = Entity();
     }
 
     void Scene::ReparentEntity(Entity entity, Entity parent)
@@ -429,7 +411,7 @@ namespace Cosmic
 
         if (!metadata.Parent)
         {
-			TransformComponent& tc = entity.GetComponent<TransformComponent>();
+			TransformComponent& tc  = entity.GetComponent<TransformComponent>();
 			tc.mAbsoluteTranslation = tc.Translation;
 			tc.mAbsoluteRotation    = tc.Rotation;
 			tc.mAbsoluteScale       = tc.Scale;

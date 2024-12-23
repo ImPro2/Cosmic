@@ -237,8 +237,6 @@ namespace Cosmic
 				return EFieldType::String;
 			else if constexpr (std::is_enum_v<T>)
 				return EFieldType::Enum;
-			else
-				static_assert(false);
 
 			return EFieldType::Unknown;
 		}
