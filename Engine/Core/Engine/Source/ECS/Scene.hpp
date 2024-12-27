@@ -24,9 +24,20 @@ namespace Cosmic
         ~Scene();
 
     public:
-        void OnUpdate(Dt dt);
-        void OnUpdateEditor(Dt dt, const Camera& camera, const glm::mat4& cameraTransform);
+        Ref<Scene> Copy();
+
+    public:
+        void OnRuntimeStart();
+        void OnRuntimeStop();
+
+        void OnRuntimeUpdate(Dt dt);
+        void OnEditorUpdate(Dt dt);
+
         void OnViewportResize(uint32 width, uint32 height);
+
+    public:
+        void RenderMainCamera();
+        void RenderCamera(const Camera& camera, const glm::mat4& cameraTransform);
 
     public:
         Entity CreateEntity(const String& name = "", Entity parent = Entity());
@@ -43,6 +54,7 @@ namespace Cosmic
         Entity FindEntityByTag(const String& tag);
         Entity FindEntityByID(int32 id);
         Entity FindRootParent(Entity entity);
+        Entity FindMainCameraEntity();
 
         void ForEachRootEntity(std::function<void(Entity)> fn);
         void ForEachEntity(std::function<void(Entity)> fn);
@@ -54,6 +66,12 @@ namespace Cosmic
         void ForEachChildRecurseBottomUp(Entity parent, std::function<void(Entity)> fn);
         void ForEachChildRecurseBottomUp(const EntityMetadataComponent& parentMetadata, std::function<void(Entity)> fn);
 
+        template<typename... Ts, typename F>
+        void ForEach(ComponentGroup<Ts...>, F callback)
+        {
+            (ForEach<Ts>(callback), ...);
+        }
+
         template<typename... T, typename F>
         void ForEach(F callback)
         {
@@ -63,6 +81,7 @@ namespace Cosmic
 			});
         }
 
+    public:
         size_t GetEntityCount() const;
         entt::registry* GetRegistryPtr() { return &mRegistry; }
 
@@ -71,6 +90,37 @@ namespace Cosmic
     private:
         void ResolveRelativeChildProperties();
         void ResolveRelativeChildPropertiesRecurse(Entity entity);
+
+    private:
+        void CopyAllComponents(Entity from, Entity to);
+
+        template<typename... Ts>
+        void CopyComponentIfExists(ComponentGroup<Ts...>, Entity from, Entity to)
+        {
+            CopyComponentIfExists<Ts...>(from, to);
+        }
+
+        template<typename... Ts>
+        void CopyComponentIfExists(Entity from, Entity to)
+        {
+            ([&]()
+			{
+				if (from.HasComponent<Ts>())
+					CopyComponent<Ts>(from, to);
+			}, ...);
+        }
+
+        template<typename... Ts>
+        void CopyComponent(ComponentGroup<Ts...>, Entity from, Entity to)
+        {
+            CopyComponent<Ts...>(from, to);
+        }
+
+        template<typename... Ts>
+        void CopyComponent(Entity from, Entity to)
+        {
+            ((to.AddComponent<Ts>(from.GetComponent<Ts>())), ...);
+        }
 
     private:
         entt::registry mRegistry;

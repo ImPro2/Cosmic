@@ -2,7 +2,6 @@
 #include "EditorCamera.hpp"
 #include "App/Input.hpp"
 #include "App/KeyAndMouseCodes.hpp"
-#include "Time/Time.hpp"
 
 #include <cwchar>
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,12 +28,12 @@ namespace Cosmic
         RecalculateViewOrthographic();
     }
 
-    void EditorCamera::OnUpdate()
+    void EditorCamera::OnUpdate(Dt dt)
     {
         switch (mProjectionType)
         {
-            case EProjectionType::Orthographic: MovementOrthographic();
-            case EProjectionType::Perspective:  MovementPerspective();
+            case EProjectionType::Orthographic: MovementOrthographic(dt);
+            case EProjectionType::Perspective:  MovementPerspective(dt);
         }
     }
 
@@ -54,7 +53,7 @@ namespace Cosmic
         SetViewportSize(width, height);
     }
 
-    void EditorCamera::MovementOrthographic()
+    void EditorCamera::MovementOrthographic(Dt dt)
     {
         glm::vec2 movementDir = {
             (float32)Input::IsKeyPressed(EKeyCode::A) - (float32)Input::IsKeyPressed(EKeyCode::D),
@@ -63,12 +62,12 @@ namespace Cosmic
         
         if (movementDir.x != 0 || movementDir.y != 0)
         {
-            mPosition += glm::vec3(mMovementSpeed * glm::normalize(movementDir) * (float32)Time::GetDeltaTime(), 0.0f);
+            mPosition += glm::vec3(mMovementSpeed * glm::normalize(movementDir) * dt.InSeconds(), 0.0f);
             RecalculateViewOrthographic();
         }
     }
 
-    void EditorCamera::MovementPerspective()
+    void EditorCamera::MovementPerspective(Dt dt)
     {
 
     }

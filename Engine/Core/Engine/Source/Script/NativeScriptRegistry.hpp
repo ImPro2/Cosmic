@@ -38,7 +38,9 @@ namespace Cosmic
 		void Init();
 		void Shutdown();
 
-		void OnUpdate(const Ref<Scene>& scene);
+		void OnRuntimeStart(const Ref<Scene>& scene);
+		void OnRuntimeStop(const Ref<Scene>& scene);
+		void OnRuntimeUpdate(const Ref<Scene>& scene);
 
 	public:
 		void RegisterScriptClass(const String& className, InstantiateNativeScriptCallback callback = nullptr);
@@ -48,15 +50,12 @@ namespace Cosmic
 		void              DestroyScriptInstance(Ref<NativeScript>& instance);
 
 	private:
-		void OnScriptAssemblyReloaded(const Ref<Scene>& scene);
 		void OnScriptAssemblyUnloaded();
 
 	private:
 		void ReleaseScriptInstances();
 		void ClearRegisteredScriptClasses();
 		void ClearRegisteredEnumClasses();
-
-		void SetUnloadedScriptInstancesToLoad(const Ref<Scene>& scene);
 
 	public:
 		NativeScriptInstantiateCallbackMap&       GetCallbackMap()       { return mCallbackMap; }

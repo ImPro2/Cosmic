@@ -162,7 +162,6 @@ namespace Cosmic
     {
         WeakRef<NativeScript> Instance   = nullptr;
         String                ClassName  = "";
-        bool                  ShouldLoad = false;
 
         NativeScriptComponent()                             = default;
         NativeScriptComponent(const NativeScriptComponent&) = default;
@@ -171,10 +170,22 @@ namespace Cosmic
         {
             Instance.Reset();
             ClassName  = "";
-            ShouldLoad = false;
         }
 
         CS_COMPONENT_TYPE(EComponentType::NativeScript);
     };
+
+    template<typename... Ts>
+    struct ComponentGroup
+    {
+    };
+
+    using AllComponents = ComponentGroup<
+        EntityMetadataComponent,
+        TransformComponent,
+        SpriteRendererComponent,
+        CameraComponent,
+        NativeScriptComponent
+    >;
 
 }

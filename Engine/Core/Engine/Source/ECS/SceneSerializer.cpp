@@ -292,7 +292,6 @@ namespace Cosmic
 					auto& component = deserializedEntity.AddComponent<NativeScriptComponent>();
 
 					component.ClassName  = nativeScriptComponent["ClassName"].as<String>();
-					component.ShouldLoad = true;
 				}
 			}
 

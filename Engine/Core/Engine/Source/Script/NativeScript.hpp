@@ -51,8 +51,8 @@ namespace Cosmic
         }
 
     protected:
-        virtual void OnInstantiate() { }
-        virtual void OnDestroy()     { }
+        virtual void OnSceneStart()  { }
+        virtual void OnSceneStop()   { }
         virtual void OnUpdate(Dt dt) { }
 
     protected:

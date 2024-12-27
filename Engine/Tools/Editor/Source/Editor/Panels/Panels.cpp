@@ -7,6 +7,7 @@
 #include "SceneHierarchyPanel.hpp"
 #include "InspectorPanel.hpp"
 #include "ContentBrowserPanel.hpp"
+#include "PlaybarPanel.hpp"
 
 namespace Cosmic
 {
@@ -19,6 +20,7 @@ namespace Cosmic
         mPanels.push_back(ModuleSystem::Add<SceneHierarchyPanel>());
         mPanels.push_back(ModuleSystem::Add<InspectorPanel>());
         mPanels.push_back(ModuleSystem::Add<ContentBrowserPanel>());
+        mPanels.push_back(ModuleSystem::Add<PlaybarPanel>());
         mPanels.push_back(ModuleSystem::Add<ViewportPanel>());
     }
 

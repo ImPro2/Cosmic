@@ -15,7 +15,8 @@
 #include "Editor/Event/SceneEvents.hpp"
 #include "Editor/EditorCamera.hpp"
 
-#include "SceneHierarchyPanel.hpp"
+#include "Editor/Panels/SceneHierarchyPanel.hpp"
+#include "Editor/Panels/PlaybarPanel.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -25,6 +26,8 @@
 
 namespace Cosmic
 {
+
+    class PlaybarPanel;
 
     class ViewportPanel : public IPanel
     {
@@ -48,6 +51,9 @@ namespace Cosmic
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnEditorSceneOpened(const SceneOpenedEvent& e);
 
+    public:
+        const EditorCamera& GetEditorCamera() const { return mCamera; }
+
     private:
         Ref<Framebuffer> mFramebuffer;
         Ref<Scene>       mScene;
@@ -61,9 +67,10 @@ namespace Cosmic
         EditorCamera mCamera;
 
         Ref<SceneHierarchyPanel> mSceneHierarchyPanel;
+        Ref<PlaybarPanel>        mPlaybarPanel;
 
         ImGuizmo::OPERATION mGizmoOperation = (ImGuizmo::OPERATION)(-1);
-        ImGuizmo::MODE      mGizmoMode = ImGuizmo::MODE::LOCAL;
+        ImGuizmo::MODE      mGizmoMode      = ImGuizmo::MODE::LOCAL;
     };
 
 }

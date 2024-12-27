@@ -62,5 +62,24 @@ namespace Cosmic
         CS_EVENT_TYPE(EEditorEvent::SceneNew);
 	};
 
+	struct ScenePlayEvent : public ISceneEvent
+	{
+		ScenePlayEvent(const Ref<Scene>& scene)
+			: ISceneEvent(scene)
+		{
+		}
+
+		CS_EVENT_TYPE(EEditorEvent::ScenePlay);
+	};
+
+	struct SceneStopEvent : public ISceneEvent
+	{
+		SceneStopEvent(const Ref<Scene>& scene)
+			: ISceneEvent(scene)
+		{
+		}
+
+		CS_EVENT_TYPE(EEditorEvent::SceneStop);
+	};
 
 }

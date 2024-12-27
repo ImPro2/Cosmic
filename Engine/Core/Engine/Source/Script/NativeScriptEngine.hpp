@@ -27,7 +27,10 @@ namespace Cosmic
 		static void                              Shutdown();
 
 	public:
-		static void OnUpdate(Dt dt);
+		static void OnRuntimeStart();
+		static void OnRuntimeStop();
+		static void OnRuntimeUpdate(Dt dt);
+
 		static void SetActiveScene(const Ref<Scene>& scene);
 
 	public:

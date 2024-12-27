@@ -28,12 +28,28 @@ namespace Cosmic
 		sInstance.Release();
 	}
 
-	void NativeScriptEngine::OnUpdate(Dt dt)
+	void NativeScriptEngine::OnRuntimeStart()
 	{
 		if (!sInstance->mActiveScene)
 			return;
 
-		sInstance->mRegistry.OnUpdate(sInstance->mActiveScene);
+		sInstance->mRegistry.OnRuntimeStart(sInstance->mActiveScene);
+	}
+
+	void NativeScriptEngine::OnRuntimeStop()
+	{
+		if (!sInstance->mActiveScene)
+			return;
+
+		sInstance->mRegistry.OnRuntimeStop(sInstance->mActiveScene);
+	}
+
+	void NativeScriptEngine::OnRuntimeUpdate(Dt dt)
+	{
+		if (!sInstance->mActiveScene)
+			return;
+
+		sInstance->mRegistry.OnRuntimeUpdate(sInstance->mActiveScene);
 	}
 
 	void NativeScriptEngine::SetActiveScene(const Ref<Scene>& scene)
@@ -93,8 +109,7 @@ namespace Cosmic
 
 	void NativeScriptEngine::ReloadScriptAssembly()
 	{
-		sInstance->mRegistry.OnScriptAssemblyReloaded(sInstance->mActiveScene);
-
+		sInstance->mRegistry.OnScriptAssemblyUnloaded();
 		LoadScriptAssembly(sInstance->mScriptAssemblyFile);
 	}
 

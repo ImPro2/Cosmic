@@ -28,18 +28,38 @@ namespace Cosmic
 	{
 	}
 
-	void NativeScriptRegistry::OnUpdate(const Ref<Scene>& scene)
+	void NativeScriptRegistry::OnRuntimeStart(const Ref<Scene>& scene)
 	{
 		scene->ForEach<NativeScriptComponent>([this](Entity entity, NativeScriptComponent& nsc)
 		{
-			if (!nsc.Instance && nsc.ShouldLoad)
-			{
-                nsc.Instance   = InstantiateScript(nsc.ClassName, entity);
-                nsc.ShouldLoad = false;
-			}
+			Ref<NativeScript> instance = InstantiateScript(nsc.ClassName, entity);
+			instance->OnSceneStart();
 
-            if (Ref<NativeScript> instance = nsc.Instance.Own())
+			nsc.Instance = instance;
+		});
+	}
+
+	void NativeScriptRegistry::OnRuntimeStop(const Ref<Scene>& scene)
+	{
+		scene->ForEach<NativeScriptComponent>([this](Entity entity, NativeScriptComponent& nsc)
+		{
+			if (Ref<NativeScript> instance = nsc.Instance.Own())
+			{
+				instance->OnSceneStop();
+			}
+		});
+
+		ReleaseScriptInstances();
+	}
+
+	void NativeScriptRegistry::OnRuntimeUpdate(const Ref<Scene>& scene)
+	{
+		scene->ForEach<NativeScriptComponent>([this](Entity entity, NativeScriptComponent& nsc)
+		{
+			if (Ref<NativeScript> instance = nsc.Instance.Own())
+			{
 				instance->OnUpdate(Time::GetDeltaTime());
+			}
 		});
 	}
 
@@ -94,7 +114,6 @@ namespace Cosmic
 			RegisterScriptClass(className);
 
 		Ref<NativeScript> instance = Ref<NativeScript>(mCallbackMap[className](entity));
-		instance->OnInstantiate();
 
 		mScriptInstances.push_back(instance);
 
@@ -105,8 +124,6 @@ namespace Cosmic
 
 	void NativeScriptRegistry::DestroyScriptInstance(Ref<NativeScript>& instance)
 	{
-		instance->OnDestroy();
-
 		mFieldMap[instance].clear();
 		mFieldMap.erase(instance);
 
@@ -116,12 +133,6 @@ namespace Cosmic
 		CS_LOG_DEBUG("Destroyed script instance");
 
 		instance.Release();
-	}
-
-	void NativeScriptRegistry::OnScriptAssemblyReloaded(const Ref<Scene>& scene)
-	{
-		OnScriptAssemblyUnloaded();
-		SetUnloadedScriptInstancesToLoad(scene);
 	}
 
 	void NativeScriptRegistry::OnScriptAssemblyUnloaded()
@@ -137,7 +148,6 @@ namespace Cosmic
 	{
 		for (Ref<NativeScript>& instance : mScriptInstances)
 		{
-			instance->OnDestroy();
 			mFieldMap[instance].clear();
 			instance.Release();
 		}
@@ -156,15 +166,6 @@ namespace Cosmic
 	{
 		mEnumConversionCallbackMap.clear();
 		mEnumStringMap.clear();
-	}
-
-	void NativeScriptRegistry::SetUnloadedScriptInstancesToLoad(const Ref<Scene>& scene)
-	{
-		scene->ForEach<NativeScriptComponent>([](Entity entity, NativeScriptComponent& nsc)
-		{
-			if (!nsc.Instance)
-				nsc.ShouldLoad = true;
-		});
 	}
 
 	void NativeScriptRegistry::RegisterField(IField* field)

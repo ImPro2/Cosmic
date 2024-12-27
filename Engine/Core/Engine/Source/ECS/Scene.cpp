@@ -50,54 +50,36 @@ namespace Cosmic
 
     }
 
-    void Scene::OnUpdate(Dt dt)
+    Ref<Scene> Scene::Copy()
     {
-        // Update scripts
+        Ref<Scene> sceneCopy = CreateRef<Scene>();
 
-        NativeScriptEngine::OnUpdate(dt);
+        ForEachEntity([&](Entity entity)
+		{
+			Entity entityCopy = Entity { sceneCopy->mRegistry.create(), &sceneCopy->mRegistry };
+            CopyAllComponents(entity, entityCopy);
+		});
 
-        Camera*   mainCamera          = nullptr;
-        glm::mat4 mainCameraTransform = glm::mat4(1.0f);
+        sceneCopy->ForEachEntity([&sceneCopy](Entity entity)
+		{
+			sceneCopy->RegisterSerializedEntity(entity);
+		});
 
-        // Find main camera
-        {
-            auto view = mRegistry.view<TransformComponent, CameraComponent>();
-            for (auto entity : view)
-            {
-                auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-
-                if (camera.Primary)
-                {
-                    mainCamera          = &camera.Camera;
-                    mainCameraTransform = transform.GetTransform();
-                }
-            }
-        }
-
-        // Only render if main camera exists
-        if (mainCamera)
-        {
-            Renderer2D::BeginScene(*mainCamera, mainCameraTransform);
-
-            /*auto group = mRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-            for (auto entity : group)
-            {
-                auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-                Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
-            }*/
-
-            mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](auto entity, auto& metadata, auto& transform, auto& sprite)
-            {
-                if (metadata.IsVisible)
-                    Renderer2D::RenderQuad(transform.GetTransform(), sprite.Color);
-            });
-
-            Renderer2D::EndScene();
-        }
+        return sceneCopy;
     }
 
-    void Scene::OnUpdateEditor(Dt dt, const Camera& camera, const glm::mat4& cameraTransform)
+    void Scene::OnRuntimeStart()
+    {
+        NativeScriptEngine::ReloadScriptAssembly();
+        NativeScriptEngine::OnRuntimeStart();
+    }
+
+    void Scene::OnRuntimeStop()
+    {
+        NativeScriptEngine::OnRuntimeStop();
+    }
+
+    void Scene::OnRuntimeUpdate(Dt dt)
     {
         // Resolve each root entity's relative child properties
 
@@ -105,21 +87,14 @@ namespace Cosmic
 
         // Update scripts
 
-        NativeScriptEngine::OnUpdate(dt);
+        NativeScriptEngine::OnRuntimeUpdate(dt);
+    }
 
-        // Render SpriteRendererComponents
+    void Scene::OnEditorUpdate(Dt dt)
+    {
+        // Resolve each root entity's relative child properties
 
-        Renderer2D::BeginScene(camera, cameraTransform);
-
-        mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](entt::entity entity, auto& metadata, auto& tc, auto& sprite)
-		{
-			if (metadata.IsVisible)
-			{
-                Renderer2D::RenderQuad(tc.GetAbsoluteTransform(), sprite.Color, (int32)entity);
-            }
-		});
-
-        Renderer2D::EndScene();
+        ResolveRelativeChildProperties();
     }
 
     void Scene::OnViewportResize(uint32 width, uint32 height)
@@ -135,6 +110,31 @@ namespace Cosmic
                 cameraComponent.Camera.SetViewportSize(width, height);
             }
         }
+    }
+
+    void Scene::RenderMainCamera()
+    {
+        if (Entity mainCamera = FindMainCameraEntity())
+        {
+            RenderCamera(mainCamera.GetComponent<CameraComponent>().Camera, mainCamera.GetComponent<TransformComponent>().GetAbsoluteTransform());
+        }
+    }
+
+    void Scene::RenderCamera(const Camera& camera, const glm::mat4& cameraTransform)
+    {
+        // Render SpriteRendererComponents
+
+        Renderer2D::BeginScene(camera, cameraTransform);
+
+        mRegistry.view<EntityMetadataComponent, TransformComponent, SpriteRendererComponent>().each([](entt::entity entity, auto& metadata, auto& tc, auto& sprite)
+		{
+			if (metadata.IsVisible)
+			{
+                Renderer2D::RenderQuad(tc.GetAbsoluteTransform(), sprite.Color, (int32)entity);
+            }
+		});
+
+        Renderer2D::EndScene();
     }
 
     Entity Scene::CreateEntity(const String& name, Entity parent)
@@ -296,6 +296,16 @@ namespace Cosmic
         return Entity { entt::null, &mRegistry };
     }
 
+    Entity Scene::FindMainCameraEntity()
+    {
+        for (entt::entity entity : mRegistry.view<CameraComponent>())
+        {
+            const CameraComponent& cameraComponent = mRegistry.get<CameraComponent>(entity);
+            if (cameraComponent.Primary)
+                return Entity { entity, &mRegistry };
+        }
+    }
+
     Entity Scene::FindRootParent(Entity entity)
     {
         Entity parent = entity.GetComponent<EntityMetadataComponent>().Parent;
@@ -439,6 +449,11 @@ namespace Cosmic
         }
 
         ForEachChildRecurseTopDown(entity, [this](Entity child) { ResolveRelativeChildPropertiesRecurse(child); });
+    }
+
+    void Scene::CopyAllComponents(Entity from, Entity to)
+    {
+        CopyComponentIfExists(AllComponents { }, from, to);
     }
 
 }

@@ -218,8 +218,10 @@ namespace Cosmic
 			NativeScriptRegistry& registry = NativeScriptEngine::GetRegistry();
 			const Vector<String>& classNames = registry.GetRegisteredClassNames();
 
-			if (ImGuiUtils::DrawEnumStr("Script Class", component.ClassName, classNames, ""))
-				component.ShouldLoad = component.ClassName != "";
+            if (ImGuiUtils::DrawEnumStr("Script Class", component.ClassName, classNames, "") && component.ClassName != "")
+            {
+                component.Instance = registry.InstantiateScript(component.ClassName, entity);
+            }
 
             Ref<NativeScript> instance = component.Instance.Own();
 

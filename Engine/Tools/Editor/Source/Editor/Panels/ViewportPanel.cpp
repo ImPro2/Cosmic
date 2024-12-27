@@ -11,9 +11,11 @@
 #include "Editor/EditorModule.hpp"
 #include "ContentBrowserPanel.hpp"
 #include "ECS/Components.hpp"
+
+#include "Editor/Panels/PlaybarPanel.hpp"
+
 #include "entt/entity/fwd.hpp"
 #include "glm/gtc/type_ptr.hpp"
-
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <entt/entt.hpp>
@@ -48,6 +50,7 @@ namespace Cosmic
         mScene = editorModule->GetActiveScene();
 
         mSceneHierarchyPanel = ModuleSystem::Get<SceneHierarchyPanel>();
+        mPlaybarPanel        = ModuleSystem::Get<PlaybarPanel>();
     }
 
     void ViewportPanel::OnUpdate(Dt dt)
@@ -61,8 +64,22 @@ namespace Cosmic
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
         RenderCommand::Clear();
 
+        switch (mPlaybarPanel->GetSceneState())
+        {
+			case ESceneState::Edit:
+			{
+                mCamera.OnUpdate(dt);
+                mScene->RenderCamera(mCamera, mCamera.GetTransform());
+				break;
+			}
+			case ESceneState::Play:
+			{
+                mScene->RenderMainCamera();
+				break;
+			}
+        }
+
         mFramebuffer->ClearAttachment(1, -1);
-        mScene->OnUpdateEditor(dt, mCamera, mCamera.GetTransform());
 
         auto [x, y] = ImGui::GetMousePos();
         x -= mTopLeft.x;
@@ -166,7 +183,6 @@ namespace Cosmic
         if (selectedEntities.size() == 1 && mGizmoOperation != (ImGuizmo::OPERATION)(-1))
         {
             Entity selectedEntity = selectedEntities[0];
-
             
             ImGuizmo::SetOrthographic(mCamera.GetProjectionType() == EProjectionType::Orthographic);
             ImGuizmo::SetDrawlist();

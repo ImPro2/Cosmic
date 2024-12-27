@@ -41,7 +41,7 @@ namespace Cosmic
 
     public:
         template<typename T>
-        Ref<T> GetPanel()
+        Ref<T> GetPanel() const
         {
             const char* name = typeid(T).name();
             for (Ref<IPanel> panel : mPanels)
