@@ -91,10 +91,20 @@ namespace Cosmic
         }
 
         template<class T2>
+        T2* As() const
+        {
+            return (T2*)mPtr;
+        }
+
+#if 0
+        template<class T2>
         Scope<T2> As() const
         {
-            return Scope<T2>(*this);
+            //return Scope<T2>(*this);
+            //return Scope<T2>((T2*)mPtr);
+            return (T2*)mPtr;
         }
+#endif
 
     public:
         T*       operator->()       { return mPtr; }
