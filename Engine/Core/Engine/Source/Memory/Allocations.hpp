@@ -12,6 +12,7 @@ namespace Cosmic
 {
 
 	class Application;
+	class VulkanApp; // temporary
 
 	struct AllocationStatistics
 	{
@@ -68,6 +69,7 @@ namespace Cosmic
 
 		friend class IAllocator;
 		friend class Application;
+		friend class VulkanApp;
 	};
 
 }
