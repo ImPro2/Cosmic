@@ -1,6 +1,7 @@
 #pragma once
 #include "Macros.hpp"
 #include "Types.hpp"
+#include "BitFlags.hpp"
 #include "Tuples.hpp"
 #include "Singleton.hpp"
 #include "StringUtils.hpp"

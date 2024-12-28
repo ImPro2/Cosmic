@@ -20,16 +20,35 @@
 #include "Script/NativeScriptEngine.hpp"
 #include "Time/Time.hpp"
 
-namespace Cosmic {
+namespace Cosmic
+{
+
+    enum class EEngineSystem : uint32
+    {
+        None               = 0,
+        OS                 = CS_BIT(0),
+        Allocations        = CS_BIT(1),
+        Logging            = CS_BIT(2),
+        Events             = CS_BIT(3),
+        Renderer           = CS_BIT(4),
+        Modules            = CS_BIT(5),
+        AppWindow          = CS_BIT(6),
+        GUI                = CS_BIT(7),
+        FileSystem         = CS_BIT(8),
+        NativeScriptEngine = CS_BIT(9),
+        ProjectManager     = CS_BIT(10),
+        Time               = CS_BIT(11),
+
+        All = OS | Allocations | Logging | Events | Renderer | Modules | AppWindow | GUI | FileSystem | NativeScriptEngine | ProjectManager | Time
+    };
 
     struct ApplicationInfo
     {
-        StartupArgumentList StartupArgs        = { };
-        const char*         Name               = "Cosmic Engine";
-        DesktopWindowInfo   WindowInfo         = DesktopWindowInfo();
-        ERendererAPI        RendererBackend    = PlatformNativeRendererAPI();
-        bool                EnableImGui        = true;
-        String              ScriptAssemblyPath = "";
+        StartupArgumentList     StartupArgs        = { };
+        const char*             Name               = "Cosmic Engine";
+        BitFlags<EEngineSystem> EnabledSystems     = EEngineSystem::All;
+        DesktopWindowInfo       WindowInfo         = DesktopWindowInfo();
+        ERendererAPI            RendererBackend    = PlatformNativeRendererAPI();
     };
     
     class Application

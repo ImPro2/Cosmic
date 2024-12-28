@@ -23,7 +23,7 @@ namespace Cosmic
 		}
 
 	private:
-		static PersistentRef<NativeScriptEngine> Init(const Path& scriptAssemblyPath);
+		static PersistentRef<NativeScriptEngine> Init();
 		static void                              Shutdown();
 
 	public:

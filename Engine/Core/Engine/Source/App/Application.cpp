@@ -64,7 +64,7 @@ namespace Cosmic
         mGuiInstance        = Gui::Init();
         mFileSystemInstance = FileSystem::Init(String("./"));
 
-        mNativeScriptEngineInstance = NativeScriptEngine::Init(mInfo.ScriptAssemblyPath);
+        mNativeScriptEngineInstance = NativeScriptEngine::Init();
 
         mProjectManagerInstance = ProjectManager::Init();
         mTimeInstance = Time::Init();
@@ -114,7 +114,7 @@ namespace Cosmic
                 EventSystem::DeferEvent<ApplicationUpdateEvent>();
             }
 
-            if (mInfo.EnableImGui)
+            if (mInfo.EnabledSystems.IsSet(EEngineSystem::GUI))
             {
                 Gui::Begin();
                 ModuleSystem::OnImGuiRender();
