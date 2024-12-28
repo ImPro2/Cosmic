@@ -54,7 +54,7 @@ namespace Cosmic
 		inline void Set(const E& value)   { mFlags |=  static_cast<UnderlyingType>(value); }
 		inline void Unset(const E& value) { mFlags &= ~static_cast<UnderlyingType>(value); }
 
-		inline bool IsSet(const E& value)
+		inline bool IsSet(const E& value) const
 		{
 			return (mFlags & static_cast<UnderlyingType>(value)) == static_cast<UnderlyingType>(value);
 		}

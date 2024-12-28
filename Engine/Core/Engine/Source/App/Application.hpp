@@ -26,8 +26,8 @@ namespace Cosmic
     enum class EEngineSystem : uint32
     {
         None               = 0,
-        OS                 = CS_BIT(0),
-        Allocations        = CS_BIT(1),
+        Allocations        = CS_BIT(0),
+        OS                 = CS_BIT(1),
         Logging            = CS_BIT(2),
         Events             = CS_BIT(3),
         Renderer           = CS_BIT(4),
