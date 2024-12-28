@@ -109,6 +109,8 @@ namespace Cosmic
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(SceneOpenedEvent, OnEditorSceneOpened);
+        CS_DISPATCH_EVENT(ScenePlayEvent, OnScenePlay);
+        CS_DISPATCH_EVENT(SceneStopEvent, OnSceneStop);
     }
 
     void ViewportPanel::OnImGuiRender()
@@ -282,6 +284,20 @@ namespace Cosmic
         mScene = e.GetScene();
         mSceneChanged = true;
         return true;
+    }
+
+    bool ViewportPanel::OnScenePlay(const ScenePlayEvent& e)
+    {
+        mScene = e.GetScene();
+
+        return false;
+    }
+
+    bool ViewportPanel::OnSceneStop(const SceneStopEvent& e)
+    {
+        mScene = e.GetScene();
+
+        return false;
     }
 
 }

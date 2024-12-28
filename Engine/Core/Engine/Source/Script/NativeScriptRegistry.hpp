@@ -53,6 +53,8 @@ namespace Cosmic
 		void OnScriptAssemblyUnloaded();
 
 	private:
+		void ClearScriptInstancesEntities();
+
 		void ReleaseScriptInstances();
 		void ClearRegisteredScriptClasses();
 		void ClearRegisteredEnumClasses();

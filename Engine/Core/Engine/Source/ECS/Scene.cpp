@@ -54,16 +54,17 @@ namespace Cosmic
     {
         Ref<Scene> sceneCopy = CreateRef<Scene>();
 
-        ForEachEntity([&](Entity entity)
-		{
-			Entity entityCopy = Entity { sceneCopy->mRegistry.create(), &sceneCopy->mRegistry };
-            CopyAllComponents(entity, entityCopy);
-		});
+        EntityIDMetadataMap idMetadataMap;
 
+        CopySceneComponents(AllComponents { }, sceneCopy, idMetadataMap);
+        sceneCopy->RegisterSerializedEntities(idMetadataMap);
+
+#if 0
         sceneCopy->ForEachEntity([&sceneCopy](Entity entity)
 		{
 			sceneCopy->RegisterSerializedEntity(entity);
 		});
+#endif
 
         return sceneCopy;
     }
@@ -156,15 +157,6 @@ namespace Cosmic
         return entity;
     }
 
-    Entity Scene::CreateSerializedEntity(const EntityMetadataComponent& metadata)
-    {
-        Entity entity = { mRegistry.create(), &mRegistry };
-        entity.AddComponent<TransformComponent>();
-        entity.AddComponent<EntityMetadataComponent>(metadata);
-
-        return entity;
-    }
-
     Entity Scene::AddEntity(Entity entity)
     {
         Entity newEntity = { mRegistry.create(), &mRegistry };
@@ -186,10 +178,12 @@ namespace Cosmic
 
     void Scene::RemoveEntity(Entity entity)
     {
-        ForEachChildRecurseTopDown(entity, [this](Entity child)
+#if 0
+        ForEachChildRecurseBottomUp(entity, [this](Entity child)
 		{
 			mRegistry.destroy((entt::entity)child);
 		});
+#endif
 
         UnregisterEntity(entity);
         mRegistry.destroy(entity);
@@ -213,6 +207,41 @@ namespace Cosmic
 		entity.GetComponent<EntityMetadataComponent>().Parent = FindEntityByID(parentMetadata.ID);
     }
 
+    Entity Scene::CreateSerializedEntity(const EntityMetadataComponent& metadata, EntityIDMetadataMap& idMetadataMap)
+    {
+        EntityIDMetadata idMetadata;
+
+        if (metadata.FirstChild)
+			idMetadata.FirstChildID = metadata.FirstChild.GetComponent<EntityMetadataComponent>().ID;
+
+        if (metadata.Next)
+			idMetadata.NextID = metadata.Next.GetComponent<EntityMetadataComponent>().ID;
+
+        if (metadata.Prev)
+			idMetadata.PrevID = metadata.Prev.GetComponent<EntityMetadataComponent>().ID;
+
+        if (metadata.Parent)
+			idMetadata.ParentID = metadata.Parent.GetComponent<EntityMetadataComponent>().ID;
+
+        return CreateSerializedEntity(metadata, idMetadata, idMetadataMap);
+    }
+
+    Entity Scene::CreateSerializedEntity(const EntityMetadataComponent& metadata, const EntityIDMetadata& idMetadata, EntityIDMetadataMap& idMetadataMap)
+    {
+        Entity entity = { mRegistry.create(), &mRegistry };
+        entity.AddComponent<TransformComponent>();
+
+        auto& entityMetadata = entity.AddComponent<EntityMetadataComponent>();
+        entityMetadata.ID = metadata.ID;
+        entityMetadata.Tag = metadata.Tag;
+        entityMetadata.IsVisible = metadata.IsVisible;
+        entityMetadata.ChildrenCount = metadata.ChildrenCount;
+
+        idMetadataMap[metadata.ID] = idMetadata;
+
+        return entity;
+    }
+
     void Scene::RegisterSerializedEntity(Entity entity)
     {
         // Only register root entities
@@ -222,25 +251,37 @@ namespace Cosmic
 
 		mSceneRootMetadata.ChildrenCount++;
 
-        if (!mSceneRootMetadata.FirstChild)
+        if (!mSceneRootMetadata.FirstChild && !entity.GetComponent<EntityMetadataComponent>().Prev)
+        {
             mSceneRootMetadata.FirstChild = entity;
-        else
-            mSceneRootMetadata.FirstChild = entity;
+        }
+    }
+
+    void Scene::RegisterSerializedEntities(const EntityIDMetadataMap& idMetadataMap)
+    {
+        ForEachEntity([this, &idMetadataMap](Entity entity)
+		{
+			auto& metadata = entity.GetComponent<EntityMetadataComponent>();
+			const EntityIDMetadata& idMetadata = idMetadataMap.at(metadata.ID);
+
+			metadata.FirstChild = FindEntityByID(idMetadata.FirstChildID);
+			metadata.Next       = FindEntityByID(idMetadata.NextID);
+			metadata.Prev       = FindEntityByID(idMetadata.PrevID);
+			metadata.Parent     = FindEntityByID(idMetadata.ParentID);
+
+			RegisterSerializedEntity(entity);
+		});
     }
 
     void Scene::UnregisterEntity(Entity entity, bool releaseChildren)
     {
-        auto& metadata = entity.GetComponent<EntityMetadataComponent>();
+        auto& metadata       = entity.GetComponent<EntityMetadataComponent>();
+        auto& parentMetadata = metadata.Parent ? metadata.Parent.GetComponent<EntityMetadataComponent>() : mSceneRootMetadata;
 
-        if (metadata.Parent)
-        {
-			auto& parentMetadata = metadata.Parent.GetComponent<EntityMetadataComponent>();
-
-            parentMetadata.ChildrenCount--;
-            
-            if (parentMetadata.FirstChild == entity)
-				parentMetadata.FirstChild = parentMetadata.FirstChild.GetComponent<EntityMetadataComponent>().Next;
-        }
+		parentMetadata.ChildrenCount--;
+		
+		if (parentMetadata.FirstChild == entity)
+			parentMetadata.FirstChild = parentMetadata.FirstChild.GetComponent<EntityMetadataComponent>().Next;
 
 		Entity prev = metadata.Prev;
 		Entity next = metadata.Next;
@@ -304,6 +345,8 @@ namespace Cosmic
             if (cameraComponent.Primary)
                 return Entity { entity, &mRegistry };
         }
+
+        return Entity();
     }
 
     Entity Scene::FindRootParent(Entity entity)
@@ -397,7 +440,7 @@ namespace Cosmic
 		{
 			auto& metadata = child.GetComponent<EntityMetadataComponent>();
 			if (metadata.ChildrenCount > 0)
-				ForEachChildRecurseTopDown(child, fn);
+				ForEachChildRecurseBottomUp(child, fn);
 
             fn(child);
 

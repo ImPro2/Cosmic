@@ -1,28 +1,40 @@
 Scene: StartScene
 Entities:
-  - Entity: 682464905
+  - Entity: 1717532772
     EntityMetadataComponent:
-      Tag: Parent Entity
+      Tag: Camera
       IsVisible: true
-      ChildrenCount: 3
-      FirstChildID: 430842490
-      NextID: -1
+      ChildrenCount: 0
+      FirstChildID: -1
+      NextID: 1533018900
       PrevID: -1
       ParentID: -1
     TransformComponent:
       IsRelative: true
-      Translation: [1, 1, 0]
+      Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-  - Entity: 1775282920
+    CameraComponent:
+      SceneCamera:
+        ProjectionType: Orthographic
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        AspectRatio: 1.60000002
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: 1533018900
     EntityMetadataComponent:
-      Tag: Child Entity 3 Child
+      Tag: Player
       IsVisible: true
       ChildrenCount: 0
       FirstChildID: -1
       NextID: -1
-      PrevID: -1
-      ParentID: 430842490
+      PrevID: 1717532772
+      ParentID: -1
     TransformComponent:
       IsRelative: true
       Translation: [0, 0, 0]
@@ -30,45 +42,5 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
-  - Entity: 430842490
-    EntityMetadataComponent:
-      Tag: Child Entity 3
-      IsVisible: true
-      ChildrenCount: 1
-      FirstChildID: 1775282920
-      NextID: 1033422888
-      PrevID: -1
-      ParentID: 682464905
-    TransformComponent:
-      IsRelative: true
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-  - Entity: 1033422888
-    EntityMetadataComponent:
-      Tag: Child Entity 2
-      IsVisible: true
-      ChildrenCount: 0
-      FirstChildID: -1
-      NextID: 1676294990
-      PrevID: 430842490
-      ParentID: 682464905
-    TransformComponent:
-      IsRelative: true
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-  - Entity: 1676294990
-    EntityMetadataComponent:
-      Tag: Child Entity 1
-      IsVisible: true
-      ChildrenCount: 0
-      FirstChildID: -1
-      NextID: -1
-      PrevID: 1033422888
-      ParentID: 682464905
-    TransformComponent:
-      IsRelative: true
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
+    NativeScriptComponent:
+      ClassName: PlayerScript

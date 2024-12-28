@@ -29,6 +29,15 @@ namespace Cosmic
         virtual EComponentType GetType() const = 0;
     };
 
+	struct EntityIDMetadata
+	{
+		int32 FirstChildID;
+		int32 NextID, PrevID, ParentID;
+	};
+
+    // Entity ID - ID Metadata
+	using EntityIDMetadataMap = UnorderedMap<int32, EntityIDMetadata>;
+
     struct EntityMetadataComponent : public IComponent
     {
         int32  ID        = -1;

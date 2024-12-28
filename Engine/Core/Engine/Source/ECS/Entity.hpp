@@ -34,11 +34,17 @@ namespace Cosmic
         IComponent* GetComponent(EComponentType type);
         bool HasComponent(EComponentType type);
 
-        template<typename T, typename ... Args>
-        T& AddComponent(Args&& ... args)
+        template<typename T, typename... Args>
+        T& AddComponent(Args&&... args)
         {
             //CS_ASSERT(!HasComponent<T>(), "This entity already has this component.");
             return mRegistry->emplace<T>(mEntityHandle, std::forward<Args>(args)...);
+        }
+
+        template<typename T, typename... Args>
+        T& AddOrReplaceComponent(Args&&... args)
+        {
+            return mRegistry->emplace_or_replace<T>(mEntityHandle, std::forward<Args>(args)...);
         }
 
         template<typename T>
@@ -53,6 +59,12 @@ namespace Cosmic
         {
             //CS_ASSERT(HasComponent<T>(), "This entity does not have this component yet.");
 			return mRegistry->get<T>(mEntityHandle);
+        }
+
+        template<typename T>
+        const T& GetComponent() const
+        {
+            return mRegistry->get<T>(mEntityHandle);
         }
 
         template<typename T>

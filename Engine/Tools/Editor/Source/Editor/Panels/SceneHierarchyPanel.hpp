@@ -41,6 +41,8 @@ namespace Cosmic
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnEditorSceneOpened(const SceneOpenedEvent& e);
+        bool OnScenePlay(const ScenePlayEvent& e);
+        bool OnSceneStop(const SceneStopEvent& e);
         bool OnEntityAdded(const EntityAddedEvent& e);
         bool OnEntityRemoved(const EntityRemovedEvent& e);
 

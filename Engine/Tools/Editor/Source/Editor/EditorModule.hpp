@@ -84,6 +84,8 @@ namespace Cosmic
         bool OnFileAdded(const FileAddedEvent& e);
         bool OnSceneOpened(const SceneOpenedEvent& e);
         bool OnSceneNew(const SceneNewEvent& e);
+        bool OnScenePlay(const ScenePlayEvent& e);
+        bool OnSceneStop(const SceneStopEvent& e);
 
     private:
         void SetWindowTitle();

@@ -216,14 +216,6 @@ namespace Cosmic
 
 		if (entities)
 		{
-			struct EntityIDMetadata
-			{
-				int32 FirstChildID;
-				int32 NextID, PrevID, ParentID;
-			};
-
-			using EntityIDMetadataMap = UnorderedMap<int32, EntityIDMetadata>;
-
 			EntityIDMetadataMap idMetadataMap;
 
 			for (auto entity : entities)
@@ -242,9 +234,7 @@ namespace Cosmic
 				idMetadata.PrevID       = entityMetadataComponent["PrevID"].as<int32>();
 				idMetadata.ParentID     = entityMetadataComponent["ParentID"].as<int32>();
 
-				idMetadataMap[metadata.ID] = idMetadata;
-
-				Entity deserializedEntity = mScene->CreateSerializedEntity(metadata);
+				Entity deserializedEntity = mScene->CreateSerializedEntity(metadata, idMetadata, idMetadataMap);
 
 				auto transformComponent = entity["TransformComponent"];
 				if (transformComponent)
@@ -265,7 +255,7 @@ namespace Cosmic
 					component.Color = spriteRendererComponent["Color"].as<float4>();
 				}
 
-				auto cameraComponent = entity["Camera Component"];
+				auto cameraComponent = entity["CameraComponent"];
 				if (cameraComponent)
 				{
 					auto& component = deserializedEntity.AddComponent<CameraComponent>();
@@ -295,6 +285,9 @@ namespace Cosmic
 				}
 			}
 
+			mScene->RegisterSerializedEntities(idMetadataMap);
+
+#if 0
 			mScene->ForEachEntity([this, idMetadataMap](Entity entity)
 			{
 				auto& metadata = entity.GetComponent<EntityMetadataComponent>();
@@ -307,6 +300,7 @@ namespace Cosmic
 
 				mScene->RegisterSerializedEntity(entity);
 			});
+#endif
 		}
 	}
 

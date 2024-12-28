@@ -41,13 +41,16 @@ namespace Cosmic
 
     public:
         Entity CreateEntity(const String& name = "", Entity parent = Entity());
-        Entity CreateSerializedEntity(const EntityMetadataComponent& metadata);
         Entity AddEntity(Entity entity);
         void   RemoveEntity(Entity entity);
 
         void RegisterEntity(Entity entity, EntityMetadataComponent& parentMetadata);
-        void RegisterSerializedEntity(Entity entity);
         void UnregisterEntity(Entity entity, bool releaseChildren = true);
+
+        Entity CreateSerializedEntity(const EntityMetadataComponent& metadata, EntityIDMetadataMap& idMetadataMap);
+        Entity CreateSerializedEntity(const EntityMetadataComponent& metadata, const EntityIDMetadata& idMetadata, EntityIDMetadataMap& idMetadataMap);
+        void   RegisterSerializedEntity(Entity entity);
+        void   RegisterSerializedEntities(const EntityIDMetadataMap& idMetadataMap);
 
         void ReparentEntity(Entity entity, Entity parent);
 
@@ -95,6 +98,27 @@ namespace Cosmic
         void CopyAllComponents(Entity from, Entity to);
 
         template<typename... Ts>
+        void CopySceneComponents(ComponentGroup<Ts...>, const Ref<Scene>& other, EntityIDMetadataMap& idMetadataMap)
+        {
+            ([&]()
+			{
+				mRegistry.view<EntityMetadataComponent, Ts>().each([&](entt::entity entity, EntityMetadataComponent& metadata, Ts& component)
+				{
+                    Entity srcEntity = Entity{ entity, &mRegistry };
+                    Entity dstEntity = other->FindEntityByID(metadata.ID);
+
+                    if (!dstEntity)
+                    {
+                        //dstEntity = Entity{ other->mRegistry.create(), &other->mRegistry };
+                        dstEntity = other->CreateSerializedEntity(metadata, idMetadataMap);
+                    }
+
+                    CopyComponentIfExists<Ts>(srcEntity, dstEntity);
+				});
+			}(), ...);
+        }
+
+        template<typename... Ts>
         void CopyComponentIfExists(ComponentGroup<Ts...>, Entity from, Entity to)
         {
             CopyComponentIfExists<Ts...>(from, to);
@@ -107,7 +131,7 @@ namespace Cosmic
 			{
 				if (from.HasComponent<Ts>())
 					CopyComponent<Ts>(from, to);
-			}, ...);
+			}(), ...);
         }
 
         template<typename... Ts>
@@ -119,7 +143,7 @@ namespace Cosmic
         template<typename... Ts>
         void CopyComponent(Entity from, Entity to)
         {
-            ((to.AddComponent<Ts>(from.GetComponent<Ts>())), ...);
+            ((to.AddOrReplaceComponent<Ts>(from.GetComponent<Ts>())), ...);
         }
 
     private:

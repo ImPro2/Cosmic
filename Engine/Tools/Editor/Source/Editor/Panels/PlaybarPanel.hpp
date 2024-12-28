@@ -32,6 +32,9 @@ namespace Cosmic
 		ESceneState GetSceneState() const { return mSceneState;                      }
 		bool        IsPlaying()     const { return mSceneState != ESceneState::Edit; }
 
+		Ref<Scene> GetEditScene() { return mEditScene; }
+		Ref<Scene> GetPlayScene() { return mPlayScene; }
+
 	private:
 		bool OnSceneOpened(const SceneOpenedEvent& e);
 		bool OnSceneNew(const SceneNewEvent& e);

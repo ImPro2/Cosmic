@@ -80,6 +80,8 @@ namespace Cosmic
         CS_DISPATCH_EVENT(FileAddedEvent, OnFileAdded);
         CS_DISPATCH_EVENT(SceneOpenedEvent, OnSceneOpened);
         CS_DISPATCH_EVENT(SceneNewEvent, OnSceneNew);
+        CS_DISPATCH_EVENT(ScenePlayEvent, OnScenePlay);
+        CS_DISPATCH_EVENT(SceneStopEvent, OnSceneStop);
 
         if (e.GetType() >= (int16)EEventType::Last)
 			mActionManager.OnEditorEvent(e);
@@ -129,6 +131,20 @@ namespace Cosmic
     bool EditorModule::OnSceneNew(const SceneNewEvent& e)
     {
         NativeScriptEngine::SetActiveScene(e.GetScene());
+
+        return false;
+    }
+
+    bool EditorModule::OnScenePlay(const ScenePlayEvent& e)
+    {
+        mActiveScene = e.GetScene();
+
+        return false;
+    }
+
+    bool EditorModule::OnSceneStop(const SceneStopEvent& e)
+    {
+        mActiveScene = e.GetScene();
 
         return false;
     }

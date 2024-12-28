@@ -49,7 +49,7 @@ namespace Cosmic
 			}
 		});
 
-		ReleaseScriptInstances();
+		ClearScriptInstancesEntities();
 	}
 
 	void NativeScriptRegistry::OnRuntimeUpdate(const Ref<Scene>& scene)
@@ -59,6 +59,8 @@ namespace Cosmic
 			if (Ref<NativeScript> instance = nsc.Instance.Own())
 			{
 				instance->OnUpdate(Time::GetDeltaTime());
+				auto& tc = instance->mEntity.GetComponent<TransformComponent>();
+				glm::vec3 trans = tc.Translation;
 			}
 		});
 	}
@@ -142,6 +144,14 @@ namespace Cosmic
 		ClearRegisteredEnumClasses();
 
 		mLastInstantiatedScriptID = -1;
+	}
+
+	void NativeScriptRegistry::ClearScriptInstancesEntities()
+	{
+		for (Ref<NativeScript>& instance : mScriptInstances)
+		{
+			instance->mEntity = Entity();
+		}
 	}
 
 	void NativeScriptRegistry::ReleaseScriptInstances()

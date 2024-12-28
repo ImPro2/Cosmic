@@ -33,6 +33,8 @@ namespace Cosmic
         EventDispatcher dispatcher(e);
         CS_DISPATCH_EVENT(KeyPressEvent, OnKeyPressed);
         CS_DISPATCH_EVENT(SceneOpenedEvent, OnEditorSceneOpened);
+        CS_DISPATCH_EVENT(ScenePlayEvent, OnScenePlay);
+        CS_DISPATCH_EVENT(SceneStopEvent, OnSceneStop);
         CS_DISPATCH_EVENT(EntityAddedEvent, OnEntityAdded);
         CS_DISPATCH_EVENT(EntityRemovedEvent, OnEntityRemoved);
     }
@@ -61,6 +63,22 @@ namespace Cosmic
         mSelectedEntities.clear();
 
         return true;
+    }
+
+    bool SceneHierarchyPanel::OnScenePlay(const ScenePlayEvent& e)
+    {
+        mScene = e.GetScene();
+        mSelectedEntities.clear();
+
+        return false;
+    }
+
+    bool SceneHierarchyPanel::OnSceneStop(const SceneStopEvent& e)
+    {
+        mScene = e.GetScene();
+        mSelectedEntities.clear();
+
+        return false;
     }
 
     bool SceneHierarchyPanel::OnEntityAdded(const EntityAddedEvent& e)
@@ -125,6 +143,8 @@ namespace Cosmic
             ImGui::TableHeadersRow();
 
             //mScene->ForEachEntityIndexed([this](Entity e, int32 i) { RenderEntity(e, i); });
+
+            //mScene = ModuleSystem::Get<PlaybarPanel>()->GetPlayScene();
 
             int32 i = 0;
             mScene->ForEachRootEntity([this, &i](Entity entity) { RenderEntity(entity, i); i++; });

@@ -50,6 +50,8 @@ namespace Cosmic
     private:
         bool OnKeyPressed(const KeyPressEvent& e);
         bool OnEditorSceneOpened(const SceneOpenedEvent& e);
+        bool OnScenePlay(const ScenePlayEvent& e);
+        bool OnSceneStop(const SceneStopEvent& e);
 
     public:
         const EditorCamera& GetEditorCamera() const { return mCamera; }
@@ -57,6 +59,7 @@ namespace Cosmic
     private:
         Ref<Framebuffer> mFramebuffer;
         Ref<Scene>       mScene;
+
         bool mSceneChanged = false;
 
         bool mWindowHovered = false;

@@ -14,10 +14,6 @@ namespace Cosmic
     {
     }
 
-    void PlayerScript::OnInstantiate()
-    {
-    }
-
     void PlayerScript::OnUpdate(Dt dt)
     {
         auto& tc = GetComponent<TransformComponent>();
