@@ -68,7 +68,14 @@ namespace Cosmic
     bool SceneHierarchyPanel::OnScenePlay(const ScenePlayEvent& e)
     {
         mScene = e.GetScene();
+
+        Vector<Entity> selectedEntities = mSelectedEntities;
         mSelectedEntities.clear();
+
+        for (Entity entity : selectedEntities)
+        {
+            mSelectedEntities.push_back(mScene->FindEntityByID(entity.GetComponent<EntityMetadataComponent>().ID));
+        }
 
         return false;
     }
@@ -76,8 +83,14 @@ namespace Cosmic
     bool SceneHierarchyPanel::OnSceneStop(const SceneStopEvent& e)
     {
         mScene = e.GetScene();
+
+        Vector<Entity> selectedEntities = mSelectedEntities;
         mSelectedEntities.clear();
 
+        for (Entity entity : selectedEntities)
+        {
+            mSelectedEntities.push_back(mScene->FindEntityByID(entity.GetComponent<EntityMetadataComponent>().ID));
+        }
         return false;
     }
 
