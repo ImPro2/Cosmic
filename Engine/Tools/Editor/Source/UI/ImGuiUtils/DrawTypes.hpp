@@ -10,6 +10,9 @@ namespace Cosmic::ImGuiUtils
     using TooltipCallback = std::function<void()>;
 
     void SetTooltipCallback(TooltipCallback callback);
+    void Tooltip(const char* text);
+
+    float32 GetLineHeight();
 
     bool DrawFloat( const String& name, float32& value, const float32& resetValue = 0.0f,                       const float32& min = 0.0f,                       const float32& max = 0.0f);
     bool DrawFloat2(const String& name, float2&  value, const float2&  resetValue = { 0.0f, 0.0f },             const float2&  min = { 0.0f, 0.0f },             const float2&  max = { 0.0f, 0.0f });

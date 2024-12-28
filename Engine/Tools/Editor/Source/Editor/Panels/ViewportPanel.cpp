@@ -64,19 +64,14 @@ namespace Cosmic
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
         RenderCommand::Clear();
 
-        switch (mPlaybarPanel->GetSceneState())
+        if (mPlaybarPanel->GetSceneState() == ESceneState::Edit)
         {
-			case ESceneState::Edit:
-			{
-                mCamera.OnUpdate(dt);
-                mScene->RenderCamera(mCamera, mCamera.GetTransform());
-				break;
-			}
-			case ESceneState::Play:
-			{
-                mScene->RenderMainCamera();
-				break;
-			}
+			mCamera.OnUpdate(dt);
+			mScene->RenderCamera(mCamera, mCamera.GetTransform());
+        }
+        else
+        {
+			mScene->RenderMainCamera();
         }
 
         mFramebuffer->ClearAttachment(1, -1);

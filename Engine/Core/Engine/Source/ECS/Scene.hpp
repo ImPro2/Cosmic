@@ -30,7 +30,7 @@ namespace Cosmic
         void OnRuntimeStart();
         void OnRuntimeStop();
 
-        void OnRuntimeUpdate(Dt dt);
+        void OnRuntimeUpdate(Dt dt, bool paused = false);
         void OnEditorUpdate(Dt dt);
 
         void OnViewportResize(uint32 width, uint32 height);

@@ -27,6 +27,8 @@ namespace Cosmic
 	public:
 		void PlayScene();
 		void StopScene();
+		void PauseScene();
+		void ResumeScene();
 
 	public:
 		ESceneState GetSceneState() const { return mSceneState;                      }

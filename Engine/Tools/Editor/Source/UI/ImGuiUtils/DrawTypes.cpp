@@ -33,15 +33,6 @@ namespace Cosmic::ImGuiUtils
 			return value;
 		}
 
-		static float32 GetLineHeight()
-		{
-			ImGuiStyle& style = ImGui::GetStyle();
-			ImGuiIO& io = ImGui::GetIO();
-			float32 lineHeight = io.FontDefault->FontSize + style.FramePadding.y * 2;
-
-			return lineHeight;
-		}
-
 		static bool DrawMultiComponentFloat(ImGuiID& id, float32& value, float32 resetValue, float32 min, float32 max, float32 dragWidth, const char* buttonText, const ImVec2& buttonSize, const ImVec4& buttonColor, const ImVec4& buttonHoveredColor, const ImVec4& buttonActiveColor, bool last = false, float32 totalWidth = 0.0f)
 		{
 			bool changed = false;
@@ -97,6 +88,25 @@ namespace Cosmic::ImGuiUtils
 		Utils::sTooltipCallback = callback;
 	}
 
+	void Tooltip(const char* text)
+	{
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::BeginTooltip();
+			ImGui::TextUnformatted(text);
+			ImGui::EndTooltip();
+		}
+	}
+
+	float32 GetLineHeight()
+	{
+		ImGuiStyle& style = ImGui::GetStyle();
+		ImGuiIO& io = ImGui::GetIO();
+		float32 lineHeight = io.FontDefault->FontSize + style.FramePadding.y * 2;
+
+		return lineHeight;
+	}
+
 	bool DrawFloat(const String& name, float32& value, const float32& resetValue /*= 0.0f*/, const float32& min /*= 0.0f*/, const float32& max /*= 0.0f*/)
 	{
 		bool changed = false;
@@ -120,7 +130,7 @@ namespace Cosmic::ImGuiUtils
 
 		ImGui::SameLine(Utils::AfterTextIndentValue());
 
-		float32 lineHeight = Utils::GetLineHeight();
+		float32 lineHeight = GetLineHeight();
 
 		const char* resetStr = ICON_FA_ARROW_ROTATE_RIGHT;
 		ImVec2 buttonSize = { lineHeight, lineHeight };
@@ -178,7 +188,7 @@ namespace Cosmic::ImGuiUtils
 
 		ImGui::SameLine(Utils::AfterTextIndentValue());
 
-		float32 lineHeight = Utils::GetLineHeight();
+		float32 lineHeight = GetLineHeight();
 		ImVec2 buttonSize = { lineHeight, lineHeight };
 
 		float64 widthWithoutResetButton = (float64)ImGui::GetContentRegionAvailWidth() - (float64)buttonSize.x;
@@ -315,7 +325,7 @@ namespace Cosmic::ImGuiUtils
 			return 0;
 		};
 
-		float32 lineHeight = Utils::GetLineHeight();
+		float32 lineHeight = GetLineHeight();
 		ImVec2  buttonSize = { lineHeight, lineHeight };
 		float32 width      = ImGui::GetContentRegionAvailWidth() - buttonSize.x;
 
@@ -363,7 +373,7 @@ namespace Cosmic::ImGuiUtils
 
 		bool changed = false;
 
-		float32 lineHeight = Utils::GetLineHeight();
+		float32 lineHeight = GetLineHeight();
 		ImVec2  buttonSize = { lineHeight, lineHeight };
 		float32 width      = ImGui::GetContentRegionAvailWidth() - buttonSize.x;
 

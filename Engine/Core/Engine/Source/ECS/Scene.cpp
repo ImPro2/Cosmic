@@ -79,7 +79,7 @@ namespace Cosmic
         NativeScriptEngine::OnRuntimeStop();
     }
 
-    void Scene::OnRuntimeUpdate(Dt dt)
+    void Scene::OnRuntimeUpdate(Dt dt, bool paused)
     {
         // Resolve each root entity's relative child properties
 
@@ -87,7 +87,8 @@ namespace Cosmic
 
         // Update scripts
 
-        NativeScriptEngine::OnRuntimeUpdate(dt);
+        if (!paused)
+			NativeScriptEngine::OnRuntimeUpdate(dt);
     }
 
     void Scene::OnEditorUpdate(Dt dt)
