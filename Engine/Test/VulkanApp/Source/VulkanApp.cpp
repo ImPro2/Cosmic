@@ -8,34 +8,48 @@ namespace Cosmic
 
 	VulkanApp::VulkanApp(const StartupArgumentList& args)
 	{
-		Init();
-	}
-
-	void VulkanApp::Init()
-	{
-		Allocations::Init();
-
-		mWindow = CreateScope<IVulkanDesktopWindow>(DesktopWindowInfo());
-		mWindow.As<IVulkanDesktopWindow>()->SetCloseCallback([this]()
-		{
-			mRunning = false;
+		ApplicationInfo info;
+		info.EnabledSystems.Unset({
+			EEngineSystem::Renderer,
+			EEngineSystem::AppWindow,
+			EEngineSystem::GUI,
+			EEngineSystem::NativeScriptEngine,
+			EEngineSystem::ProjectManager
 		});
 
-		Run();
-		Shutdown();
+		Init(info);
 	}
 
-	void VulkanApp::Shutdown()
+	void VulkanApp::OnEvent(const IEvent& e)
 	{
-		Allocations::Shutdown();
+		EventDispatcher dispatcher(e);
+		CS_DISPATCH_EVENT(ApplicationInitEvent,   OnInit);
+		CS_DISPATCH_EVENT(ApplicationCloseEvent,  OnClose);
+		CS_DISPATCH_EVENT(ApplicationUpdateEvent, OnUpdate);
+
+		Application::OnEvent(e);
 	}
 
-	void VulkanApp::Run()
+	bool VulkanApp::OnInit(const ApplicationInitEvent& e)
 	{
-		while (mRunning)
-		{
-			mWindow->Update();
-		}
+		mWindow = CreateScope<IVulkanDesktopWindow>(DesktopWindowInfo());
+		mWindow->SetCloseCallback([this]() { Close(); });
+
+		return false;
+	}
+
+	bool VulkanApp::OnClose(const ApplicationCloseEvent& e)
+	{
+		mWindow->Close();
+
+		return false;
+	}
+
+	bool VulkanApp::OnUpdate(const ApplicationUpdateEvent& e)
+	{
+		mWindow->Update();
+
+		return false;
 	}
 
 	Application* CreateApplication(StartupArgumentList&& args)

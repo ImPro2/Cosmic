@@ -54,6 +54,22 @@ namespace Cosmic
 		inline void Set(const E& value)   { mFlags |=  static_cast<UnderlyingType>(value); }
 		inline void Unset(const E& value) { mFlags &= ~static_cast<UnderlyingType>(value); }
 
+		inline void Set(std::initializer_list<E> values)
+		{
+			for (E value : values)
+			{
+				Set(value);
+			}
+		}
+
+		inline void Unset(std::initializer_list<E> values)
+		{
+			for (E value : values)
+			{
+				Unset(value);
+			}
+		}
+
 		inline bool IsSet(const E& value) const
 		{
 			return (mFlags & static_cast<UnderlyingType>(value)) == static_cast<UnderlyingType>(value);

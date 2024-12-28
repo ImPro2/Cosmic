@@ -4,7 +4,7 @@
 #include "Event/Type/AppEvents.hpp"
 #include "EntryPoint/EntryPoint.hpp"
 
-#include "App/Window/IWindow.hpp"
+#include "IVulkanDesktopWindow.hpp"
 
 namespace Cosmic
 {
@@ -14,16 +14,16 @@ namespace Cosmic
 	public:
         VulkanApp(const StartupArgumentList& args);
 
-	private:
-		void Init();
-		void Shutdown();
+		void OnEvent(const IEvent& e) override;
 
-		void Run();
+		bool OnInit(const ApplicationInitEvent& e);
+		bool OnClose(const ApplicationCloseEvent& e);
+		bool OnUpdate(const ApplicationUpdateEvent& e);
 
 	private:
 		bool mRunning = true;
 
-		Scope<IDesktopWindow> mWindow;
+		Scope<IVulkanDesktopWindow> mWindow;
 	};
 
 }

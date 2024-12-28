@@ -60,7 +60,6 @@ namespace Cosmic
         void Close();
     
     protected:
-        void Init(ApplicationInfo&& info);
         void Init(const ApplicationInfo& info);
         void Shutdown();
     

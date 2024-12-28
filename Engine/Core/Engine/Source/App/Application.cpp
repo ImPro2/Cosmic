@@ -37,16 +37,14 @@ namespace Cosmic
             if (enabled.IsSet(EEngineSystem::Modules) && !enabled.IsSet(EEngineSystem::Events))
                 CS_ASSERT(false, "Modules requires Events");
 
-            if (enabled.IsSet(EEngineSystem::AppWindow) && !enabled.IsSet(EEngineSystem::Renderer) || !enabled.IsSet(EEngineSystem::Modules) || !enabled.IsSet(EEngineSystem::Events))
+            if (enabled.IsSet(EEngineSystem::AppWindow) && (!enabled.IsSet(EEngineSystem::Renderer) || !enabled.IsSet(EEngineSystem::Modules) || !enabled.IsSet(EEngineSystem::Events)))
                 CS_ASSERT(false, "AppWindow requires Renderer, Modules and Events");
 
-            if (enabled.IsSet(EEngineSystem::GUI) && !enabled.IsSet(EEngineSystem::AppWindow) || !enabled.IsSet(EEngineSystem::Renderer) || !enabled.IsSet(EEngineSystem::Modules) || !enabled.IsSet(EEngineSystem::Events))
+            if (enabled.IsSet(EEngineSystem::GUI) && (!enabled.IsSet(EEngineSystem::AppWindow) || !enabled.IsSet(EEngineSystem::Renderer) || !enabled.IsSet(EEngineSystem::Modules) || !enabled.IsSet(EEngineSystem::Events)))
                 CS_ASSERT(false, "GUI requires AppWindow, Renderer, Modules and Events");
 
             if (enabled.IsSet(EEngineSystem::FileSystem) && !enabled.IsSet(EEngineSystem::Events))
                 CS_ASSERT(false, "FileSystem requires Events");
-
-            CS_ASSERT(false, "Invalid engine system configuration");
         }
 
     }
@@ -65,13 +63,6 @@ namespace Cosmic
     {
     }
     
-    void Application::Init(ApplicationInfo&& info)
-    {
-        CS_PROFILE_FN();
-
-        Init(std::move(info));
-    }
-
     void Application::Init(const ApplicationInfo& info)
     {
         CS_PROFILE_FN();
