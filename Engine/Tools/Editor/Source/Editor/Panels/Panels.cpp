@@ -18,9 +18,9 @@ namespace Cosmic
 
         mPanels.push_back(ModuleSystem::Add<ConsolePanel>());
         mPanels.push_back(ModuleSystem::Add<SceneHierarchyPanel>());
-        mPanels.push_back(ModuleSystem::Add<InspectorPanel>());
         mPanels.push_back(ModuleSystem::Add<ContentBrowserPanel>());
         mPanels.push_back(ModuleSystem::Add<PlaybarPanel>());
+        mPanels.push_back(ModuleSystem::Add<InspectorPanel>());
         mPanels.push_back(ModuleSystem::Add<ViewportPanel>());
     }
 

@@ -71,7 +71,6 @@ namespace Cosmic
 
     void Scene::OnRuntimeStart()
     {
-        NativeScriptEngine::ReloadScriptAssembly();
         NativeScriptEngine::OnRuntimeStart();
     }
 

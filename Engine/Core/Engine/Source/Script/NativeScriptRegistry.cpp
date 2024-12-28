@@ -30,9 +30,12 @@ namespace Cosmic
 
 	void NativeScriptRegistry::OnRuntimeStart(const Ref<Scene>& scene)
 	{
+		mIsRuntime = true;
+
 		scene->ForEach<NativeScriptComponent>([this](Entity entity, NativeScriptComponent& nsc)
 		{
-			Ref<NativeScript> instance = InstantiateScript(nsc.ClassName, entity);
+			Ref<NativeScript> instance = InstantiateRuntimeScript(nsc.ClassName, entity, nsc.Instance.Own());
+
 			instance->OnSceneStart();
 
 			nsc.Instance = instance;
@@ -43,13 +46,23 @@ namespace Cosmic
 	{
 		scene->ForEach<NativeScriptComponent>([this](Entity entity, NativeScriptComponent& nsc)
 		{
+			int32 id = -1;
+
 			if (Ref<NativeScript> instance = nsc.Instance.Own())
 			{
 				instance->OnSceneStop();
+				id = instance->mID;
+
+				instance.Release();
 			}
+
+			nsc.Instance = FindScriptByID(id);
 		});
 
-		ClearScriptInstancesEntities();
+		mRuntimeScriptInstances.clear();
+		mRuntimeFieldMap.clear();
+
+		mIsRuntime = false;
 	}
 
 	void NativeScriptRegistry::OnRuntimeUpdate(const Ref<Scene>& scene)
@@ -59,8 +72,6 @@ namespace Cosmic
 			if (Ref<NativeScript> instance = nsc.Instance.Own())
 			{
 				instance->OnUpdate(Time::GetDeltaTime());
-				auto& tc = instance->mEntity.GetComponent<TransformComponent>();
-				glm::vec3 trans = tc.Translation;
 			}
 		});
 	}
@@ -124,6 +135,24 @@ namespace Cosmic
 		return instance;
 	}
 
+	Ref<NativeScript> NativeScriptRegistry::InstantiateRuntimeScript(const String& className, Entity entity, const Ref<NativeScript>& instance)
+	{
+		mNextScriptID = instance->mID;
+		Ref<NativeScript> runtimeInstance = Ref<NativeScript>(mCallbackMap[className](entity));
+
+		for (int32 i = 0; i < mFieldMap.at(instance->mID).size(); i++)
+		{
+			IField* field        = mFieldMap.at(instance->mID)[i];
+			IField* runtimeField = mRuntimeFieldMap.at(instance->mID)[i]; // both have same id
+
+			runtimeField->CopyFrom(field);
+		}
+
+		mRuntimeScriptInstances.push_back(runtimeInstance);
+
+		return runtimeInstance;
+	}
+
 	void NativeScriptRegistry::DestroyScriptInstance(Ref<NativeScript>& instance)
 	{
 		mFieldMap[instance].clear();
@@ -135,6 +164,36 @@ namespace Cosmic
 		CS_LOG_DEBUG("Destroyed script instance");
 
 		instance.Release();
+	}
+
+	void NativeScriptRegistry::InstantiateScriptInstances(const Ref<Scene>& scene)
+	{
+		scene->ForEach<NativeScriptComponent>([this](Entity entity, NativeScriptComponent& nsc)
+		{
+			nsc.Instance = InstantiateScript(nsc.ClassName, entity);
+		});
+	}
+
+	Ref<NativeScript> NativeScriptRegistry::FindScriptByID(int32 id)
+	{
+		for (Ref<NativeScript> instance : mScriptInstances)
+		{
+			if (instance->mID == id)
+				return instance;
+		}
+
+		return nullptr;
+	}
+
+	Ref<NativeScript> NativeScriptRegistry::FindRuntimeScriptByID(int32 id)
+	{
+		for (Ref<NativeScript> instance : mRuntimeScriptInstances)
+		{
+			if (instance->mID == id)
+				return instance;
+		}
+
+		return nullptr;
 	}
 
 	void NativeScriptRegistry::OnScriptAssemblyUnloaded()
@@ -186,14 +245,15 @@ namespace Cosmic
 			return;
 		}
 
-		mFieldMap[mLastInstantiatedScriptID].push_back(field);
+		if (!mIsRuntime)
+			mFieldMap[mLastInstantiatedScriptID].push_back(field);
+		else
+			mRuntimeFieldMap[mLastInstantiatedScriptID].push_back(field);
 
 		if (field->GetType() == EFieldType::Enum && mEnumConversionCallbackMap.find(field->GetTypeName()) == mEnumConversionCallbackMap.end())
 		{
 			RegisterEnumClass(field->GetTypeName(), field->GetEnumToStringFunctionName(), field->GetEnumFromStringFunctionName());
 		}
-
-		CS_LOG_DEBUG("Registered field {} ({})", field->GetName(), field->GetTypeName());
 	}
 
 }

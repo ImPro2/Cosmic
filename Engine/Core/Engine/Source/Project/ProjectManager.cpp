@@ -65,21 +65,6 @@ namespace Cosmic
         Path scriptAssemblyPath = projectDir / info.ScriptAssemblyPath.GetAbsolutePath();
         Path startScenePath     = projectDir / info.StartScenePath.GetAbsolutePath();
 
-        if (FileSystem::FileExists(scriptAssemblyPath))
-        {
-            NativeScriptEngine::SetActiveScene(sInstance->mActiveProject->GetActiveScene());
-            NativeScriptEngine::LoadScriptAssembly(scriptAssemblyPath);
-        }
-        else
-        {
-            if (info.ScriptAssemblyPath.GetAbsolutePath() == "")
-                CS_LOG_WARN("Unspecified script assembly path");
-            else
-				CS_LOG_WARN("Invalid script assembly path {}", scriptAssemblyPath.GetString().c_str());
-
-            info.ScriptAssemblyPath = Path("");
-        }
-
         if (FileSystem::FileExists(startScenePath))
         {
             sInstance->mActiveProject->SetActiveScene(CreateRef<Scene>());
@@ -94,6 +79,22 @@ namespace Cosmic
 				CS_LOG_WARN("Invalid starting scene path {}", startScenePath.GetString().c_str());
 
             info.StartScenePath = Path("");
+        }
+
+        if (FileSystem::FileExists(scriptAssemblyPath))
+        {
+            NativeScriptEngine::SetActiveScene(sInstance->mActiveProject->GetActiveScene());
+            NativeScriptEngine::LoadScriptAssembly(scriptAssemblyPath);
+            NativeScriptEngine::InstantiateScriptInstances();
+        }
+        else
+        {
+            if (info.ScriptAssemblyPath.GetAbsolutePath() == "")
+                CS_LOG_WARN("Unspecified script assembly path");
+            else
+				CS_LOG_WARN("Invalid script assembly path {}", scriptAssemblyPath.GetString().c_str());
+
+            info.ScriptAssemblyPath = Path("");
         }
 
         CS_LOG_INFO("Loaded project {}", info.ProjectFilePath.GetAbsolutePath().GetString().c_str());

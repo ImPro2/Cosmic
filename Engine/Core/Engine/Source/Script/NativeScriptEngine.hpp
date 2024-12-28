@@ -32,6 +32,7 @@ namespace Cosmic
 		static void OnRuntimeUpdate(Dt dt);
 
 		static void SetActiveScene(const Ref<Scene>& scene);
+		static void InstantiateScriptInstances();
 
 	public:
 		static const File&           GetScriptAssemblyFile()   { return sInstance->mScriptAssemblyFile; }

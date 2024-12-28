@@ -57,6 +57,11 @@ namespace Cosmic
 		sInstance->mActiveScene = scene;
 	}
 
+	void NativeScriptEngine::InstantiateScriptInstances()
+	{
+		sInstance->mRegistry.InstantiateScriptInstances(sInstance->mActiveScene);
+	}
+
 	void NativeScriptEngine::LoadScriptAssembly(const Path& scriptAssemblyPath)
 	{
 		sInstance->mScriptAssemblyFile = scriptAssemblyPath;

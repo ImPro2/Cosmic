@@ -21,6 +21,12 @@ namespace Cosmic
     {
     }
 
+    void InspectorPanel::OnInit()
+    {
+        mSceneHierarchyPanel = ModuleSystem::Get<SceneHierarchyPanel>();
+        mPlaybarPanel        = ModuleSystem::Get<PlaybarPanel>();
+    }
+
     void InspectorPanel::OnImGuiRender()
     {
         if (!mOpen)
@@ -28,8 +34,7 @@ namespace Cosmic
 
         if (ImGui::Begin(mPanelName.c_str(), &mOpen))
         {
-            Ref<SceneHierarchyPanel> sceneHierarchyPanel = ModuleSystem::Get<SceneHierarchyPanel>();
-            const Vector<Entity>& selectedEntities = sceneHierarchyPanel->GetSelectedEntities();
+            const Vector<Entity>& selectedEntities = mSceneHierarchyPanel->GetSelectedEntities();
             
             if (selectedEntities.size() == 1)
                 RenderComponents(selectedEntities[0]);
@@ -231,7 +236,7 @@ namespace Cosmic
 			if (!instance)
 				return;
 
-			Vector<IField*>& fields = registry.GetScriptInstanceFields(instance);
+            Vector<IField*>& fields = mPlaybarPanel->IsPlaying() ? registry.GetRuntimeScriptInstanceFields(instance) : registry.GetScriptInstanceFields(instance);
 
 			for (IField* field : fields)
 			{

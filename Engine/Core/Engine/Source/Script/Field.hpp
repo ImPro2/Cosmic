@@ -46,15 +46,22 @@ namespace Cosmic
 		}
 
 		template<typename T>
-		T& GetDefaultValue()
-		{
-			return *static_cast<T*>(GetDefaultValuePtr());
-		}
-
-		template<typename T>
 		const T& GetValue() const
 		{
 			return *static_cast<const T*>(GetValuePtr());
+		}
+
+		template<typename T>
+		void SetDefaultValue(const T& defaultValue)
+		{
+			T& data = GetDefaultValue<T>();
+			data = defaultValue;
+		}
+
+		template<typename T>
+		T& GetDefaultValue()
+		{
+			return *static_cast<T*>(GetDefaultValuePtr());
 		}
 
 		template<typename T>
@@ -63,6 +70,10 @@ namespace Cosmic
 			return *static_cast<const T*>(GetDefaultValuePtr());
 		}
 
+	public:
+		void CopyFrom(IField* other);
+
+	public:
 		String GetEnumToStringFunctionName();
 		String GetEnumFromStringFunctionName();
 
