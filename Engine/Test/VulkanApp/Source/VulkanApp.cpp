@@ -1,7 +1,7 @@
 #include "cspch.hpp"
 #include "VulkanApp.hpp"
 
-#include "IVulkanDesktopWindow.hpp"
+#include "VulkanModule.hpp"
 
 namespace Cosmic
 {
@@ -24,31 +24,13 @@ namespace Cosmic
 	{
 		EventDispatcher dispatcher(e);
 		CS_DISPATCH_EVENT(ApplicationInitEvent,   OnInit);
-		CS_DISPATCH_EVENT(ApplicationCloseEvent,  OnClose);
-		CS_DISPATCH_EVENT(ApplicationUpdateEvent, OnUpdate);
 
 		Application::OnEvent(e);
 	}
 
 	bool VulkanApp::OnInit(const ApplicationInitEvent& e)
 	{
-		mWindow = CreateScope<IVulkanDesktopWindow>(DesktopWindowInfo());
-		mWindow->SetCloseCallback([this]() { Close(); });
-
-		return false;
-	}
-
-	bool VulkanApp::OnClose(const ApplicationCloseEvent& e)
-	{
-		mWindow->Close();
-
-		return false;
-	}
-
-	bool VulkanApp::OnUpdate(const ApplicationUpdateEvent& e)
-	{
-		mWindow->Update();
-
+		ModuleSystem::Add<VulkanModule>();
 		return false;
 	}
 

@@ -15,15 +15,7 @@ namespace Cosmic
         VulkanApp(const StartupArgumentList& args);
 
 		void OnEvent(const IEvent& e) override;
-
 		bool OnInit(const ApplicationInitEvent& e);
-		bool OnClose(const ApplicationCloseEvent& e);
-		bool OnUpdate(const ApplicationUpdateEvent& e);
-
-	private:
-		bool mRunning = true;
-
-		Scope<IVulkanDesktopWindow> mWindow;
 	};
 
 }

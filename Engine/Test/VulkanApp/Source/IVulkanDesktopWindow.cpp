@@ -1,6 +1,9 @@
 #include "cspch.hpp"
 #include "IVulkanDesktopWindow.hpp"
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 namespace Cosmic
 {
 
@@ -58,7 +61,7 @@ namespace Cosmic
 
 	HWND IVulkanDesktopWindow::GetNativeHandle() const
 	{
-		return {};
+		return glfwGetWin32Window(mHandle);
 	}
 
 }
