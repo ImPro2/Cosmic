@@ -26,10 +26,24 @@ namespace Cosmic
 		}
 
 		template<typename T>
+		T* AllocateArray(size_t count)
+		{
+			OnAllocation(sizeof(T) * count);
+			return new T[count];
+		}
+
+		template<typename T>
 		void Free(T* ptr)
 		{
 			OnFree(sizeof(T));
 			delete ptr;
+		}
+
+		template<typename T>
+		void FreeArray(T* ptr, size_t count)
+		{
+			OnFree(sizeof(T) * count);
+			delete[] ptr;
 		}
 	};
 

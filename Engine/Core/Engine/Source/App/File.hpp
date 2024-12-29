@@ -1,5 +1,6 @@
 #pragma once
 #include "App/Path.hpp"
+#include "Base/Buffer.hpp"
 
 namespace Cosmic
 {
@@ -34,7 +35,7 @@ namespace Cosmic
         const size_t GetSize();
 
         const String Read();
-        const uint8* ReadBinary();
+		const Buffer ReadBinary();
 
         void Write(const StringView text);
         void WriteBinary(const uint8* data, size_t size);

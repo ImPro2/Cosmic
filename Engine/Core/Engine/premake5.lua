@@ -17,6 +17,7 @@ project "Engine"
 		"Source",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
+		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.ImGui}",
@@ -36,6 +37,7 @@ project "Engine"
 	{
 		"GLFW",
 		"Glad",
+		"%{Library.Vulkan}",
 		"ImGui",
 		"Yaml-CPP",
 		"stb_image",

@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <functional>
 #include <vector>
+#include <set>
 #include <stdint.h>
 
 namespace Cosmic {
@@ -36,6 +37,9 @@ namespace Cosmic {
     
     template <typename K, typename V>
     using UnorderedMap = std::unordered_map<K, V>;
+
+    template<typename T>
+    using Set = std::set<T>;
     
     template <typename F, typename S>
     struct Pair

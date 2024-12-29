@@ -4,6 +4,9 @@
 #include "Renderer/Camera.hpp"
 #include "Base/Base.hpp"
 
+#undef near
+#undef far
+
 namespace Cosmic
 {
 

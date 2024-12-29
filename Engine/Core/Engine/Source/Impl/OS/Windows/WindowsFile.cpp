@@ -62,9 +62,9 @@ namespace Cosmic
     {
         // TODO: Make this work
 
-        HANDLE      hFile;
-        DWORD       fileSize = 0;
-        std::string absolutePath = mAbsolutePath;
+        HANDLE        hFile;
+        LARGE_INTEGER fileSize;
+        std::string   absolutePath = mAbsolutePath;
 
         // Ensure that windows can read the file path correctly
 
@@ -78,13 +78,13 @@ namespace Cosmic
             FILE_SHARE_READ,                              // share for reading
             NULL,                                         // default security
             OPEN_EXISTING,                                // existing file only
-            FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, // normal file
+            FILE_ATTRIBUTE_READONLY,                      // read only
             NULL                                          // no attr. template
         ), "Unable to open file ``.");
 
         // Get the file size
 
-        CS_WINDOWS_CALL(::GetFileSize(
+        CS_WINDOWS_CALL(::GetFileSizeEx(
             hFile,
             &fileSize
         ), "Failed to get the desired file size of file `{}`", mAbsolutePath);
@@ -95,7 +95,7 @@ namespace Cosmic
 
         // Return the file size
 
-        return (size_t)fileSize;
+        return (size_t)fileSize.QuadPart;
     }
 
 #define BUFFER_SIZE 1024
@@ -145,10 +145,44 @@ namespace Cosmic
         return std::string(readBuffer);
     }
 
-    const uint8* File::ReadBinary()
+    const Buffer File::ReadBinary()
     {
-        // TODO: Implement
-        return nullptr;
+        size_t size = GetSize();
+
+        HANDLE     hFile;
+        DWORD      dwNumberOfBytesRead = 0;
+        Buffer     readBuffer(size);
+        OVERLAPPED ol = { 0 };
+
+        // get the file handle and open the file
+
+        CS_WINDOWS_CALL(hFile = CreateFileA(
+            mAbsolutePath.GetString().c_str(),            // file to open
+            GENERIC_READ,                                 // open for reading
+            FILE_SHARE_READ,                              // share for reading
+            NULL,                                         // default security
+            OPEN_EXISTING,                                // existing file only
+            FILE_ATTRIBUTE_NORMAL,                        // normal file
+            NULL                                          // no attr. template
+        ), "Unable to open file ``.");
+
+        // read the file
+
+        CS_WINDOWS_CALL(ReadFile(
+            hFile,                // file to open
+            readBuffer.GetData(), // output pointer containing file contents
+            size,                 // number of bytes to read
+            &dwNumberOfBytesRead, // number of bytes read
+            &ol                   // output of LPOVERLAPPED
+        ), "Unable to read file ``.");
+
+        // close the file
+
+        ::CloseHandle(hFile);
+
+        // return
+
+        return readBuffer;
     }
 
     void File::Write(const std::string_view text)

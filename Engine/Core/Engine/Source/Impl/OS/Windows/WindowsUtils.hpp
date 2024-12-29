@@ -9,7 +9,7 @@ namespace Cosmic::WindowsUtils
     void OutputWindowsErrorCode(DWORD dwErrorCode, ::Cosmic::StringView logMod, ::Cosmic::StringView file, ::Cosmic::StringView func, ::Cosmic::int32 line);
 }
 
-#if 0
+#if 1
 #define CS_WINDOWS_CALL(func, __VA_ARGS__)\
 do\
 {\

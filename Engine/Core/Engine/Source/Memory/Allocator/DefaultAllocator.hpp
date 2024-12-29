@@ -16,9 +16,21 @@ namespace Cosmic
 		}
 
 		template<typename T>
+		static T* AllocateArray(size_t count)
+		{
+			return sAllocator->AllocateArray<T>(count);
+		}
+
+		template<typename T>
 		static void Free(T* ptr)
 		{
 			sAllocator->Free(ptr);
+		}
+
+		template<typename T>
+		static void FreeArray(T* ptr, size_t count)
+		{
+			sAllocator->FreeArray(ptr, count);
 		}
 
 	private:

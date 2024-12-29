@@ -34,6 +34,12 @@ namespace Cosmic
 		static const Vector<LogData>& GetLogData() { return sInstance->mLogData; }
 
 	public:
+		template<typename... Args>
+		static void LogWithSeverity(const char* format, ELogSeverity severity, const Args&... args)
+		{
+			LogOut(format, severity, std::make_format_args(args...));
+		}
+
 		template<typename ... Args>
 		static void Trace(const char* format, const Args& ... args)
 		{
