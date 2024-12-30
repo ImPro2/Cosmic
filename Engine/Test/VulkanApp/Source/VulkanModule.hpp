@@ -13,6 +13,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <glm/glm.hpp>
+
 #undef CreateWindow
 #undef CreateWindowW
 
@@ -78,6 +80,12 @@ namespace Cosmic
 		}
 	};
 
+	struct UniformBufferObject
+	{
+		glm::mat4 ViewProjectionMatrix;
+		glm::mat4 TransformMatrix;
+	};
+
 	class VulkanModule : public IModule
 	{
 	public:
@@ -99,11 +107,15 @@ namespace Cosmic
 		void CreateSwapchain();
 		void CreateImageViews();
 		void CreateRenderPass();
+		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
 		void CreateFramebuffers();
 		void CreateCommandPool();
 		void CreateVertexBuffer();
 		void CreateIndexBuffer();
+		void CreateUniformBuffers();
+		void CreateDescriptorPool();
+		void CreateDescriptorSets();
 		void CreateCommandBuffers();
 		void CreateSynchronisationObjects();
 
@@ -126,6 +138,7 @@ namespace Cosmic
 		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties);
 		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+		void UpdateUniformBuffer(uint32 currentImage);
 
 	private:
 		Scope<IVulkanDesktopWindow> mWindow;
@@ -146,6 +159,9 @@ namespace Cosmic
 			0, 1, 2,
 			2, 3, 0
 		};
+
+		glm::mat4 mViewProjectionMatrix;
+		glm::mat4 mTransformMatrix;
 
 	private:
 		const Vector<const char*> mValidationLayers = { "VK_LAYER_KHRONOS_validation"   };
@@ -171,6 +187,7 @@ namespace Cosmic
 		VkFormat                 mVkSwapchainImageFormat;
 		VkExtent2D               mVkSwapchainExtent;
 		VkRenderPass             mVkRenderPass;
+		VkDescriptorSetLayout    mVkDescriptorSetLayout;
 		VkPipelineLayout         mVkPipelineLayout;
 		VkPipeline               mVkGraphicsPipeline;
 		Vector<VkFramebuffer>    mVkSwapchainFramebuffers;
@@ -183,6 +200,11 @@ namespace Cosmic
 		VkDeviceMemory           mVkVertexBufferMemory;
 		VkBuffer                 mVkIndexBuffer;
 		VkDeviceMemory           mVkIndexBufferMemory;
+		Vector<VkBuffer>         mVkUniformBuffers;
+		Vector<VkDeviceMemory>   mVkUniformBuffersMemory;
+		Vector<void*>            mUniformBuffersMapped;
+		VkDescriptorPool         mVkDescriptorPool;
+		Vector<VkDescriptorSet>  mVkDescriptorSets;
 	};
 
 }

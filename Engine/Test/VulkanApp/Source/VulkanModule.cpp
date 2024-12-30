@@ -4,7 +4,7 @@
 
 #include "App/Application.hpp"
 
-#include <fstream>
+#include <glm/gtc/matrix_transform.hpp>
 
 CS_MODULE_LOG_INFO(VulkanApp, VulkanModule);
 
@@ -43,11 +43,15 @@ namespace Cosmic
 		CreateSwapchain();
 		CreateImageViews();
 		CreateRenderPass();
+		CreateDescriptorSetLayout();
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateVertexBuffer();
 		CreateIndexBuffer();
+		CreateUniformBuffers();
+		CreateDescriptorPool();
+		CreateDescriptorSets();
 		CreateCommandBuffers();
 		CreateSynchronisationObjects();
 	}
@@ -64,6 +68,15 @@ namespace Cosmic
 		}
 
 		CleanupSwapchain();
+
+		for (size_t i = 0; i < sMaxFramesInFlight; i++)
+		{
+			vkDestroyBuffer(mVkDevice, mVkUniformBuffers[i], nullptr);
+			vkFreeMemory(mVkDevice, mVkUniformBuffersMemory[i], nullptr);
+		}
+
+		vkDestroyDescriptorSetLayout(mVkDevice, mVkDescriptorSetLayout, nullptr);
+		vkDestroyDescriptorPool(mVkDevice, mVkDescriptorPool, nullptr);
 
 		vkDestroyBuffer(mVkDevice, mVkVertexBuffer, nullptr);
 		vkFreeMemory(mVkDevice, mVkVertexBufferMemory, nullptr);
@@ -115,6 +128,7 @@ namespace Cosmic
 		VK_CALL(vkResetFences(mVkDevice, 1, &mVkInFlightFences[mCurrentFrameIndex]));
 		VK_CALL(vkResetCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex], 0));
 
+		UpdateUniformBuffer(mCurrentFrameIndex);
 		RecordCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex], imageIndex);
 
 		VkSemaphore          waitSemaphores[]   = { mVkImageAvailableSemaphores[mCurrentFrameIndex] };
@@ -451,6 +465,23 @@ namespace Cosmic
 		VK_CALL(vkCreateRenderPass(mVkDevice, &createInfo, nullptr, &mVkRenderPass));
 	}
 
+	void VulkanModule::CreateDescriptorSetLayout()
+	{
+		VkDescriptorSetLayoutBinding layoutBinding = {};
+		layoutBinding.binding = 0;
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		layoutBinding.pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		createInfo.bindingCount = 1;
+		createInfo.pBindings = &layoutBinding;
+
+		VK_CALL(vkCreateDescriptorSetLayout(mVkDevice, &createInfo, nullptr, &mVkDescriptorSetLayout));
+	}
+
 	void VulkanModule::CreateGraphicsPipeline()
 	{
 		File vertexShaderBytecodeFile   = FileSystem::GetCurrentWorkingDirectory() / "Engine/Test/VulkanApp/Assets/Shaders/VertexShader.spv";
@@ -527,7 +558,7 @@ namespace Cosmic
 		rasterizationInfo.polygonMode                            = VK_POLYGON_MODE_FILL;
 		rasterizationInfo.lineWidth                              = 1.0f;
 		rasterizationInfo.cullMode                               = VK_CULL_MODE_BACK_BIT;
-		rasterizationInfo.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
+		rasterizationInfo.frontFace                              = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizationInfo.depthBiasEnable                        = VK_FALSE;
 
 		VkPipelineMultisampleStateCreateInfo multisamplingInfo = {};
@@ -557,8 +588,8 @@ namespace Cosmic
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount             = 0;
-		pipelineLayoutInfo.pSetLayouts                = nullptr;
+		pipelineLayoutInfo.setLayoutCount             = 1;
+		pipelineLayoutInfo.pSetLayouts                = &mVkDescriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount     = 0;
 		pipelineLayoutInfo.pPushConstantRanges        = nullptr;
 
@@ -657,6 +688,71 @@ namespace Cosmic
 
 		vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
 		vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
+	}
+
+	void VulkanModule::CreateUniformBuffers()
+	{
+		mVkUniformBuffers.resize(sMaxFramesInFlight);
+		mVkUniformBuffersMemory.resize(sMaxFramesInFlight);
+		mUniformBuffersMapped.resize(sMaxFramesInFlight);
+
+		for (size_t i = 0; i < sMaxFramesInFlight; i++)
+		{
+			CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mVkUniformBuffers[i], mVkUniformBuffersMemory[i]);
+
+			vkMapMemory(mVkDevice, mVkUniformBuffersMemory[i], 0, sizeof(UniformBufferObject), 0, &mUniformBuffersMapped[i]);
+		}
+	}
+
+	void VulkanModule::CreateDescriptorPool()
+	{
+		VkDescriptorPoolSize poolSize = {};
+		poolSize.type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.descriptorCount      = sMaxFramesInFlight;
+
+		VkDescriptorPoolCreateInfo createInfo = {};
+		createInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		createInfo.poolSizeCount              = 1;
+		createInfo.pPoolSizes                 = &poolSize;
+		createInfo.maxSets                    = sMaxFramesInFlight;
+		createInfo.flags                      = 0;
+
+		VK_CALL(vkCreateDescriptorPool(mVkDevice, &createInfo, nullptr, &mVkDescriptorPool));
+	}
+
+	void VulkanModule::CreateDescriptorSets()
+	{
+		Vector<VkDescriptorSetLayout> layouts(sMaxFramesInFlight, mVkDescriptorSetLayout);
+
+		VkDescriptorSetAllocateInfo allocateInfo = {};
+		allocateInfo.sType                       = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocateInfo.descriptorPool              = mVkDescriptorPool;
+		allocateInfo.descriptorSetCount          = sMaxFramesInFlight;
+		allocateInfo.pSetLayouts                 = layouts.data();
+
+		mVkDescriptorSets.resize(sMaxFramesInFlight);
+		VK_CALL(vkAllocateDescriptorSets(mVkDevice, &allocateInfo, mVkDescriptorSets.data()));
+
+		for (size_t i = 0; i < sMaxFramesInFlight; i++)
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer                 = mVkUniformBuffers[i];
+			bufferInfo.offset                 = 0;
+			bufferInfo.range                  = sizeof(UniformBufferObject);
+
+			VkWriteDescriptorSet descriptorWrite = {};
+			descriptorWrite.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet               = mVkDescriptorSets[i];
+			descriptorWrite.dstBinding           = 0;
+			descriptorWrite.dstArrayElement      = 0;
+			descriptorWrite.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount      = 1;
+			descriptorWrite.pBufferInfo          = &bufferInfo;
+			descriptorWrite.pImageInfo           = nullptr;
+			descriptorWrite.pTexelBufferView     = nullptr;
+
+			vkUpdateDescriptorSets(mVkDevice, 1, &descriptorWrite, 0, nullptr);
+		}
 	}
 
 	void VulkanModule::CreateCommandBuffers()
@@ -989,6 +1085,7 @@ namespace Cosmic
 		vkCmdBindIndexBuffer(commandBuffer, mVkIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissorRect);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mVkPipelineLayout, 0, 1, &mVkDescriptorSets[imageIndex], 0, nullptr);
 		vkCmdDrawIndexed(commandBuffer, sizeof(mIndices) / sizeof(mIndices[0]), 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffer);
@@ -1070,6 +1167,22 @@ namespace Cosmic
 		VK_CALL(vkQueueWaitIdle(mVkGraphicsQueue));
 
 		vkFreeCommandBuffers(mVkDevice, mVkCommandPool, 1, &commandBuffer);
+	}
+
+	void VulkanModule::UpdateUniformBuffer(uint32 currentImage)
+	{
+		glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		glm::mat4 proj = glm::perspective(glm::radians(45.0f), mVkSwapchainExtent.width / (float32)mVkSwapchainExtent.height, 0.1f, 10.0f);
+		proj[1][1] *= -1;
+
+		mTransformMatrix      = glm::rotate(glm::mat4(1.0f), Time::GetTime().InSeconds(), glm::vec3(0.0f, 0.0f, 1.0f));
+		mViewProjectionMatrix = proj * view;
+
+		UniformBufferObject ubo;
+		ubo.ViewProjectionMatrix = mViewProjectionMatrix;
+		ubo.TransformMatrix      = mTransformMatrix;
+
+		memcpy(mUniformBuffersMapped[currentImage], &ubo, sizeof(UniformBufferObject));
 	}
 
 }
