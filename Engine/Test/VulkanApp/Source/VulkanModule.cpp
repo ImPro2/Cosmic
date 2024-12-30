@@ -619,32 +619,21 @@ namespace Cosmic
 
 	void VulkanModule::CreateVertexBuffer()
 	{
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = sizeof(mVertices);
-		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		bufferInfo.flags = 0;
+		VkBuffer       stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
 
-		VK_CALL(vkCreateBuffer(mVkDevice, &bufferInfo, nullptr, &mVkVertexBuffer));
-
-		VkMemoryRequirements memoryRequirements;
-		vkGetBufferMemoryRequirements(mVkDevice, mVkVertexBuffer, &memoryRequirements);
-
-		VkMemoryAllocateInfo allocateInfo = {};
-		allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocateInfo.allocationSize = memoryRequirements.size;
-		allocateInfo.memoryTypeIndex = FindMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-		VK_CALL(vkAllocateMemory(mVkDevice, &allocateInfo, nullptr, &mVkVertexBufferMemory));
-		VK_CALL(vkBindBufferMemory(mVkDevice, mVkVertexBuffer, mVkVertexBufferMemory, 0));
+		CreateBuffer(sizeof(mVertices), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		void* data;
-		vkMapMemory(mVkDevice, mVkVertexBufferMemory, 0, bufferInfo.size, 0, &data);
+		VK_CALL(vkMapMemory(mVkDevice, stagingBufferMemory, 0, sizeof(mVertices), 0, &data));
+		memcpy(data, mVertices, sizeof(mVertices));
+		vkUnmapMemory(mVkDevice, stagingBufferMemory);
 
-		memcpy(data, mVertices, (size_t)bufferInfo.size);
+		CreateBuffer(sizeof(mVertices), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVkVertexBuffer, mVkVertexBufferMemory);
+		CopyBuffer(stagingBuffer, mVkVertexBuffer, sizeof(mVertices));
 
-		vkUnmapMemory(mVkDevice, mVkVertexBufferMemory);
+		vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
+		vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
 	}
 
 	void VulkanModule::CreateCommandBuffers()
@@ -983,6 +972,29 @@ namespace Cosmic
 		VK_CALL(vkEndCommandBuffer(commandBuffer));
 	}
 
+	void VulkanModule::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	{
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = size;
+		bufferInfo.usage = usage;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		bufferInfo.flags = 0;
+
+		VK_CALL(vkCreateBuffer(mVkDevice, &bufferInfo, nullptr, &buffer));
+
+		VkMemoryRequirements memoryRequirements;
+		vkGetBufferMemoryRequirements(mVkDevice, buffer, &memoryRequirements);
+
+		VkMemoryAllocateInfo allocateInfo = {};
+		allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocateInfo.allocationSize = memoryRequirements.size;
+		allocateInfo.memoryTypeIndex = FindMemoryType(memoryRequirements.memoryTypeBits, properties);
+
+		VK_CALL(vkAllocateMemory(mVkDevice, &allocateInfo, nullptr, &bufferMemory));
+		VK_CALL(vkBindBufferMemory(mVkDevice, buffer, bufferMemory, 0));
+	}
+
 	uint32 VulkanModule::FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties)
 	{
 		VkPhysicalDeviceMemoryProperties memoryProperties;
@@ -997,6 +1009,43 @@ namespace Cosmic
 		}
 
 		return 0;
+	}
+
+	void VulkanModule::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+	{
+		VkCommandBufferAllocateInfo allocateInfo = {};
+		allocateInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocateInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocateInfo.commandPool                 = mVkCommandPool;
+		allocateInfo.commandBufferCount          = 1;
+
+		VkCommandBuffer commandBuffer;
+		VK_CALL(vkAllocateCommandBuffers(mVkDevice, &allocateInfo, &commandBuffer));
+
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		VK_CALL(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+
+		VkBufferCopy copyRegion = {};
+		copyRegion.srcOffset    = 0;
+		copyRegion.dstOffset    = 0;
+		copyRegion.size         = size;
+
+		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+		
+		VK_CALL(vkEndCommandBuffer(commandBuffer));
+
+		VkSubmitInfo submitInfo       = {};
+		submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers    = &commandBuffer;
+
+		VK_CALL(vkQueueSubmit(mVkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
+		VK_CALL(vkQueueWaitIdle(mVkGraphicsQueue));
+
+		vkFreeCommandBuffers(mVkDevice, mVkCommandPool, 1, &commandBuffer);
 	}
 
 }

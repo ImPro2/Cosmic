@@ -122,7 +122,9 @@ namespace Cosmic
 		VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 		VkShaderModule CreateShaderModule(const Buffer& bytecode);
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32 imageIndex);
+		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties);
+		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 	private:
 		Scope<IVulkanDesktopWindow> mWindow;
