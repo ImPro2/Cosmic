@@ -1,6 +1,9 @@
 #include "cspch.hpp"
 #include "IVulkanDesktopWindow.hpp"
 
+#include "Event/Events.hpp"
+#include "Event/Type/WindowEvents.hpp"
+
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
@@ -33,13 +36,18 @@ namespace Cosmic
 
 	void IVulkanDesktopWindow::SetupCallbacks()
 	{
-		glfwSetWindowUserPointer(mHandle, &mCloseCallback);
+		glfwSetWindowUserPointer(mHandle, &mData);
 
 		glfwSetWindowCloseCallback(mHandle, [](GLFWwindow* handle)
 		{
-			std::function<void()> closeCallback = *(std::function<void()>*)glfwGetWindowUserPointer(handle);
+			const DesktopWindowInfo& info = *(DesktopWindowInfo*)glfwGetWindowUserPointer(handle);
+			EventSystem::DeferEvent<WindowCloseEvent>(info, true);
+		});
 
-			closeCallback();
+		glfwSetFramebufferSizeCallback(mHandle, [](GLFWwindow* handle, int32 width, int32 height)
+		{
+			const DesktopWindowInfo& info = *(DesktopWindowInfo*)glfwGetWindowUserPointer(handle);
+			EventSystem::DeferEvent<WindowResizeEvent>(uint2 { (uint32)width, (uint32) height }, info, true);
 		});
 	}
 

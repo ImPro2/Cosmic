@@ -4,8 +4,6 @@
 #include "Event/Type/AppEvents.hpp"
 #include "EntryPoint/EntryPoint.hpp"
 
-#include "IVulkanDesktopWindow.hpp"
-
 namespace Cosmic
 {
 

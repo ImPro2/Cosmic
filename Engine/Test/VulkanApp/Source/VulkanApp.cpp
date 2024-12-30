@@ -23,7 +23,7 @@ namespace Cosmic
 	void VulkanApp::OnEvent(const IEvent& e)
 	{
 		EventDispatcher dispatcher(e);
-		CS_DISPATCH_EVENT(ApplicationInitEvent,   OnInit);
+		CS_DISPATCH_EVENT(ApplicationInitEvent, OnInit);
 
 		Application::OnEvent(e);
 	}
@@ -33,6 +33,7 @@ namespace Cosmic
 		ModuleSystem::Add<VulkanModule>();
 		return false;
 	}
+	
 
 	Application* CreateApplication(StartupArgumentList&& args)
 	{

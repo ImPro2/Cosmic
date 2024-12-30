@@ -13,6 +13,9 @@
 
 #include <vulkan/vulkan.h>
 
+#undef CreateWindow
+#undef CreateWindowW
+
 namespace Cosmic
 {
 
@@ -42,14 +45,52 @@ namespace Cosmic
 		}
 	};
 
+	struct Vertex
+	{
+		float2 Position;
+		float3 Color;
+
+		static VkVertexInputBindingDescription GetVkVertexInputBindingDescription()
+		{
+			VkVertexInputBindingDescription bindingDescription = {};
+			bindingDescription.binding                         = 0;
+			bindingDescription.stride                          = sizeof(Vertex);
+			bindingDescription.inputRate                       = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			return bindingDescription;
+		}
+
+		static Vector<VkVertexInputAttributeDescription> GetVkVertexInputAttributeDescriptions()
+		{
+			Vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+
+			attributeDescriptions[0].binding  = 0;
+			attributeDescriptions[0].location = 0;
+			attributeDescriptions[0].format   = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[0].offset   = offsetof(Vertex, Position);
+
+			attributeDescriptions[1].binding  = 0;
+			attributeDescriptions[1].location = 1;
+			attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
+			attributeDescriptions[1].offset   = offsetof(Vertex, Color);
+
+			return attributeDescriptions;
+		}
+	};
+
 	class VulkanModule : public IModule
 	{
 	public:
 		void OnInit()        override;
 		void OnShutdown()    override;
 		void OnUpdate(Dt dt) override;
+		void OnEvent(const IEvent& e) override;
 
 	private:
+		bool OnWindowResize(const WindowResizeEvent& e);
+
+	private:
+		void CreateWindow();
 		void CreateInstance();
 		void SetupDebugMessenger();
 		void CreateSurface();
@@ -61,8 +102,12 @@ namespace Cosmic
 		void CreateGraphicsPipeline();
 		void CreateFramebuffers();
 		void CreateCommandPool();
-		void CreateCommandBuffer();
+		void CreateVertexBuffer();
+		void CreateCommandBuffers();
 		void CreateSynchronisationObjects();
+
+		void RecreateSwapchain();
+		void CleanupSwapchain();
 
 	private:
 		bool CheckValidationLayerSupport();
@@ -77,9 +122,21 @@ namespace Cosmic
 		VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 		VkShaderModule CreateShaderModule(const Buffer& bytecode);
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32 imageIndex);
+		uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties);
 
 	private:
 		Scope<IVulkanDesktopWindow> mWindow;
+
+		inline static const uint32 sMaxFramesInFlight = 2;
+
+		uint32 mCurrentFrameIndex  = 0;
+		bool   mFramebufferResized = false;
+
+		Vertex mVertices[3] = {
+			Vertex { float2 {  0.0f, -0.5f }, float3 { 1.0f, 0.0f, 0.0f } },
+			Vertex { float2 {  0.5f,  0.5f }, float3 { 0.0f, 1.0f, 0.0f } },
+			Vertex { float2 { -0.5f,  0.5f }, float3 { 0.0f, 0.0f, 1.0f } }
+		};
 
 	private:
 		const Vector<const char*> mValidationLayers = { "VK_LAYER_KHRONOS_validation"   };
@@ -109,10 +166,12 @@ namespace Cosmic
 		VkPipeline               mVkGraphicsPipeline;
 		Vector<VkFramebuffer>    mVkSwapchainFramebuffers;
 		VkCommandPool            mVkCommandPool;
-		VkCommandBuffer          mVkCommandBuffer;
-		VkSemaphore              mVkImageAvailableSemaphore;
-		VkSemaphore              mVkRenderFinishedSemaphore;
-		VkFence                  mVkInFlightFence;
+		Vector<VkCommandBuffer>  mVkCommandBuffers;
+		Vector<VkSemaphore>      mVkImageAvailableSemaphores;
+		Vector<VkSemaphore>      mVkRenderFinishedSemaphores;
+		Vector<VkFence>          mVkInFlightFences;
+		VkBuffer                 mVkVertexBuffer;
+		VkDeviceMemory           mVkVertexBufferMemory;
 	};
 
 }

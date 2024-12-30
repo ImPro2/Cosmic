@@ -8,6 +8,8 @@
 
 CS_MODULE_LOG_INFO(VulkanApp, VulkanModule);
 
+#undef CreateWindow
+
 namespace Cosmic
 {
 
@@ -32,9 +34,7 @@ namespace Cosmic
 
 	void VulkanModule::OnInit()
 	{
-		mWindow = CreateScope<IVulkanDesktopWindow>(DesktopWindowInfo());
-		mWindow->SetCloseCallback([this]() { Application::Get()->Close(); });
-
+		CreateWindow();
 		CreateInstance();
 		SetupDebugMessenger();
 		CreateSurface();
@@ -46,7 +46,8 @@ namespace Cosmic
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
-		CreateCommandBuffer();
+		CreateVertexBuffer();
+		CreateCommandBuffers();
 		CreateSynchronisationObjects();
 	}
 
@@ -54,24 +55,25 @@ namespace Cosmic
 	{
 		vkDeviceWaitIdle(mVkDevice);
 
-		vkDestroySemaphore(mVkDevice, mVkImageAvailableSemaphore, nullptr);
-		vkDestroySemaphore(mVkDevice, mVkRenderFinishedSemaphore, nullptr);
-		vkDestroyFence(mVkDevice, mVkInFlightFence, nullptr);
+		for (size_t i = 0; i < sMaxFramesInFlight; i++)
+		{
+			vkDestroySemaphore(mVkDevice, mVkImageAvailableSemaphores[i], nullptr);
+			vkDestroySemaphore(mVkDevice, mVkRenderFinishedSemaphores[i], nullptr);
+			vkDestroyFence(mVkDevice, mVkInFlightFences[i], nullptr);
+		}
 
-		vkFreeCommandBuffers(mVkDevice, mVkCommandPool, 1, &mVkCommandBuffer);
+		CleanupSwapchain();
+
+		vkDestroyBuffer(mVkDevice, mVkVertexBuffer, nullptr);
+		vkFreeMemory(mVkDevice, mVkVertexBufferMemory, nullptr);
+
+		vkFreeCommandBuffers(mVkDevice, mVkCommandPool, mVkCommandBuffers.size(), mVkCommandBuffers.data());
 		vkDestroyCommandPool(mVkDevice, mVkCommandPool, nullptr);
-
-		for (VkFramebuffer& framebuffer : mVkSwapchainFramebuffers)
-			vkDestroyFramebuffer(mVkDevice, framebuffer, nullptr);
 
 		vkDestroyPipeline(mVkDevice, mVkGraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(mVkDevice, mVkPipelineLayout, nullptr);
 		vkDestroyRenderPass(mVkDevice, mVkRenderPass, nullptr);
 
-		for (VkImageView& imageView : mVkSwapchainImageViews)
-			vkDestroyImageView(mVkDevice, imageView, nullptr);
-
-		vkDestroySwapchainKHR(mVkDevice, mVkSwapchainKHR, nullptr);
 		vkDestroySurfaceKHR(mVkInstance, mVkSurfaceKHR, nullptr);
 		vkDestroyDevice(mVkDevice, nullptr);
 
@@ -92,19 +94,28 @@ namespace Cosmic
 		// Submit the recorded command buffer
 		// Present swapchain image
 
-		VK_CALL(vkWaitForFences(mVkDevice, 1, &mVkInFlightFence, VK_TRUE, std::numeric_limits<uint64>::max()));
-		VK_CALL(vkResetFences(mVkDevice, 1, &mVkInFlightFence));
+		VK_CALL(vkWaitForFences(mVkDevice, 1, &mVkInFlightFences[mCurrentFrameIndex], VK_TRUE, std::numeric_limits<uint64>::max()));
 
 		uint32 imageIndex;
-		VK_CALL(vkAcquireNextImageKHR(mVkDevice, mVkSwapchainKHR, std::numeric_limits<uint64>::max(), mVkImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex));
 
-		VK_CALL(vkResetCommandBuffer(mVkCommandBuffer, 0));
+		VkResult acquireNextImageResult = vkAcquireNextImageKHR(mVkDevice, mVkSwapchainKHR, std::numeric_limits<uint64>::max(), mVkImageAvailableSemaphores[mCurrentFrameIndex], VK_NULL_HANDLE, &imageIndex);
 
-		RecordCommandBuffer(mVkCommandBuffer, imageIndex);
+		if (acquireNextImageResult == VK_ERROR_OUT_OF_DATE_KHR || acquireNextImageResult == VK_SUBOPTIMAL_KHR || mFramebufferResized)
+		{
+			RecreateSwapchain();
 
-		VkSemaphore          waitSemaphores[]   = { mVkImageAvailableSemaphore                    };
-		VkSemaphore          signalSemaphores[] = { mVkRenderFinishedSemaphore                    };
-		VkPipelineStageFlags waitStages[]       = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+			mFramebufferResized = false;
+			return;
+		}
+
+		VK_CALL(vkResetFences(mVkDevice, 1, &mVkInFlightFences[mCurrentFrameIndex]));
+		VK_CALL(vkResetCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex], 0));
+
+		RecordCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex], imageIndex);
+
+		VkSemaphore          waitSemaphores[]   = { mVkImageAvailableSemaphores[mCurrentFrameIndex] };
+		VkSemaphore          signalSemaphores[] = { mVkRenderFinishedSemaphores[mCurrentFrameIndex] };
+		VkPipelineStageFlags waitStages[]       = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT   };
 
 		VkSubmitInfo submitInfo         = {};
 		submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -112,11 +123,19 @@ namespace Cosmic
 		submitInfo.pWaitSemaphores      = waitSemaphores;
 		submitInfo.pWaitDstStageMask    = waitStages;
 		submitInfo.commandBufferCount   = 1;
-		submitInfo.pCommandBuffers      = &mVkCommandBuffer;
+		submitInfo.pCommandBuffers      = &mVkCommandBuffers[mCurrentFrameIndex];
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores    = signalSemaphores;
 
-		VK_CALL(vkQueueSubmit(mVkGraphicsQueue, 1, &submitInfo, mVkInFlightFence));
+		VkResult queueSubmitResult = vkQueueSubmit(mVkGraphicsQueue, 1, &submitInfo, mVkInFlightFences[mCurrentFrameIndex]);
+
+		if (queueSubmitResult == VK_ERROR_OUT_OF_DATE_KHR || queueSubmitResult == VK_SUBOPTIMAL_KHR || mFramebufferResized)
+		{
+			RecreateSwapchain();
+			mFramebufferResized = false;
+
+			return;
+		}
 
 		VkPresentInfoKHR presentInfo   = {};
 		presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -131,14 +150,27 @@ namespace Cosmic
 
 		mWindow->Update();
 
-		static TimeUnit lastTime = Time::GetTime();
-		TimeUnit currTime = Time::GetTime();
+		mCurrentFrameIndex = (mCurrentFrameIndex + 1) % sMaxFramesInFlight;
+	}
 
-		if (currTime.InSeconds() - lastTime.InSeconds() > 5.0f)
-		{
-			lastTime = currTime;
-			CS_LOG_DEBUG("DeltaTime: {}ms", Time::GetFPS().InSeconds());
-		}
+	void VulkanModule::OnEvent(const IEvent& e)
+	{
+		EventDispatcher dispatcher(e);
+		CS_DISPATCH_EVENT(WindowResizeEvent, OnWindowResize);
+	}
+
+	bool VulkanModule::OnWindowResize(const WindowResizeEvent& e)
+	{
+		mFramebufferResized = true;
+		return false;
+	}
+
+	void VulkanModule::CreateWindow()
+	{
+		DesktopWindowInfo info;
+		info.Title = "Vulkan App";
+
+		mWindow = CreateScope<IVulkanDesktopWindow>(info);
 	}
 
 	void VulkanModule::CreateInstance()
@@ -450,12 +482,15 @@ namespace Cosmic
 		dynamicStateInfo.dynamicStateCount                = sizeof(dynamicStates) / sizeof(dynamicStates[0]);
 		dynamicStateInfo.pDynamicStates                   = dynamicStates;
 
+		VkVertexInputBindingDescription           vertexBindingDescription     = Vertex::GetVkVertexInputBindingDescription();
+		Vector<VkVertexInputAttributeDescription> vertexAttributesDescriptions = Vertex::GetVkVertexInputAttributeDescriptions();
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 		vertexInputInfo.sType                                = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount        = 0;
-		vertexInputInfo.pVertexBindingDescriptions           = nullptr;
-		vertexInputInfo.vertexAttributeDescriptionCount      = 0;
-		vertexInputInfo.pVertexAttributeDescriptions         = nullptr;
+		vertexInputInfo.vertexBindingDescriptionCount        = 1;
+		vertexInputInfo.pVertexBindingDescriptions           = &vertexBindingDescription;
+		vertexInputInfo.vertexAttributeDescriptionCount      = vertexAttributesDescriptions.size();
+		vertexInputInfo.pVertexAttributeDescriptions         = vertexAttributesDescriptions.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = {};
 		inputAssemblyInfo.sType                                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -582,19 +617,55 @@ namespace Cosmic
 		VK_CALL(vkCreateCommandPool(mVkDevice, &createInfo, nullptr, &mVkCommandPool));
 	}
 
-	void VulkanModule::CreateCommandBuffer()
+	void VulkanModule::CreateVertexBuffer()
 	{
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = sizeof(mVertices);
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		bufferInfo.flags = 0;
+
+		VK_CALL(vkCreateBuffer(mVkDevice, &bufferInfo, nullptr, &mVkVertexBuffer));
+
+		VkMemoryRequirements memoryRequirements;
+		vkGetBufferMemoryRequirements(mVkDevice, mVkVertexBuffer, &memoryRequirements);
+
+		VkMemoryAllocateInfo allocateInfo = {};
+		allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocateInfo.allocationSize = memoryRequirements.size;
+		allocateInfo.memoryTypeIndex = FindMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		VK_CALL(vkAllocateMemory(mVkDevice, &allocateInfo, nullptr, &mVkVertexBufferMemory));
+		VK_CALL(vkBindBufferMemory(mVkDevice, mVkVertexBuffer, mVkVertexBufferMemory, 0));
+
+		void* data;
+		vkMapMemory(mVkDevice, mVkVertexBufferMemory, 0, bufferInfo.size, 0, &data);
+
+		memcpy(data, mVertices, (size_t)bufferInfo.size);
+
+		vkUnmapMemory(mVkDevice, mVkVertexBufferMemory);
+	}
+
+	void VulkanModule::CreateCommandBuffers()
+	{
+		mVkCommandBuffers.resize(sMaxFramesInFlight);
+
 		VkCommandBufferAllocateInfo allocateInfo = {};
 		allocateInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocateInfo.commandPool                 = mVkCommandPool;
 		allocateInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocateInfo.commandBufferCount          = 1;
+		allocateInfo.commandBufferCount          = mVkCommandBuffers.size();
 
-		VK_CALL(vkAllocateCommandBuffers(mVkDevice, &allocateInfo, &mVkCommandBuffer));
+		VK_CALL(vkAllocateCommandBuffers(mVkDevice, &allocateInfo, mVkCommandBuffers.data()));
 	}
 
 	void VulkanModule::CreateSynchronisationObjects()
 	{
+		mVkImageAvailableSemaphores.resize(sMaxFramesInFlight);
+		mVkRenderFinishedSemaphores.resize(sMaxFramesInFlight);
+		mVkInFlightFences.resize(sMaxFramesInFlight);
+
 		VkSemaphoreCreateInfo semaphoreInfo = {};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -602,9 +673,34 @@ namespace Cosmic
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		VK_CALL(vkCreateSemaphore(mVkDevice, &semaphoreInfo, nullptr, &mVkImageAvailableSemaphore));
-		VK_CALL(vkCreateSemaphore(mVkDevice, &semaphoreInfo, nullptr, &mVkRenderFinishedSemaphore));
-		VK_CALL(vkCreateFence(mVkDevice, &fenceInfo, nullptr, &mVkInFlightFence));
+		for (size_t i = 0; i < sMaxFramesInFlight; i++)
+		{
+			VK_CALL(vkCreateSemaphore(mVkDevice, &semaphoreInfo, nullptr, &mVkImageAvailableSemaphores[i]));
+			VK_CALL(vkCreateSemaphore(mVkDevice, &semaphoreInfo, nullptr, &mVkRenderFinishedSemaphores[i]));
+			VK_CALL(vkCreateFence(mVkDevice, &fenceInfo, nullptr, &mVkInFlightFences[i]));
+		}
+	}
+
+	void VulkanModule::RecreateSwapchain()
+	{
+		vkDeviceWaitIdle(mVkDevice);
+
+		CleanupSwapchain();
+
+		CreateSwapchain();
+		CreateImageViews();
+		CreateFramebuffers();
+	}
+
+	void VulkanModule::CleanupSwapchain()
+	{
+		for (VkFramebuffer& framebuffer : mVkSwapchainFramebuffers)
+			vkDestroyFramebuffer(mVkDevice, framebuffer, nullptr);
+
+		for (VkImageView& imageView : mVkSwapchainImageViews)
+			vkDestroyImageView(mVkDevice, imageView, nullptr);
+
+		vkDestroySwapchainKHR(mVkDevice, mVkSwapchainKHR, nullptr);
 	}
 
 	bool VulkanModule::CheckValidationLayerSupport()
@@ -847,7 +943,7 @@ namespace Cosmic
 		beginInfo.flags                    = 0;
 		beginInfo.pInheritanceInfo         = nullptr;
 
-		VK_CALL(vkBeginCommandBuffer(mVkCommandBuffer, &beginInfo));
+		VK_CALL(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
 		VkViewport viewport = {};
 		viewport.x          = 0.0f;
@@ -872,16 +968,35 @@ namespace Cosmic
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
-		vkCmdBeginRenderPass(mVkCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		VkDeviceSize offsets[] = { 0 };
 
-		vkCmdBindPipeline(mVkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mVkGraphicsPipeline);
-		vkCmdSetViewport(mVkCommandBuffer, 0, 1, &viewport);
-		vkCmdSetScissor(mVkCommandBuffer, 0, 1, &scissorRect);
-		vkCmdDraw(mVkCommandBuffer, 3, 1, 0, 0);
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdEndRenderPass(mVkCommandBuffer);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mVkGraphicsPipeline);
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mVkVertexBuffer, offsets);
+		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+		vkCmdSetScissor(commandBuffer, 0, 1, &scissorRect);
+		vkCmdDraw(commandBuffer, sizeof(mVertices) / sizeof(Vertex), 1, 0, 0);
 
-		VK_CALL(vkEndCommandBuffer(mVkCommandBuffer));
+		vkCmdEndRenderPass(commandBuffer);
+
+		VK_CALL(vkEndCommandBuffer(commandBuffer));
+	}
+
+	uint32 VulkanModule::FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties)
+	{
+		VkPhysicalDeviceMemoryProperties memoryProperties;
+		vkGetPhysicalDeviceMemoryProperties(mVkPhysicalDevice, &memoryProperties);
+
+		for (uint32 i = 0; i < memoryProperties.memoryTypeCount; i++)
+		{
+			if (typeFilter & (1 << i) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			{
+				return i;
+			}
+		}
+
+		return 0;
 	}
 
 }
