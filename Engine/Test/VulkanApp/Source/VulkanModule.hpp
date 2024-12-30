@@ -103,6 +103,7 @@ namespace Cosmic
 		void CreateFramebuffers();
 		void CreateCommandPool();
 		void CreateVertexBuffer();
+		void CreateIndexBuffer();
 		void CreateCommandBuffers();
 		void CreateSynchronisationObjects();
 
@@ -134,10 +135,16 @@ namespace Cosmic
 		uint32 mCurrentFrameIndex  = 0;
 		bool   mFramebufferResized = false;
 
-		Vertex mVertices[3] = {
-			Vertex { float2 {  0.0f, -0.5f }, float3 { 1.0f, 0.0f, 0.0f } },
-			Vertex { float2 {  0.5f,  0.5f }, float3 { 0.0f, 1.0f, 0.0f } },
-			Vertex { float2 { -0.5f,  0.5f }, float3 { 0.0f, 0.0f, 1.0f } }
+		Vertex mVertices[4] = {
+			Vertex { float2 { -0.5f, -0.5f }, float3 { 1.0f, 0.0f, 0.0f } },
+			Vertex { float2 {  0.5f, -0.5f }, float3 { 0.0f, 1.0f, 0.0f } },
+			Vertex { float2 {  0.5f,  0.5f }, float3 { 0.0f, 0.0f, 1.0f } },
+			Vertex { float2 { -0.5f,  0.5f }, float3 { 1.0f, 1.0f, 1.0f } }
+		};
+
+		uint16 mIndices[6] = {
+			0, 1, 2,
+			2, 3, 0
 		};
 
 	private:
@@ -174,6 +181,8 @@ namespace Cosmic
 		Vector<VkFence>          mVkInFlightFences;
 		VkBuffer                 mVkVertexBuffer;
 		VkDeviceMemory           mVkVertexBufferMemory;
+		VkBuffer                 mVkIndexBuffer;
+		VkDeviceMemory           mVkIndexBufferMemory;
 	};
 
 }

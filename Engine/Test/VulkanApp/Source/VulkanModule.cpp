@@ -47,6 +47,7 @@ namespace Cosmic
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateVertexBuffer();
+		CreateIndexBuffer();
 		CreateCommandBuffers();
 		CreateSynchronisationObjects();
 	}
@@ -66,6 +67,9 @@ namespace Cosmic
 
 		vkDestroyBuffer(mVkDevice, mVkVertexBuffer, nullptr);
 		vkFreeMemory(mVkDevice, mVkVertexBufferMemory, nullptr);
+
+		vkDestroyBuffer(mVkDevice, mVkIndexBuffer, nullptr);
+		vkFreeMemory(mVkDevice, mVkIndexBufferMemory, nullptr);
 
 		vkFreeCommandBuffers(mVkDevice, mVkCommandPool, mVkCommandBuffers.size(), mVkCommandBuffers.data());
 		vkDestroyCommandPool(mVkDevice, mVkCommandPool, nullptr);
@@ -636,6 +640,25 @@ namespace Cosmic
 		vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
 	}
 
+	void VulkanModule::CreateIndexBuffer()
+	{
+		VkBuffer       stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+
+		CreateBuffer(sizeof(mIndices), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		VK_CALL(vkMapMemory(mVkDevice, stagingBufferMemory, 0, sizeof(mIndices), 0, &data));
+		memcpy(data, mIndices, sizeof(mIndices));
+		vkUnmapMemory(mVkDevice, stagingBufferMemory);
+
+		CreateBuffer(sizeof(mIndices), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVkIndexBuffer, mVkIndexBufferMemory);
+		CopyBuffer(stagingBuffer, mVkIndexBuffer, sizeof(mIndices));
+
+		vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
+		vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
+	}
+
 	void VulkanModule::CreateCommandBuffers()
 	{
 		mVkCommandBuffers.resize(sMaxFramesInFlight);
@@ -963,9 +986,10 @@ namespace Cosmic
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mVkGraphicsPipeline);
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mVkVertexBuffer, offsets);
+		vkCmdBindIndexBuffer(commandBuffer, mVkIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissorRect);
-		vkCmdDraw(commandBuffer, sizeof(mVertices) / sizeof(Vertex), 1, 0, 0);
+		vkCmdDrawIndexed(commandBuffer, sizeof(mIndices) / sizeof(mIndices[0]), 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffer);
 
