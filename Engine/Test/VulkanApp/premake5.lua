@@ -10,7 +10,8 @@ project "VulkanApp"
         "GLFW",
         "Glad",
         "Yaml-CPP",
-        "stb_image"
+        "stb_image",
+		"%{Library.Vulkan}"
 	}
 
 	files
@@ -21,14 +22,16 @@ project "VulkanApp"
 
 	includedirs
 	{
-        "Source",
+		"Source",
 		"../../Core/Engine/Source",
 		"%{IncludeDir.GLFW}", -- temporary
 		"%{IncludeDir.Glad}", -- temporary
+		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.GLM}",
+		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.ImGui}",
-        "%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.EnTT}",
 		"%{IncludeDir.FontAwesome}",
 		"%{IncludeDir.YamlCPP}"

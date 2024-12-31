@@ -51,6 +51,7 @@ namespace Cosmic
 	{
 		float2 Position;
 		float3 Color;
+		float2 TexCoord;
 
 		static VkVertexInputBindingDescription GetVkVertexInputBindingDescription()
 		{
@@ -64,7 +65,7 @@ namespace Cosmic
 
 		static Vector<VkVertexInputAttributeDescription> GetVkVertexInputAttributeDescriptions()
 		{
-			Vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+			Vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
 
 			attributeDescriptions[0].binding  = 0;
 			attributeDescriptions[0].location = 0;
@@ -75,6 +76,11 @@ namespace Cosmic
 			attributeDescriptions[1].location = 1;
 			attributeDescriptions[1].format   = VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[1].offset   = offsetof(Vertex, Color);
+
+			attributeDescriptions[2].binding  = 0;
+			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].format   = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[2].offset   = offsetof(Vertex, TexCoord);
 
 			return attributeDescriptions;
 		}
@@ -111,6 +117,9 @@ namespace Cosmic
 		void CreateGraphicsPipeline();
 		void CreateFramebuffers();
 		void CreateCommandPool();
+		void CreateTextureImage();
+		void CreateTextureImageView();
+		void CreateTextureSampler();
 		void CreateVertexBuffer();
 		void CreateIndexBuffer();
 		void CreateUniformBuffers();
@@ -133,12 +142,18 @@ namespace Cosmic
 		VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const Vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapchainPresentMode(const Vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
+		VkImageView CreateImageView(VkImage image, VkFormat format);
 		VkShaderModule CreateShaderModule(const Buffer& bytecode);
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32 imageIndex);
 		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties);
 		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 		void UpdateUniformBuffer(uint32 currentImage);
+		void CreateImage(uint2 size, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+		VkCommandBuffer BeginSingleTimeCommands();
+		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void CopyBufferToImage(VkBuffer buffer, VkImage image, uint2 size);
 
 	private:
 		Scope<IVulkanDesktopWindow> mWindow;
@@ -149,10 +164,10 @@ namespace Cosmic
 		bool   mFramebufferResized = false;
 
 		Vertex mVertices[4] = {
-			Vertex { float2 { -0.5f, -0.5f }, float3 { 1.0f, 0.0f, 0.0f } },
-			Vertex { float2 {  0.5f, -0.5f }, float3 { 0.0f, 1.0f, 0.0f } },
-			Vertex { float2 {  0.5f,  0.5f }, float3 { 0.0f, 0.0f, 1.0f } },
-			Vertex { float2 { -0.5f,  0.5f }, float3 { 1.0f, 1.0f, 1.0f } }
+			Vertex { float2 { -0.5f, -0.5f }, float3 { 1.0f, 0.0f, 0.0f }, float2 { 1.0f, 0.0f } },
+			Vertex { float2 {  0.5f, -0.5f }, float3 { 0.0f, 1.0f, 0.0f }, float2 { 0.0f, 0.0f } },
+			Vertex { float2 {  0.5f,  0.5f }, float3 { 0.0f, 0.0f, 1.0f }, float2 { 0.0f, 1.0f } },
+			Vertex { float2 { -0.5f,  0.5f }, float3 { 1.0f, 1.0f, 1.0f }, float2 { 1.0f, 1.0f } }
 		};
 
 		uint16 mIndices[6] = {
@@ -205,6 +220,10 @@ namespace Cosmic
 		Vector<void*>            mUniformBuffersMapped;
 		VkDescriptorPool         mVkDescriptorPool;
 		Vector<VkDescriptorSet>  mVkDescriptorSets;
+		VkImage                  mVkTextureImage;
+		VkDeviceMemory           mVkTextureImageMemory;
+		VkImageView              mVkTextureImageView;
+		VkSampler                mVkTextureSampler;
 	};
 
 }

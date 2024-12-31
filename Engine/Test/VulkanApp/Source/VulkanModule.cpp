@@ -4,6 +4,7 @@
 
 #include "App/Application.hpp"
 
+#include <stb_image.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 CS_MODULE_LOG_INFO(VulkanApp, VulkanModule);
@@ -47,6 +48,9 @@ namespace Cosmic
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
+		CreateTextureImage();
+		CreateTextureImageView();
+		CreateTextureSampler();
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 		CreateUniformBuffers();
@@ -68,6 +72,11 @@ namespace Cosmic
 		}
 
 		CleanupSwapchain();
+
+		vkDestroySampler(mVkDevice, mVkTextureSampler, nullptr);
+		vkDestroyImageView(mVkDevice, mVkTextureImageView, nullptr);
+		vkDestroyImage(mVkDevice, mVkTextureImage, nullptr);
+		vkFreeMemory(mVkDevice, mVkTextureImageMemory, nullptr);
 
 		for (size_t i = 0; i < sMaxFramesInFlight; i++)
 		{
@@ -325,6 +334,7 @@ namespace Cosmic
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures = {};
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo      = {};
 		createInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -405,22 +415,7 @@ namespace Cosmic
 
 		for (uint32 i = 0; i < mVkSwapchainImages.size(); i++)
 		{
-			VkImageViewCreateInfo createInfo           = {};
-			createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image                           = mVkSwapchainImages[i];
-			createInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format                          = mVkSwapchainImageFormat;
-			createInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel   = 0;
-			createInfo.subresourceRange.levelCount     = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount     = 1;
-
-			VK_CALL(vkCreateImageView(mVkDevice, &createInfo, nullptr, &mVkSwapchainImageViews[i]));
+			mVkSwapchainImageViews[i] = CreateImageView(mVkSwapchainImages[i], mVkSwapchainImageFormat);
 		}
 	}
 
@@ -446,12 +441,12 @@ namespace Cosmic
 		subpass.pColorAttachments    = &colorAttachmentRef;
 
 		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass          = 0;
+		dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask       = 0;
+		dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 		VkRenderPassCreateInfo createInfo = {};
 		createInfo.sType                  = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -467,17 +462,26 @@ namespace Cosmic
 
 	void VulkanModule::CreateDescriptorSetLayout()
 	{
-		VkDescriptorSetLayoutBinding layoutBinding = {};
-		layoutBinding.binding = 0;
-		layoutBinding.descriptorCount = 1;
-		layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		layoutBinding.pImmutableSamplers = nullptr;
+		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+		uboLayoutBinding.binding                      = 0;
+		uboLayoutBinding.descriptorCount              = 1;
+		uboLayoutBinding.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.stageFlags                   = VK_SHADER_STAGE_VERTEX_BIT;
+		uboLayoutBinding.pImmutableSamplers           = nullptr;
+
+		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+		samplerLayoutBinding.binding                      = 1;
+		samplerLayoutBinding.descriptorCount              = 1;
+		samplerLayoutBinding.descriptorType               = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.stageFlags                   = VK_SHADER_STAGE_FRAGMENT_BIT;
+		samplerLayoutBinding.pImmutableSamplers           = nullptr;
+
+		VkDescriptorSetLayoutBinding layoutBindings[] = { uboLayoutBinding, samplerLayoutBinding };
 
 		VkDescriptorSetLayoutCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		createInfo.bindingCount = 1;
-		createInfo.pBindings = &layoutBinding;
+		createInfo.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		createInfo.bindingCount                    = sizeof(layoutBindings) / sizeof(layoutBindings[0]);
+		createInfo.pBindings                       = layoutBindings;
 
 		VK_CALL(vkCreateDescriptorSetLayout(mVkDevice, &createInfo, nullptr, &mVkDescriptorSetLayout));
 	}
@@ -652,6 +656,68 @@ namespace Cosmic
 		VK_CALL(vkCreateCommandPool(mVkDevice, &createInfo, nullptr, &mVkCommandPool));
 	}
 
+	void VulkanModule::CreateTextureImage()
+	{
+		// Load image data from file
+
+		Path texturePath = FileSystem::GetCurrentWorkingDirectory() / "Engine/Test/VulkanApp/Assets/Textures/Texture.jpg";
+
+		int32 width, height, channels;
+		stbi_uc* pixels = stbi_load(texturePath.GetString().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+		CS_ASSERT(pixels, "Failed to load texture");
+
+		VkDeviceSize imageSize = width * height * 4;
+
+		VkBuffer       stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+
+		CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		VK_CALL(vkMapMemory(mVkDevice, stagingBufferMemory, 0, imageSize, 0, &data));
+		memcpy(data, pixels, imageSize);
+		vkUnmapMemory(mVkDevice, stagingBufferMemory);
+
+		stbi_image_free(pixels);
+
+		CreateImage({ (uint32)width, (uint32)height }, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVkTextureImage, mVkTextureImageMemory);
+		TransitionImageLayout(mVkTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		CopyBufferToImage(stagingBuffer, mVkTextureImage, { (uint32)width, (uint32)height });
+		TransitionImageLayout(mVkTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+		vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
+		vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
+	}
+
+	void VulkanModule::CreateTextureImageView()
+	{
+		mVkTextureImageView = CreateImageView(mVkTextureImage, VK_FORMAT_R8G8B8A8_SRGB);
+	}
+
+	void VulkanModule::CreateTextureSampler()
+	{
+		VkPhysicalDeviceProperties properties = {};
+		vkGetPhysicalDeviceProperties(mVkPhysicalDevice, &properties);
+
+		VkSamplerCreateInfo createInfo     = {};
+		createInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		createInfo.minFilter               = VK_FILTER_LINEAR;
+		createInfo.magFilter               = VK_FILTER_LINEAR;
+		createInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		createInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		createInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		createInfo.anisotropyEnable        = VK_TRUE;
+		createInfo.maxAnisotropy           = properties.limits.maxSamplerAnisotropy;
+		createInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		createInfo.unnormalizedCoordinates = VK_FALSE;
+		createInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		createInfo.mipLodBias              = 0.0f;
+		createInfo.minLod                  = 0.0f;
+		createInfo.maxLod                  = 0.0f;
+
+		VK_CALL(vkCreateSampler(mVkDevice, &createInfo, nullptr, &mVkTextureSampler));
+	}
+
 	void VulkanModule::CreateVertexBuffer()
 	{
 		VkBuffer       stagingBuffer;
@@ -706,14 +772,20 @@ namespace Cosmic
 
 	void VulkanModule::CreateDescriptorPool()
 	{
-		VkDescriptorPoolSize poolSize = {};
-		poolSize.type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount      = sMaxFramesInFlight;
+		VkDescriptorPoolSize uboPoolSize = {};
+		uboPoolSize.type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboPoolSize.descriptorCount      = sMaxFramesInFlight;
+
+		VkDescriptorPoolSize samplerPoolSize = {};
+		samplerPoolSize.type                 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerPoolSize.descriptorCount      = sMaxFramesInFlight;
+
+		VkDescriptorPoolSize poolSizes[] = { uboPoolSize, samplerPoolSize };
 
 		VkDescriptorPoolCreateInfo createInfo = {};
 		createInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		createInfo.poolSizeCount              = 1;
-		createInfo.pPoolSizes                 = &poolSize;
+		createInfo.poolSizeCount              = sizeof(poolSizes) / sizeof(poolSizes[0]);
+		createInfo.pPoolSizes                 = poolSizes;
 		createInfo.maxSets                    = sMaxFramesInFlight;
 		createInfo.flags                      = 0;
 
@@ -740,18 +812,32 @@ namespace Cosmic
 			bufferInfo.offset                 = 0;
 			bufferInfo.range                  = sizeof(UniformBufferObject);
 
-			VkWriteDescriptorSet descriptorWrite = {};
-			descriptorWrite.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet               = mVkDescriptorSets[i];
-			descriptorWrite.dstBinding           = 0;
-			descriptorWrite.dstArrayElement      = 0;
-			descriptorWrite.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount      = 1;
-			descriptorWrite.pBufferInfo          = &bufferInfo;
-			descriptorWrite.pImageInfo           = nullptr;
-			descriptorWrite.pTexelBufferView     = nullptr;
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView             = mVkTextureImageView;
+			imageInfo.sampler               = mVkTextureSampler;
 
-			vkUpdateDescriptorSets(mVkDevice, 1, &descriptorWrite, 0, nullptr);
+			VkWriteDescriptorSet bufferDescriptorWrite = {};
+			bufferDescriptorWrite.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			bufferDescriptorWrite.dstSet               = mVkDescriptorSets[i];
+			bufferDescriptorWrite.dstBinding           = 0;
+			bufferDescriptorWrite.dstArrayElement      = 0;
+			bufferDescriptorWrite.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			bufferDescriptorWrite.descriptorCount      = 1;
+			bufferDescriptorWrite.pBufferInfo          = &bufferInfo;
+
+			VkWriteDescriptorSet imageDescriptorWrite = {};
+			imageDescriptorWrite.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			imageDescriptorWrite.dstSet               = mVkDescriptorSets[i];
+			imageDescriptorWrite.dstBinding           = 1;
+			imageDescriptorWrite.dstArrayElement      = 0;
+			imageDescriptorWrite.descriptorType       = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			imageDescriptorWrite.descriptorCount      = 1;
+			imageDescriptorWrite.pImageInfo           = &imageInfo;
+
+			VkWriteDescriptorSet descriptorWrites[] = { bufferDescriptorWrite, imageDescriptorWrite };
+
+			vkUpdateDescriptorSets(mVkDevice, sizeof(descriptorWrites) / sizeof(descriptorWrites[0]), descriptorWrites, 0, nullptr);
 		}
 	}
 
@@ -883,9 +969,9 @@ namespace Cosmic
 
 	bool VulkanModule::IsDeviceSuitable(VkPhysicalDevice physicalDevice)
 	{
-		QueueFamilyIndices indices             = FindQueueFamilies(physicalDevice);
-		bool               extensionsSupported = CheckDeviceExtensionSupport(physicalDevice);
-		bool               swapchainAdequate   = false;
+		QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+		bool extensionsSupported = CheckDeviceExtensionSupport(physicalDevice);
+		bool swapchainAdequate = false;
 
 		if (extensionsSupported)
 		{
@@ -893,7 +979,10 @@ namespace Cosmic
 			swapchainAdequate = supportDetails.IsAdequate();
 		}
 
-		return indices.IsComplete() && extensionsSupported && swapchainAdequate;
+		VkPhysicalDeviceFeatures deviceFeatures;
+		vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+
+		return indices.IsComplete() && extensionsSupported && swapchainAdequate && deviceFeatures.samplerAnisotropy;
 	}
 
 	bool VulkanModule::CheckDeviceExtensionSupport(VkPhysicalDevice physicalDevice)
@@ -1031,6 +1120,29 @@ namespace Cosmic
 		return actualExtent;
 	}
 
+	VkImageView VulkanModule::CreateImageView(VkImage image, VkFormat format)
+	{
+		VkImageViewCreateInfo createInfo           = {};
+		createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image                           = image;
+		createInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format                          = format;
+		createInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel   = 0;
+		createInfo.subresourceRange.levelCount     = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount     = 1;
+
+		VkImageView imageView;
+		VK_CALL(vkCreateImageView(mVkDevice, &createInfo, nullptr, &imageView));
+
+		return imageView;
+	}
+
 	VkShaderModule VulkanModule::CreateShaderModule(const Buffer& bytecode)
 	{
 		VkShaderModuleCreateInfo createInfo = {};
@@ -1134,20 +1246,7 @@ namespace Cosmic
 
 	void VulkanModule::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 	{
-		VkCommandBufferAllocateInfo allocateInfo = {};
-		allocateInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocateInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocateInfo.commandPool                 = mVkCommandPool;
-		allocateInfo.commandBufferCount          = 1;
-
-		VkCommandBuffer commandBuffer;
-		VK_CALL(vkAllocateCommandBuffers(mVkDevice, &allocateInfo, &commandBuffer));
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		VK_CALL(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.srcOffset    = 0;
@@ -1155,24 +1254,16 @@ namespace Cosmic
 		copyRegion.size         = size;
 
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-		
-		VK_CALL(vkEndCommandBuffer(commandBuffer));
 
-		VkSubmitInfo submitInfo       = {};
-		submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers    = &commandBuffer;
-
-		VK_CALL(vkQueueSubmit(mVkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
-		VK_CALL(vkQueueWaitIdle(mVkGraphicsQueue));
-
-		vkFreeCommandBuffers(mVkDevice, mVkCommandPool, 1, &commandBuffer);
+		EndSingleTimeCommands(commandBuffer);
 	}
 
 	void VulkanModule::UpdateUniformBuffer(uint32 currentImage)
 	{
+		float32 aspectRatio = mVkSwapchainExtent.width / (float32)mVkSwapchainExtent.height;
+
 		glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		glm::mat4 proj = glm::perspective(glm::radians(45.0f), mVkSwapchainExtent.width / (float32)mVkSwapchainExtent.height, 0.1f, 10.0f);
+		glm::mat4 proj = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 10.0f);
 		proj[1][1] *= -1;
 
 		mTransformMatrix      = glm::rotate(glm::mat4(1.0f), Time::GetTime().InSeconds(), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -1183,6 +1274,138 @@ namespace Cosmic
 		ubo.TransformMatrix      = mTransformMatrix;
 
 		memcpy(mUniformBuffersMapped[currentImage], &ubo, sizeof(UniformBufferObject));
+	}
+
+	void VulkanModule::CreateImage(uint2 size, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+	{
+		VkImageCreateInfo createInfo = {};
+		createInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		createInfo.imageType         = VK_IMAGE_TYPE_2D;
+		createInfo.extent.width      = size.width;
+		createInfo.extent.height     = size.height;
+		createInfo.extent.depth      = 1;
+		createInfo.mipLevels         = 1;
+		createInfo.arrayLayers       = 1;
+		createInfo.format            = format;
+		createInfo.tiling            = tiling;
+		createInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
+		createInfo.usage             = usage;
+		createInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
+		createInfo.samples           = VK_SAMPLE_COUNT_1_BIT;
+		createInfo.flags             = 0;
+
+		VK_CALL(vkCreateImage(mVkDevice, &createInfo, nullptr, &image));
+
+		VkMemoryRequirements memoryRequirements;
+		vkGetImageMemoryRequirements(mVkDevice, image, &memoryRequirements);
+
+		VkMemoryAllocateInfo allocateInfo = {};
+		allocateInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocateInfo.allocationSize       = memoryRequirements.size;
+		allocateInfo.memoryTypeIndex      = FindMemoryType(memoryRequirements.memoryTypeBits, properties);
+
+		VK_CALL(vkAllocateMemory(mVkDevice, &allocateInfo, nullptr, &imageMemory));
+		VK_CALL(vkBindImageMemory(mVkDevice, image, imageMemory, 0));
+	}
+
+	VkCommandBuffer VulkanModule::BeginSingleTimeCommands()
+	{
+		VkCommandBufferAllocateInfo allocateInfo = {};
+		allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocateInfo.commandBufferCount = 1;
+		allocateInfo.commandPool = mVkCommandPool;
+		allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+		VkCommandBuffer commandBuffer;
+		VK_CALL(vkAllocateCommandBuffers(mVkDevice, &allocateInfo, &commandBuffer));
+
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		VK_CALL(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+
+		return commandBuffer;
+	}
+
+	void VulkanModule::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
+	{
+		VK_CALL(vkEndCommandBuffer(commandBuffer));
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		VK_CALL(vkQueueSubmit(mVkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
+		VK_CALL(vkQueueWaitIdle(mVkGraphicsQueue));
+
+		vkFreeCommandBuffers(mVkDevice, mVkCommandPool, 1, &commandBuffer);
+	}
+
+	void VulkanModule::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+	{
+		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+		VkImageMemoryBarrier barrier = {};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.oldLayout = oldLayout;
+		barrier.newLayout = newLayout;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = image;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+
+		VkPipelineStageFlags srcStage, dstStage;
+
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+			srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		{
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		}
+		else
+		{
+			CS_ASSERT(false, "Unsupported image layout transition.");
+		}
+
+		vkCmdPipelineBarrier(commandBuffer, srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+		EndSingleTimeCommands(commandBuffer);
+	}
+
+	void VulkanModule::CopyBufferToImage(VkBuffer buffer, VkImage image, uint2 size)
+	{
+		VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+		VkBufferImageCopy region = {};
+		region.bufferOffset = 0;
+		region.bufferRowLength = 0;
+		region.bufferImageHeight = 0;
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.mipLevel = 0;
+		region.imageSubresource.baseArrayLayer = 0;
+		region.imageSubresource.layerCount = 1;
+		region.imageOffset = { 0, 0, 0 };
+		region.imageExtent = { size.width, size.height, 1 };
+
+		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+		EndSingleTimeCommands(commandBuffer);
 	}
 
 }
