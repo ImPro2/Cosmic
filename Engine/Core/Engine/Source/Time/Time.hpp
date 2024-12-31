@@ -2,11 +2,10 @@
 #include "Base/Base.hpp"
 #include "Time/DeltaTime.hpp"
 #include "Memory/Memory.hpp"
+#include "App/OS.hpp"
 
 namespace Cosmic
 {
-
-#undef GetCurrentTime
 
     class Application;
 

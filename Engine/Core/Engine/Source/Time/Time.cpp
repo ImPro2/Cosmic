@@ -35,8 +35,7 @@ namespace Cosmic
 
         count++;
 
-
-        TimeUnit currentTime = (float32)glfwGetTime(); // temporary
+        TimeUnit currentTime = Time::GetTime();
         
         sInstance->mCurrentDeltaTime = currentTime - sInstance->mLastFrameTime;
         sInstance->mLastFrameTime    = currentTime;

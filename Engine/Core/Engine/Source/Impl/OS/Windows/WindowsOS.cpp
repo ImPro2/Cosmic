@@ -15,6 +15,7 @@
 #undef min
 #undef near
 #undef far
+#undef GetCurrentTime
 
 CS_MODULE_LOG_INFO(Cosmic, Impl.OS.Windows.WindowsOS);
 

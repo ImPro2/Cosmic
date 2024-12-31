@@ -4,8 +4,11 @@
 #include "Base/Base.hpp"
 #include "App/Path.hpp"
 
+#undef GetCurrentTime
+
 namespace Cosmic
 {
+
     class OS
     {
     public:
@@ -28,4 +31,5 @@ namespace Cosmic
         static void  FreeDynamicLibrary(void* library);
         static void* RetrieveFunctionFromDynamicLibrary(const char* name, void* library);
     };
+
 }

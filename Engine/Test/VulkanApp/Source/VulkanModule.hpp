@@ -13,6 +13,7 @@
 
 #include <vulkan/vulkan.h>
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
 #undef CreateWindow
@@ -49,7 +50,7 @@ namespace Cosmic
 
 	struct Vertex
 	{
-		float2 Position;
+		float3 Position;
 		float3 Color;
 		float2 TexCoord;
 
@@ -69,7 +70,7 @@ namespace Cosmic
 
 			attributeDescriptions[0].binding  = 0;
 			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format   = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[0].format   = VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[0].offset   = offsetof(Vertex, Position);
 
 			attributeDescriptions[1].binding  = 0;
@@ -115,8 +116,9 @@ namespace Cosmic
 		void CreateRenderPass();
 		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
-		void CreateFramebuffers();
 		void CreateCommandPool();
+		void CreateDepthResources();
+		void CreateFramebuffers();
 		void CreateTextureImage();
 		void CreateTextureImageView();
 		void CreateTextureSampler();
@@ -142,9 +144,12 @@ namespace Cosmic
 		VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const Vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapchainPresentMode(const Vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
-		VkImageView CreateImageView(VkImage image, VkFormat format);
+		VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 		VkShaderModule CreateShaderModule(const Buffer& bytecode);
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32 imageIndex);
+		VkFormat FindSupportedFormat(const Vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+		VkFormat FindDepthFormat();
+		bool HasStencilComponent(VkFormat format);
 		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties);
 		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
@@ -158,21 +163,26 @@ namespace Cosmic
 	private:
 		Scope<IVulkanDesktopWindow> mWindow;
 
-		inline static const uint32 sMaxFramesInFlight = 2;
+		inline static const uint32 sMaxFramesInFlight = 3;
 
 		uint32 mCurrentFrameIndex  = 0;
 		bool   mFramebufferResized = false;
 
-		Vertex mVertices[4] = {
-			Vertex { float2 { -0.5f, -0.5f }, float3 { 1.0f, 0.0f, 0.0f }, float2 { 1.0f, 0.0f } },
-			Vertex { float2 {  0.5f, -0.5f }, float3 { 0.0f, 1.0f, 0.0f }, float2 { 0.0f, 0.0f } },
-			Vertex { float2 {  0.5f,  0.5f }, float3 { 0.0f, 0.0f, 1.0f }, float2 { 0.0f, 1.0f } },
-			Vertex { float2 { -0.5f,  0.5f }, float3 { 1.0f, 1.0f, 1.0f }, float2 { 1.0f, 1.0f } }
+		Vertex mVertices[8] = {
+			Vertex { float3 { -0.5f, -0.5f, 0.0f }, float3 { 1.0f, 0.0f, 0.0f }, float2 { 1.0f, 0.0f } },
+			Vertex { float3 {  0.5f, -0.5f, 0.0f }, float3 { 0.0f, 1.0f, 0.0f }, float2 { 0.0f, 0.0f } },
+			Vertex { float3 {  0.5f,  0.5f, 0.0f }, float3 { 0.0f, 0.0f, 1.0f }, float2 { 0.0f, 1.0f } },
+			Vertex { float3 { -0.5f,  0.5f, 0.0f }, float3 { 1.0f, 1.0f, 1.0f }, float2 { 1.0f, 1.0f } },
+
+			Vertex { float3 { -0.5f, -0.5f, -0.5f }, float3 { 1.0f, 0.0f, 0.0f }, float2 { 1.0f, 0.0f } },
+			Vertex { float3 {  0.5f, -0.5f, -0.5f }, float3 { 0.0f, 1.0f, 0.0f }, float2 { 0.0f, 0.0f } },
+			Vertex { float3 {  0.5f,  0.5f, -0.5f }, float3 { 0.0f, 0.0f, 1.0f }, float2 { 0.0f, 1.0f } },
+			Vertex { float3 { -0.5f,  0.5f, -0.5f }, float3 { 1.0f, 1.0f, 1.0f }, float2 { 1.0f, 1.0f } }
 		};
 
-		uint16 mIndices[6] = {
-			0, 1, 2,
-			2, 3, 0
+		uint16 mIndices[12] = {
+			0, 1, 2, 2, 3, 0,
+			4, 5, 6, 6, 7, 4
 		};
 
 		glm::mat4 mViewProjectionMatrix;
@@ -224,6 +234,9 @@ namespace Cosmic
 		VkDeviceMemory           mVkTextureImageMemory;
 		VkImageView              mVkTextureImageView;
 		VkSampler                mVkTextureSampler;
+		VkImage                  mVkDepthImage;
+		VkDeviceMemory           mVkDepthImageMemory;
+		VkImageView              mVkDepthImageView;
 	};
 
 }

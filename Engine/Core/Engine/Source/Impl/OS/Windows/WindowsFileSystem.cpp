@@ -11,6 +11,7 @@
 
 #undef near
 #undef far
+#undef GetCurrentTime
 
 #include "App/File.hpp"
 #include "Event/Type/FileSystemEvents.hpp"

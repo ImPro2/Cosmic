@@ -46,8 +46,9 @@ namespace Cosmic
 		CreateRenderPass();
 		CreateDescriptorSetLayout();
 		CreateGraphicsPipeline();
-		CreateFramebuffers();
 		CreateCommandPool();
+		CreateDepthResources();
+		CreateFramebuffers();
 		CreateTextureImage();
 		CreateTextureImageView();
 		CreateTextureSampler();
@@ -178,6 +179,13 @@ namespace Cosmic
 		mWindow->Update();
 
 		mCurrentFrameIndex = (mCurrentFrameIndex + 1) % sMaxFramesInFlight;
+
+		static TimeUnit lastTime = Time::GetTime();
+		if (Time::GetTime() - lastTime > 1.0f)
+		{
+			lastTime = Time::GetTime();
+			CS_LOG_TRACE("dt: {}ms, fps: {}", Time::GetDeltaTime().InMilliSeconds(), Time::GetFPS().InSeconds());
+		}
 	}
 
 	void VulkanModule::OnEvent(const IEvent& e)
@@ -415,7 +423,7 @@ namespace Cosmic
 
 		for (uint32 i = 0; i < mVkSwapchainImages.size(); i++)
 		{
-			mVkSwapchainImageViews[i] = CreateImageView(mVkSwapchainImages[i], mVkSwapchainImageFormat);
+			mVkSwapchainImageViews[i] = CreateImageView(mVkSwapchainImages[i], mVkSwapchainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 	}
 
@@ -431,27 +439,44 @@ namespace Cosmic
 		colorAttachment.initialLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
 		colorAttachment.finalLayout             = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+		VkAttachmentDescription depthStencilAttachment = {};
+		depthStencilAttachment.format                  = FindDepthFormat();
+		depthStencilAttachment.samples                 = VK_SAMPLE_COUNT_1_BIT;
+		depthStencilAttachment.loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthStencilAttachment.storeOp                 = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthStencilAttachment.stencilLoadOp           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthStencilAttachment.stencilStoreOp          = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthStencilAttachment.initialLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthStencilAttachment.finalLayout             = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentDescription attachments[] = { colorAttachment, depthStencilAttachment };
+
 		VkAttachmentReference colorAttachmentRef = {};
 		colorAttachmentRef.attachment            = 0;
 		colorAttachmentRef.layout                = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments    = &colorAttachmentRef;
+		VkAttachmentReference depthStencilAttachmentRef = {};
+		depthStencilAttachmentRef.attachment            = 1;
+		depthStencilAttachmentRef.layout                = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass    = {};
+		subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount    = 1;
+		subpass.pColorAttachments       = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthStencilAttachmentRef;
 
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass          = 0;
-		dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask       = 0;
-		dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		dependency.srcAccessMask       = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 		VkRenderPassCreateInfo createInfo = {};
 		createInfo.sType                  = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		createInfo.attachmentCount        = 1;
-		createInfo.pAttachments           = &colorAttachment;
+		createInfo.attachmentCount        = sizeof(attachments) / sizeof(attachments[0]);
+		createInfo.pAttachments           = attachments;
 		createInfo.subpassCount           = 1;
 		createInfo.pSubpasses             = &subpass;
 		createInfo.dependencyCount        = 1;
@@ -590,6 +615,18 @@ namespace Cosmic
 		colorBlendInfo.attachmentCount                     = 1;
 		colorBlendInfo.pAttachments                        = &colorBlendAttachment;
 
+		VkPipelineDepthStencilStateCreateInfo depthStencilInfo = {};
+		depthStencilInfo.sType                                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthStencilInfo.depthTestEnable                       = VK_TRUE;
+		depthStencilInfo.depthWriteEnable                      = VK_TRUE;
+		depthStencilInfo.depthCompareOp                        = VK_COMPARE_OP_LESS;
+		depthStencilInfo.depthBoundsTestEnable                 = VK_FALSE;
+		depthStencilInfo.minDepthBounds                        = 0.0f;
+		depthStencilInfo.maxDepthBounds                        = 1.0f;
+		depthStencilInfo.stencilTestEnable                     = VK_FALSE;
+		depthStencilInfo.front                                 = {};
+		depthStencilInfo.back                                  = {};
+
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount             = 1;
@@ -608,7 +645,7 @@ namespace Cosmic
 		createInfo.pViewportState               = &viewportStateInfo;
 		createInfo.pRasterizationState          = &rasterizationInfo;
 		createInfo.pMultisampleState            = &multisamplingInfo;
-		createInfo.pDepthStencilState           = nullptr;
+		createInfo.pDepthStencilState           = &depthStencilInfo;
 		createInfo.pColorBlendState             = &colorBlendInfo;
 		createInfo.pDynamicState                = &dynamicStateInfo;
 		createInfo.layout                       = mVkPipelineLayout;
@@ -623,27 +660,6 @@ namespace Cosmic
 		vkDestroyShaderModule(mVkDevice, fragmentShaderModule, nullptr);
 	}
 
-	void VulkanModule::CreateFramebuffers()
-	{
-		mVkSwapchainFramebuffers.resize(mVkSwapchainImageViews.size());
-
-		for (size_t i = 0; i < mVkSwapchainImageViews.size(); i++)
-		{
-			VkImageView attachments[] = { mVkSwapchainImageViews[i] };
-
-			VkFramebufferCreateInfo createInfo = {};
-			createInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			createInfo.renderPass              = mVkRenderPass;
-			createInfo.attachmentCount         = 1;
-			createInfo.pAttachments            = attachments;
-			createInfo.width                   = mVkSwapchainExtent.width;
-			createInfo.height                  = mVkSwapchainExtent.height;
-			createInfo.layers                  = 1;
-
-			VK_CALL(vkCreateFramebuffer(mVkDevice, &createInfo, nullptr, &mVkSwapchainFramebuffers[i]));
-		}
-	}
-
 	void VulkanModule::CreateCommandPool()
 	{
 		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(mVkPhysicalDevice);
@@ -654,6 +670,36 @@ namespace Cosmic
 		createInfo.queueFamilyIndex        = queueFamilyIndices.GraphicsFamily;
 
 		VK_CALL(vkCreateCommandPool(mVkDevice, &createInfo, nullptr, &mVkCommandPool));
+	}
+
+	void VulkanModule::CreateDepthResources()
+	{
+		VkFormat depthFormat = FindDepthFormat();
+
+		CreateImage({ mVkSwapchainExtent.width, mVkSwapchainExtent.height }, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVkDepthImage, mVkDepthImageMemory);
+		mVkDepthImageView = CreateImageView(mVkDepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+	}
+
+	void VulkanModule::CreateFramebuffers()
+	{
+		mVkSwapchainFramebuffers.resize(mVkSwapchainImageViews.size());
+
+		for (size_t i = 0; i < mVkSwapchainImageViews.size(); i++)
+		{
+			VkImageView attachments[] = { mVkSwapchainImageViews[i], mVkDepthImageView };
+
+			VkFramebufferCreateInfo createInfo = {};
+			createInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			createInfo.renderPass              = mVkRenderPass;
+			createInfo.attachmentCount         = sizeof(attachments) / sizeof(attachments[0]);
+			createInfo.pAttachments            = attachments;
+			createInfo.width                   = mVkSwapchainExtent.width;
+			createInfo.height                  = mVkSwapchainExtent.height;
+			createInfo.layers                  = 1;
+
+			VK_CALL(vkCreateFramebuffer(mVkDevice, &createInfo, nullptr, &mVkSwapchainFramebuffers[i]));
+		}
 	}
 
 	void VulkanModule::CreateTextureImage()
@@ -691,7 +737,7 @@ namespace Cosmic
 
 	void VulkanModule::CreateTextureImageView()
 	{
-		mVkTextureImageView = CreateImageView(mVkTextureImage, VK_FORMAT_R8G8B8A8_SRGB);
+		mVkTextureImageView = CreateImageView(mVkTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
 	void VulkanModule::CreateTextureSampler()
@@ -883,11 +929,16 @@ namespace Cosmic
 
 		CreateSwapchain();
 		CreateImageViews();
+		CreateDepthResources();
 		CreateFramebuffers();
 	}
 
 	void VulkanModule::CleanupSwapchain()
 	{
+		vkDestroyImageView(mVkDevice, mVkDepthImageView, nullptr);
+		vkDestroyImage(mVkDevice, mVkDepthImage, nullptr);
+		vkFreeMemory(mVkDevice, mVkDepthImageMemory, nullptr);
+
 		for (VkFramebuffer& framebuffer : mVkSwapchainFramebuffers)
 			vkDestroyFramebuffer(mVkDevice, framebuffer, nullptr);
 
@@ -1120,7 +1171,7 @@ namespace Cosmic
 		return actualExtent;
 	}
 
-	VkImageView VulkanModule::CreateImageView(VkImage image, VkFormat format)
+	VkImageView VulkanModule::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 	{
 		VkImageViewCreateInfo createInfo           = {};
 		createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -1131,7 +1182,7 @@ namespace Cosmic
 		createInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
 		createInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
 		createInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.aspectMask     = aspectFlags;
 		createInfo.subresourceRange.baseMipLevel   = 0;
 		createInfo.subresourceRange.levelCount     = 1;
 		createInfo.subresourceRange.baseArrayLayer = 0;
@@ -1177,16 +1228,18 @@ namespace Cosmic
 		scissorRect.offset   = { 0, 0 };
 		scissorRect.extent   = mVkSwapchainExtent;
 
-		VkClearValue clearColor = VkClearValue { VkClearColorValue { { 0.0f, 0.0f, 0.0f, 1.0f } } };
+		VkClearValue clearValues[2];
+		clearValues[0].color        = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		VkRenderPassBeginInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = mVkRenderPass;
-		renderPassInfo.framebuffer = mVkSwapchainFramebuffers[imageIndex];
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = mVkSwapchainExtent;
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
+		renderPassInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass            = mVkRenderPass;
+		renderPassInfo.framebuffer           = mVkSwapchainFramebuffers[imageIndex];
+		renderPassInfo.renderArea.offset     = { 0, 0 };
+		renderPassInfo.renderArea.extent     = mVkSwapchainExtent;
+		renderPassInfo.clearValueCount       = sizeof(clearValues) / sizeof(clearValues[0]);
+		renderPassInfo.pClearValues          = clearValues;
 
 		VkDeviceSize offsets[] = { 0 };
 
@@ -1203,6 +1256,33 @@ namespace Cosmic
 		vkCmdEndRenderPass(commandBuffer);
 
 		VK_CALL(vkEndCommandBuffer(commandBuffer));
+	}
+
+	VkFormat VulkanModule::FindSupportedFormat(const Vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+	{
+		for (VkFormat format : candidates)
+		{
+			VkFormatProperties properties;
+			vkGetPhysicalDeviceFormatProperties(mVkPhysicalDevice, format, &properties);
+
+			if (tiling == VK_IMAGE_TILING_LINEAR && (properties.linearTilingFeatures & features) == features)
+				return format;
+			else if (tiling == VK_IMAGE_TILING_OPTIMAL && (properties.optimalTilingFeatures & features) == features)
+				return format;
+		}
+
+		CS_ASSERT(false, "Unsupported format");
+		return VK_FORMAT_UNDEFINED;
+	}
+
+	VkFormat VulkanModule::FindDepthFormat()
+	{
+		return FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+	}
+
+	bool VulkanModule::HasStencilComponent(VkFormat format)
+	{
+		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
 	void VulkanModule::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
@@ -1354,13 +1434,24 @@ namespace Cosmic
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.image = image;
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 
 		VkPipelineStageFlags srcStage, dstStage;
+
+		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		{
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+			if (HasStencilComponent(format))
+				barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+		else
+		{
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		}
 
 		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 		{
@@ -1377,6 +1468,14 @@ namespace Cosmic
 
 			srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+			srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			dstStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		}
 		else
 		{
