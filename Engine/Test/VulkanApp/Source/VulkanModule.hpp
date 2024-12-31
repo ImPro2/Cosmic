@@ -144,7 +144,7 @@ namespace Cosmic
 		VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const Vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapchainPresentMode(const Vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
-		VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+		VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32 mipLevels);
 		VkShaderModule CreateShaderModule(const Buffer& bytecode);
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32 imageIndex);
 		VkFormat FindSupportedFormat(const Vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
@@ -154,11 +154,12 @@ namespace Cosmic
 		uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties);
 		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 		void UpdateUniformBuffer(uint32 currentImage);
-		void CreateImage(uint2 size, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+		void CreateImage(uint2 size, uint32 mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 		VkCommandBuffer BeginSingleTimeCommands();
 		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
-		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32 mipLevels);
 		void CopyBufferToImage(VkBuffer buffer, VkImage image, uint2 size);
+		void GenerateMipmaps(VkImage image, VkFormat imageFormat, int2 size, uint32 mipLevels);
 
 	private:
 		Scope<IVulkanDesktopWindow> mWindow;
@@ -230,6 +231,7 @@ namespace Cosmic
 		Vector<void*>            mUniformBuffersMapped;
 		VkDescriptorPool         mVkDescriptorPool;
 		Vector<VkDescriptorSet>  mVkDescriptorSets;
+		uint32                   mTextureMipLevels;
 		VkImage                  mVkTextureImage;
 		VkDeviceMemory           mVkTextureImageMemory;
 		VkImageView              mVkTextureImageView;
