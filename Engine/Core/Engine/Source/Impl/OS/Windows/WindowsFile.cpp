@@ -216,7 +216,31 @@ namespace Cosmic
 
     void File::WriteBinary(const uint8* data, size_t size)
     {
-        // TODO: Implement
+        HANDLE hFile;
+
+        // get the file handle and open the file
+
+        CS_WINDOWS_CALL(hFile = CreateFileA(
+            mAbsolutePath.GetString().c_str(),            // file to open
+            GENERIC_WRITE,                                // open for writing
+            FILE_SHARE_WRITE,                             // share for writing
+            NULL,                                         // default security
+            CREATE_ALWAYS,                                // create
+            FILE_ATTRIBUTE_NORMAL,                        // normal file
+            NULL                                          // no attr. template
+        ), "Unable to open file ``.");
+
+        // write to the file
+
+        CS_WINDOWS_CALL(WriteFile(
+            hFile,
+            data,
+            size,
+            nullptr,
+            NULL
+        ), "Unable to write to file ``");
+
+        ::CloseHandle(hFile);
     }
 
 }

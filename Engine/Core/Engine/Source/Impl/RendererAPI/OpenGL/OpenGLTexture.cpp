@@ -11,10 +11,12 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.Opengl.OpenGLTexture);
 
 namespace Cosmic
 {
+#if 0
 
     namespace Utils
     {
 
+#if 0
         static GLenum ETextureWrapModeToOpenGLWrapMode(ETextureWrapMode wrapMode)
         {
             switch (wrapMode)
@@ -199,6 +201,7 @@ namespace Cosmic
 
             return ETextureAttachmentType::ColorAttachment;
         }
+#endif
 
     }
 
@@ -206,6 +209,7 @@ namespace Cosmic
         : Texture2D(filePath, info)
     {
         CS_PROFILE_FN();
+#if 0
 
         int32  width, height, channels;
         stbi_set_flip_vertically_on_load(true);
@@ -243,11 +247,13 @@ namespace Cosmic
 
             stbi_image_free(data);
         }
+#endif
     }
 
     OpenGLTexture2D::OpenGLTexture2D(const Texture2DInfo& info)
         : Texture2D(info)
     {
+#if 0
         CS_PROFILE_FN();
 
         GLenum wrap      = Utils::ETextureWrapModeToOpenGLWrapMode(mInfo.WrapMode);
@@ -270,6 +276,7 @@ namespace Cosmic
             GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mInfo.Width, mInfo.Height, 0, mDataFormat, mDataType, nullptr));
         //else
         //    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, mInfo.Width, mInfo.Height, 0, GL_RED_INTEGER, GL_INT, nullptr));
+#endif
     }
 
     OpenGLTexture2D::~OpenGLTexture2D()
@@ -283,7 +290,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
-        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mInfo.Width, mInfo.Height, 0, mDataFormat, GL_UNSIGNED_BYTE, data));
+        //GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mInfo.Width, mInfo.Height, 0, mDataFormat, GL_UNSIGNED_BYTE, data));
         GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
     }
 
@@ -294,10 +301,6 @@ namespace Cosmic
         GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, mRendererID));
     }
-
-    ETextureAttachmentType OpenGLTexture2D::GetAttachmentType() const
-    {
-        return Utils::ETextureFormatToETextureAttachmentType(mInfo.Format);
-    }
+#endif
 
 }

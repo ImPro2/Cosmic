@@ -86,7 +86,7 @@ namespace Cosmic
         bool                  mRunning   = true;
         bool                  mMinimized = false;
         ApplicationInfo       mInfo;
-        Scope<IDesktopWindow> mWindow;
+        Ref<IDesktopWindow> mWindow;
 
         PersistentRef<Log>                mLogInstance;
         PersistentRef<FileSystem>         mFileSystemInstance;

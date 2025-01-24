@@ -25,8 +25,9 @@ namespace Cosmic
 
         switch (RendererAPI::Get())
         {
-            case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(filePath, info);
+            //case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(filePath, info);
         }
+        return {};
     }
 
     Ref<Texture2D> CreateTexture2D(const Texture2DInfo& info)
@@ -35,8 +36,10 @@ namespace Cosmic
 
         switch (RendererAPI::Get())
         {
-            case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(info);
+            //case ERendererAPI::OpenGL: return CreateRef<OpenGLTexture2D>(info);
         }
+
+        return {};
     }
 
 }

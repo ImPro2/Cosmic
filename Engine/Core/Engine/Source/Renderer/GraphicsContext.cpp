@@ -7,14 +7,15 @@
 namespace Cosmic
 {
 
-    Scope<GraphicsContext> CreateGraphicsContext(void* window)
+    Ref<GraphicsContext> CreateGraphicsContext(void* window)
     {
         CS_PROFILE_FN();
 
         switch (RendererAPI::Get())
         {
-            case ERendererAPI::OpenGL: return CreateScope<OpenGLGraphicsContext>((GLFWwindow*)window); break;
+            //case ERendererAPI::OpenGL: return CreateRef<OpenGLGraphicsContext>((GLFWwindow*)window); break;
         }
+        return {};
     }
 
 }

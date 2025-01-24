@@ -7,3 +7,4 @@
 #include "StringUtils.hpp"
 #include "Cast.hpp"
 #include "TypeStrings.hpp"
+#include "Buffer.hpp"

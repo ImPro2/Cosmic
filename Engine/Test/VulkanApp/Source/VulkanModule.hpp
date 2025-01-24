@@ -4,13 +4,6 @@
 
 #include "IVulkanDesktopWindow.hpp"
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-
 #include <vulkan/vulkan.h>
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -19,10 +12,24 @@
 #undef CreateWindow
 #undef CreateWindowW
 
+#include "Renderer/Shader.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanShader.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanRenderPass.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanGraphicsPipeline.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanFence.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanSemaphore.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanCommandBuffer.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanCommandPool.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanDescriptorPool.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanDescriptorSet.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanBuffer.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanImage.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanFramebuffer.hpp"
+
 namespace Cosmic
 {
 
-	struct QueueFamilyIndices
+	struct MyQueueFamilyIndices
 	{
 		uint32 GraphicsFamily;
 		uint32 PresentFamily;
@@ -36,7 +43,7 @@ namespace Cosmic
 		}
 	};
 
-	struct SwapchainSupportDetails
+	struct MySwapchainSupportDetails
 	{
 		VkSurfaceCapabilitiesKHR   Capabilities;
 		Vector<VkSurfaceFormatKHR> Formats;
@@ -105,7 +112,6 @@ namespace Cosmic
 		bool OnWindowResize(const WindowResizeEvent& e);
 
 	private:
-		void CreateWindow();
 		void CreateInstance();
 		void SetupDebugMessenger();
 		void CreateSurface();
@@ -139,8 +145,8 @@ namespace Cosmic
 		void PopulateVkDebugUtilsMessengerCreateInfoEXT(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 		bool IsDeviceSuitable(VkPhysicalDevice physicalDevice);
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice physicalDevice);
-		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice physicalDevice);
-		SwapchainSupportDetails QuerySwapchainSupport(VkPhysicalDevice physicalDevice);
+		MyQueueFamilyIndices FindQueueFamilies(VkPhysicalDevice physicalDevice);
+		MySwapchainSupportDetails QuerySwapchainSupport(VkPhysicalDevice physicalDevice);
 		VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const Vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapchainPresentMode(const Vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
@@ -153,7 +159,7 @@ namespace Cosmic
 		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties);
 		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-		void UpdateUniformBuffer(uint32 currentImage);
+		void UpdateUniformBuffer();
 		void CreateImage(uint2 size, uint32 mipLevels, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 		VkCommandBuffer BeginSingleTimeCommands();
 		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
@@ -186,6 +192,8 @@ namespace Cosmic
 			4, 5, 6, 6, 7, 4
 		};
 
+		Ref<VulkanShader> mShader;
+
 		glm::mat4 mViewProjectionMatrix;
 		glm::mat4 mTransformMatrix;
 
@@ -198,6 +206,43 @@ namespace Cosmic
 #else
 		bool mEnableValidationLayers = false;
 #endif
+
+	private:
+		Ref<VulkanInstance> mInstance;
+		Ref<VulkanPhysicalDevice> mPhysicalDevice;
+		Ref<VulkanDevice> mDevice;
+		Ref<VulkanSwapchain> mSwapchain;
+
+		Ref<VulkanQueue> mGraphicsQueue, mPresentQueue;
+
+		Ref<VulkanRenderPass>       mRenderPass;
+		Ref<VulkanGraphicsPipeline> mPipeline;
+
+		Ref<VulkanDescriptorPool> mDescriptorPool;
+
+		Ref<VulkanCommandPool> mCommandPool;
+
+		struct FrameData
+		{
+			Ref<VulkanFence>     AcquireNextImageFence;
+			Ref<VulkanSemaphore> ImageAvailableSemaphore;
+			Ref<VulkanSemaphore> RenderFinishedSemaphore;
+
+			void* UniformBufferMappedData;
+			Ref<VulkanBuffer> UniformBuffer;
+
+			Ref<VulkanDescriptorSet> DescriptorSet;
+			Ref<VulkanCommandBuffer> CommandBuffer;
+		};
+
+		Vector<FrameData> mFramesInFlight;
+
+		Ref<VulkanBuffer> mVertexBuffer, mIndexBuffer;
+		Ref<VulkanImage> mTextureImage;
+
+		Ref<VulkanImage> mDepthTextureImage;
+
+		Vector<Ref<VulkanFramebuffer>> mFramebuffers;
 
 	private:
 		VkInstance               mVkInstance;

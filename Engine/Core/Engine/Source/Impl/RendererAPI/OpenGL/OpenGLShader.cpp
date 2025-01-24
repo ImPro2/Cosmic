@@ -12,6 +12,7 @@ CS_MODULE_LOG_INFO(Cosmic, Impl.RendererAPI.OpenGL.OpenGLShader);
 namespace Cosmic
 {
 
+#if 0
     static GLenum StringToOpenGLShaderType(const String& type)
     {
         if (type == "vertex")
@@ -36,7 +37,7 @@ namespace Cosmic
     }
 
     OpenGLShader::OpenGLShader(const String& filePath)
-        : Shader(filePath)
+        : Shader({})
     {
         CS_PROFILE_FN();
 
@@ -48,7 +49,7 @@ namespace Cosmic
     }
 
     OpenGLShader::OpenGLShader(const String& name, const String& vertexSrc, const String& fragmentSrc)
-        : Shader(name, vertexSrc, fragmentSrc)
+        : Shader({})
     {
         CS_PROFILE_FN();
 
@@ -99,12 +100,12 @@ namespace Cosmic
             }
             else
             {
-                CS_LOG_ERROR("Could not read from file {}", GetFilePath().c_str());
+                //CS_LOG_ERROR("Could not read from file {}", GetFilePath().c_str());
             }
         }
         else
         {
-            CS_LOG_ERROR("Could not open file {}", GetFilePath().c_str());
+            //CS_LOG_ERROR("Could not open file {}", GetFilePath().c_str());
         }
 
         return result;
@@ -164,7 +165,7 @@ namespace Cosmic
             char* message = (char*)alloca(length * sizeof(char*));
             GL_CALL(glGetProgramInfoLog(programID, length, &length, message)); 
 
-            CS_LOG_ERROR("Failed to link shader {}:\n{}", GetFilePath(), message);
+            //CS_LOG_ERROR("Failed to link shader {}:\n{}", GetFilePath(), message);
             GL_CALL(glDeleteProgram(programID));
         }
 
@@ -338,5 +339,6 @@ namespace Cosmic
         int32 loc = GetUniformLocation(name);
         glUniform1i(loc, value ? 1 : 0);
     }
+#endif
 
 }

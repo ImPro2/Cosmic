@@ -23,13 +23,13 @@ namespace Cosmic
             return GL_COLOR_ATTACHMENT0 + index;
         }
 
-        static GLenum ETextureAttachmentTypeToOpenGLTextureAttachment(ETextureAttachmentType attachmentType, int32 colorAttachmentIndex)
+        static GLenum ETextureAttachmentTypeToOpenGLTextureAttachment(EAttachmentType attachmentType, int32 colorAttachmentIndex)
         {
             switch (attachmentType)
             {
-                case ETextureAttachmentType::ColorAttachment:        return IndexToOpenGLColorAttachmentIndex(colorAttachmentIndex);
-                case ETextureAttachmentType::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
-                case ETextureAttachmentType::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
+                case EAttachmentType::ColorAttachment:        return IndexToOpenGLColorAttachmentIndex(colorAttachmentIndex);
+                case EAttachmentType::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
+                case EAttachmentType::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
             }
         }
 
@@ -48,12 +48,15 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+#if 0
         GL_CALL(glDeleteFramebuffers(1, &mRendererID));
         mTextures.clear();
+#endif
     }
 
     void OpenGLFramebuffer::Invalidate()
     {
+#if 0
         CS_PROFILE_FN();
 
         if (mRendererID)
@@ -107,20 +110,24 @@ namespace Cosmic
         CS_ASSERT(result == GL_FRAMEBUFFER_COMPLETE, "Failed to create framebuffer.");
         
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+#endif
     }
 
     void OpenGLFramebuffer::Resize(uint32 width, uint32 height)
     {
+#if 0
         mInfo.Width = width;
         mInfo.Height = height;
 
         Invalidate();
+#endif
     }
 
     void OpenGLFramebuffer::Bind()
     {
         CS_PROFILE_FN();
 
+#if 0
         if (mInfo.SwapChainTarget)
             GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
         else
@@ -128,6 +135,7 @@ namespace Cosmic
             GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mRendererID));
             GL_CALL(glViewport(0, 0, mInfo.Width, mInfo.Height));
         }
+#endif
     }
 
     void OpenGLFramebuffer::Unbind()
@@ -135,6 +143,7 @@ namespace Cosmic
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
 
+#if 0
     uint32 OpenGLFramebuffer::GetColorAttachmentRendererID()
     {
         for (const Ref<Texture2D>& texture : mTextures)
@@ -142,19 +151,21 @@ namespace Cosmic
             if (texture->GetAttachmentType() == ETextureAttachmentType::ColorAttachment)
                 return texture->GetRendererID();
         }
-
-        return 0;
     }
+#endif
 
     void OpenGLFramebuffer::ClearAttachment(uint32 attachmentIndex, int32 value)
     {
+#if 0
         const Ref<OpenGLTexture2D>& texture = mTextures[attachmentIndex].As<OpenGLTexture2D>();
 
         GL_CALL(glClearTexImage(texture->GetRendererID(), 0, texture->GetDataFormat(), GL_INT, &value));
+#endif
     }
 
     int32 OpenGLFramebuffer::ReadPixel(uint32 attachmentIndex, int2 pos)
     {
+#if 0
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mRendererID));
         GL_CALL(glReadBuffer(Utils::IndexToOpenGLColorAttachmentIndex(attachmentIndex)));
 
@@ -165,15 +176,20 @@ namespace Cosmic
         GL_CALL(glReadPixels(pos.x, pos.y, 1, 1, attachment->GetDataFormat(), attachment->GetDataType(), &pixelData));
 
         return (int32)pixelData;
+#endif
+        return 0;
     }
 
     void OpenGLFramebuffer::CreateAttachments()
     {
+#if 0
+
         for (const auto& attachment : mInfo.AttachmentsInfo.Attachments)
         {
-            Texture2DInfo textureInfo = Texture2DInfo(mInfo.Width, mInfo.Height, attachment.WrapMode, attachment.MinScalingFilter, attachment.MagScalingFilter, attachment.Format);
+            Texture2DInfo textureInfo = Texture2DInfo({ mInfo.Width, mInfo.Height }, attachment.WrapMode, attachment.MinScalingFilter, attachment.MagScalingFilter, attachment.Format);
             mTextures.emplace_back(CreateTexture2D(textureInfo));
         }
+#endif
     }
 
 }

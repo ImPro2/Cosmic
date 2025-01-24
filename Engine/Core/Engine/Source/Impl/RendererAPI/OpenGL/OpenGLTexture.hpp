@@ -7,6 +7,7 @@
 namespace Cosmic
 {
 
+#if 0
     class OpenGLTexture2D : public Texture2D
     {
     public:
@@ -18,8 +19,6 @@ namespace Cosmic
         void Bind(uint32 slot)                  const override;
 
     public:
-        uint32 GetRendererID() const override { return (uint32)mRendererID; }
-        ETextureAttachmentType GetAttachmentType() const override;
 
     public:
         GLenum GetInternalFormat() const { return mInternalFormat; }
@@ -30,6 +29,7 @@ namespace Cosmic
         GLenum mRendererID;
         GLenum mInternalFormat, mDataFormat, mDataType;
     };
+#endif
 
 
 }

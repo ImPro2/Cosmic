@@ -11,8 +11,15 @@ project "VulkanApp"
         "Glad",
         "Yaml-CPP",
         "stb_image",
-		"%{Library.Vulkan}"
+		"SPIRV-Reflect",
+		"%{Library.Vulkan}",
+		"%{Library.shaderc}",
+		"%{Library.SPIRVTools}"
 	}
+
+	--for _, lib in pairs(Library.SPIRV) do
+		--links(lib)
+	--end
 
 	files
 	{
@@ -27,6 +34,7 @@ project "VulkanApp"
 		"%{IncludeDir.GLFW}", -- temporary
 		"%{IncludeDir.Glad}", -- temporary
 		"%{IncludeDir.VulkanSDK}",
+		"%{IncludeDir.SPIRVReflect}",
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.Optick}",

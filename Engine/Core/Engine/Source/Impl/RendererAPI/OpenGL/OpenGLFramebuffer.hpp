@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 
 #include "Renderer/Framebuffer.hpp"
+#include "Renderer/RenderPass.hpp"
 #include "Base/Base.hpp"
 
 namespace Cosmic
@@ -22,7 +23,6 @@ namespace Cosmic
     public:
         void Bind() override;
         void Unbind() override;
-        uint32 GetColorAttachmentRendererID() override;
 
     private:
         void CreateAttachments();

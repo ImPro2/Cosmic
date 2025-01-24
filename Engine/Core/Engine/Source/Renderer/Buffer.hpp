@@ -8,41 +8,7 @@
 namespace Cosmic
 {
 
-    struct VertexBufferElement
-    {
-        uint32          ComponentCount;
-        EShaderDataType Type;
-        bool            Normalized;
-        uint32          Offset;
-        uint32          Size; // NOT stride; just the size of the attribute.
-
-        VertexBufferElement() = default;
-        VertexBufferElement(EShaderDataType type, bool normalized = false);
-    };
-
-    class VertexBufferLayout
-    {
-    public:
-        VertexBufferLayout() = default;
-        VertexBufferLayout(std::initializer_list<VertexBufferElement> elements);
-
-    public:
-        uint32                             GetStride()      const { return mStride;           }
-        const Vector<VertexBufferElement>& GetElements()    const { return mElements;         }
-
-        Vector<VertexBufferElement>::iterator       begin()       { return mElements.begin(); }
-        Vector<VertexBufferElement>::iterator       end()         { return mElements.end();   }
-        Vector<VertexBufferElement>::const_iterator begin() const { return mElements.begin(); }
-        Vector<VertexBufferElement>::const_iterator end()   const { return mElements.end();   }
-
-    private:
-        void CalculateOffsetsAndStride();
-
-    private:
-        Vector<VertexBufferElement> mElements;
-        uint32                      mStride;
-    };
-
+   
     enum class EBufferUsage
     {
         Static,  // The data store contents will be modified once and used many times.
@@ -57,7 +23,6 @@ namespace Cosmic
         virtual ~VertexBuffer() = default;
 
         virtual void SetData(const void* data, uint32 size, uint32 offset = 0) = 0;
-        virtual void SetLayout(const VertexBufferLayout& layout)               = 0;
 
     public:
         virtual void Bind()   const = 0;
@@ -66,12 +31,10 @@ namespace Cosmic
     public:
         uint32             GetSize()   const { return mSize;   }
         EBufferUsage       GetUsage()  const { return mUsage;  }
-        VertexBufferLayout GetLayout() const { return mLayout; }
 
     protected:
         uint32             mSize;
         EBufferUsage       mUsage;
-        VertexBufferLayout mLayout;
     };
 
     class IndexBuffer : public IRefCounted

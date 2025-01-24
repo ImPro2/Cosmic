@@ -32,8 +32,8 @@ namespace Cosmic
 			sInstance->mRefCountMap[ptr]++;
 		}
 
-		template<class T, class Allocator>
-		static uint32 DecRefCount(T* ptr)
+		template<class T, class Allocator, bool Array = false>
+		static uint32 DecRefCount(T* ptr, uint32 count = 0)
 		{
 			if (sInstance->mRefCountMap.find(ptr) == sInstance->mRefCountMap.end())
 			{
@@ -46,7 +46,11 @@ namespace Cosmic
 			{
 				sInstance->mRefCountMap.erase(ptr);
 
-				Allocator::Free(ptr);
+				if constexpr (Array)
+					Allocator::FreeArray(ptr, count);
+				else
+					Allocator::Free(ptr);
+
 				ptr = nullptr;
 				return 0;
 			}

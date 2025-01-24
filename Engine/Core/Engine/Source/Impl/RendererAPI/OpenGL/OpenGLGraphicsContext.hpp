@@ -13,7 +13,7 @@ namespace Cosmic
         OpenGLGraphicsContext(GLFWwindow* window);
 
         void Init()        override;
-        void SwapBuffers() override;
+        void Present() override;
 
     private:
         GLFWwindow* mWindow;

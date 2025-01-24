@@ -71,6 +71,7 @@ namespace Cosmic
         GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
     }
 
+#if 0
     void OpenGLVertexBuffer::SetLayout(const VertexBufferLayout& layout)
     {
         CS_PROFILE_FN();
@@ -96,6 +97,7 @@ namespace Cosmic
             index++;
         }
     }
+#endif
 
     void OpenGLVertexBuffer::Bind() const
     {

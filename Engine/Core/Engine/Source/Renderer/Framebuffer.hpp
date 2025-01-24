@@ -8,72 +8,63 @@
 namespace Cosmic
 {
 
-    struct FramebufferTextureInfo
+    enum class EFramebufferFlags
     {
-        FramebufferTextureInfo(const FramebufferTextureInfo&) = default;
+        None            = 0,
+        SwapchainTarget = 1
+    };
 
-        FramebufferTextureInfo(
-            ETextureFormat        format = ETextureFormat::RGBA8_Float,
-            ETextureWrapMode      wrap   = ETextureWrapMode::ClampToBorder,
-            ETextureScalingFilter min    = ETextureScalingFilter::Linear,
-            ETextureScalingFilter mag    = ETextureScalingFilter::Linear
-        )
-            : WrapMode(wrap), MinScalingFilter(min), MagScalingFilter(mag), Format(format)
+    enum class EFramebufferAttachmentType
+    {
+        ColorAttachment,
+        DepthAttachment,
+        DepthStencilAttachment
+    };
+
+    struct FramebufferAttachmentInfo
+    {
+        FramebufferAttachmentInfo()                                 = default;
+        FramebufferAttachmentInfo(const FramebufferAttachmentInfo&) = default;
+        FramebufferAttachmentInfo(ETextureFormat format, EFramebufferAttachmentType type)
+            : Format(format), Type(Type)
         {
         }
         
-        ETextureFormat        Format;
-        ETextureWrapMode      WrapMode;
-        ETextureScalingFilter MinScalingFilter;
-        ETextureScalingFilter MagScalingFilter;
+        ETextureFormat             Format = ETextureFormat::RGBA32_SFloat;
+        EFramebufferAttachmentType Type   = EFramebufferAttachmentType::ColorAttachment;
     };
 
     struct FramebufferAttachmentsInfo
     {
         FramebufferAttachmentsInfo()                                  = default;
         FramebufferAttachmentsInfo(const FramebufferAttachmentsInfo&) = default;
-        FramebufferAttachmentsInfo(std::initializer_list<FramebufferTextureInfo> attachments)
+        FramebufferAttachmentsInfo(std::initializer_list<FramebufferAttachmentInfo> attachments)
             : Attachments(attachments)
         {
         }
 
-        Vector<FramebufferTextureInfo> Attachments;
+        Vector<FramebufferAttachmentInfo> Attachments;
     };
+
 
     struct FramebufferInfo
     {
         FramebufferInfo()                       = default;
         FramebufferInfo(const FramebufferInfo&) = default;
 
-        FramebufferInfo(
-            const FramebufferAttachmentsInfo& attachmentsInfo,
-            uint32                            width,
-            uint32                            height,
-            uint32                            samples         = 1,
-            bool                              swapchainTarget = false
-        )
-            : AttachmentsInfo(attachmentsInfo), Width(width), Height(height), Samples(samples), SwapChainTarget(swapchainTarget)
+        FramebufferInfo(uint2 size, FramebufferAttachmentsInfo& attachmentsInfo, BitFlags<EFramebufferFlags> flags)
+            : Size(size), AttachmentsInfo(attachmentsInfo), Flags(flags)
         {
         }
 
-        FramebufferInfo(
-            FramebufferAttachmentsInfo&& attachmentsInfo,
-            uint32                       width,
-            uint32                       height,
-            uint32                       samples         = 1,
-            bool                         swapchainTarget = false
-        )
-            : AttachmentsInfo(std::move(attachmentsInfo)), Width(width), Height(height), Samples(samples), SwapChainTarget(swapchainTarget)
+        FramebufferInfo(uint2 size, FramebufferAttachmentsInfo&& attachmentsInfo, BitFlags<EFramebufferFlags> flags)
+            : Size(size), AttachmentsInfo(std::move(attachmentsInfo)), Flags(flags)
         {
         }
 
-        FramebufferAttachmentsInfo AttachmentsInfo;
-
-        uint32 Width;
-        uint32 Height;
-        uint32 Samples = 1;
-        bool   SwapChainTarget = false;
-
+        uint2                       Size;
+        FramebufferAttachmentsInfo  AttachmentsInfo;
+        BitFlags<EFramebufferFlags> Flags;
     };
 
     class Framebuffer : public IRefCounted
@@ -96,11 +87,11 @@ namespace Cosmic
         virtual void Unbind() = 0;
 
     public:
-        virtual uint32 GetColorAttachmentRendererID() = 0;
+        const Vector<Ref<Texture2D>>& GetAttachments() const { return mAttachments; }
 
     protected:
         FramebufferInfo        mInfo;
-        Vector<Ref<Texture2D>> mTextures;
+        Vector<Ref<Texture2D>> mAttachments;
     };
 
     Ref<Framebuffer> CreateFramebuffer(const FramebufferInfo& info);

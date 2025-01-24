@@ -12,6 +12,16 @@ namespace Cosmic::StringUtils
 
     Vector<String> SplitInLines(const String& str);
 
+    void RightTrim(String& str);
+    void LeftTrim(String& str);
+    void Trim(String& str);
+
+    String RightTrimCopy(String str);
+    String LeftTrimCopy(String str);
+    String TrimCopy(String str);
+
+    String Concatenate(const Vector<String>& strs);
+
     uint32         FindPosition(const String&    str, const StringView search, uint32 offset);
     uint32         FindPosition(const StringView str, const StringView search, uint32 offset);
 

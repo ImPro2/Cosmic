@@ -1,5 +1,6 @@
 #pragma once
 #include "App/Window/IWindow.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanGraphicsContext.hpp"
 
 #include <GLFW/glfw3.h>
 #include <Windows.h>
@@ -23,11 +24,11 @@ namespace Cosmic
         void Close()  override;
 
     public:
-        void SetCloseCallback(std::function<void()> callback) { mCloseCallback = callback; }
-
-    public:
         HWND GetNativeHandle() const;
         virtual WindowHandle GetHandle() const override { return mHandle; }
+
+        Ref<VulkanGraphicsContext> GetVulkanGraphicsContext() { return mGraphicsContext; }
+        const Ref<VulkanGraphicsContext>& GetVulkanGraphicsContext() const { return mGraphicsContext; }
 
         virtual void SetSize(float2 size)          override {}
         virtual void SetPosition(float2 pos)       override {}
@@ -36,7 +37,8 @@ namespace Cosmic
 
     private:
         GLFWwindow* mHandle;
-        std::function<void()> mCloseCallback;
+
+        Ref<VulkanGraphicsContext> mGraphicsContext;
     };
 
 }

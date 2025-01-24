@@ -104,6 +104,7 @@
 #define CS_NOT_IMPLEMENTED() CS_ASSERT(false, "Feature not yet implemented.")
 #define CS_STRINGIFY(x) #x
 #define CS_BIT(x) 1 << x
+#define CS_ARRAY_SIZE(x) sizeof(x) / sizeof(x[0])
 
 // Logging
 

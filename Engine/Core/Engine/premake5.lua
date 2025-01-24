@@ -25,7 +25,8 @@ project "Engine"
 		"%{IncludeDir.YamlCPP}",
 		"%{IncludeDir.Optick}",
 		"%{IncludeDir.EnTT}",
-		"%{IncludeDir.FontAwesome}"
+		"%{IncludeDir.FontAwesome}",
+		"%{IncludeDir.SPIRVReflect}"
 	}
 
 	--libdirs
@@ -38,11 +39,18 @@ project "Engine"
 		"GLFW",
 		"Glad",
 		"%{Library.Vulkan}",
+		"%{Library.SPIRVTools}",
+		"%{Library.shaderc}",
+		"SPIRV-Reflect",
 		"ImGui",
 		"Yaml-CPP",
 		"stb_image",
 		--"OptickCore"
 	}
+
+	--for _, lib in pairs(Library.SPIRV) do
+		--links(lib)
+	--end
 
 	filter "system:windows"
 		links { "shlwapi.lib" }

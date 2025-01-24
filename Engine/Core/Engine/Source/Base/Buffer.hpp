@@ -13,16 +13,19 @@ namespace Cosmic
 		Buffer(uint8* data, size_t size)
 		{
 			Copy(data, size);
+
+			IncRef();
 		}
 
 		Buffer(size_t size)
 			: mData(DefaultAllocator::AllocateArray<uint8>(size)), mSize(size)
 		{
+			IncRef();
 		}
 
 		~Buffer()
 		{
-			Free();
+			DecRef();
 		}
 
 		Buffer& operator=(const uint8* data) = delete;
@@ -30,6 +33,7 @@ namespace Cosmic
 		Buffer& operator=(const Buffer& other)
 		{
 			Copy(other);
+			IncRef();
 			return *this;
 		}
 
@@ -65,7 +69,7 @@ namespace Cosmic
 
 		void Clear()
 		{
-			memcpy(mData, nullptr, mSize);
+			memcpy(mData, 0, mSize);
 		}
 
 		void Free()
@@ -78,8 +82,29 @@ namespace Cosmic
 		}
 
 	private:
-		uint8* mData = nullptr;
-		size_t mSize = 0;
+		void IncRef() const
+		{
+			if (mData)
+				ReferenceCounter::IncRefCount(mData);
+		}
+
+		void DecRef() const
+		{
+            if (mData)
+            {
+                uint32 refCount = ReferenceCounter::DecRefCount<uint8, DefaultAllocator, true>(mData, mSize);
+
+				if (refCount == 0)
+				{
+					mData = nullptr;
+					mSize = 0;
+				}
+            }
+		}
+
+	private:
+		mutable uint8* mData = nullptr;
+		mutable size_t mSize = 0;
 	};
 
 }

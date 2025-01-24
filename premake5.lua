@@ -12,7 +12,7 @@ workspace "Cosmic"
 	startproject "Sandbox"
 	language "C++"
 	cppdialect "C++latest"
-	staticruntime "Off"
+	staticruntime "On"
 
 	targetdir ("%{wks.location}/bin/"     .. outputdir .. "/%{prj.name}")
 	objdir    ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
@@ -59,6 +59,7 @@ group "Dependencies"
     include "Dependencies/Yaml-CPP"
     include "Dependencies/ImGui"
     include "Dependencies/stb_image"
+	include "Dependencies/SPIRV-Reflect"
 group ""
 
 include "Engine/Core/Engine"

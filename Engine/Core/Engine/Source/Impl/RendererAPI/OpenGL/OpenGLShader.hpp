@@ -8,6 +8,7 @@
 namespace Cosmic
 {
 
+#if 0
     class OpenGLShader : public Shader
     {
     public:
@@ -16,8 +17,6 @@ namespace Cosmic
         virtual ~OpenGLShader();
 
     public:
-        void Bind()   const override;
-        void Unbind() const override;
 
     public:
         void SetFloat(const String& name, float32    value)      override;
@@ -55,5 +54,6 @@ namespace Cosmic
         UnorderedMap<GLenum, String> mOpenGLSourceCode; // for debugging purposes, I think
         UnorderedMap<String, int32> mUniformLocationCache;
     };
+#endif
 
 }

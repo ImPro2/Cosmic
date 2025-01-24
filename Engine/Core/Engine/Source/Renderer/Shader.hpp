@@ -1,20 +1,44 @@
 #pragma once
-#include <glm/glm.hpp>
-
 #include "Base/Base.hpp"
 #include "Memory/Memory.hpp"
+#include "ShaderTypes.hpp"
+#include "ShaderCompiler.hpp"
 
 namespace Cosmic
 {
 
-    enum class EShaderDataType
-    {
-        Float, Float2, Float3, Float4,
-        Int,   Int2,   Int3,   Int4,
-        Mat2,  Mat3,   Mat4,
-        Bool
-    };
+	struct ShaderInfo
+	{
+		BitFlags<EShaderStage> Stages;
+		EShaderSourceLanguage  SourceLanguage;
+		String                 Name;
+		Path                   FilePath;
+	};
 
+    // Shader compilation is managed by asset manager
+
+	class Shader : public IRefCounted
+	{
+	public:
+		Shader(const ShaderInfo& info);
+		virtual ~Shader() = default;
+
+	public:
+		const ShaderInfo&  GetInfo()        const { return mInfo;   }
+        const SpirvBinary& GetSpirvBinary() const { return mBinary; }
+        const ShaderReflectionData& GetReflectionData() const { return mReflectionData; }
+
+        bool IsCompiled() const { return mBinary.Binary.GetData() != nullptr; }
+
+	protected:
+		ShaderInfo  mInfo;
+        SpirvBinary mBinary;
+        ShaderReflectionData mReflectionData;
+	};
+
+    Ref<Shader> CreateShader(const ShaderInfo& info);
+
+#if 0
     class Shader : public IRefCounted
     {
     public:
@@ -58,6 +82,6 @@ namespace Cosmic
 
     Ref<Shader> CreateShader(const String& filePath);
     Ref<Shader> CreateShader(const String& name, const String& vertexSrc, const String& fragmentSrc);
-
+#endif
 
 }

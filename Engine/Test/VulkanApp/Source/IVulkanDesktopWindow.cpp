@@ -4,6 +4,16 @@
 #include "Event/Events.hpp"
 #include "Event/Type/WindowEvents.hpp"
 
+#if 0
+#include "Impl/RendererAPI/Vulkan/VulkanInstance.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanSurface.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanPhysicalDevice.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanDevice.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanSwapchain.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanQueue.hpp"
+#include "Impl/RendererAPI/Vulkan/VulkanSemaphore.hpp"
+#endif
+
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
@@ -32,6 +42,9 @@ namespace Cosmic
 		mHandle = glfwCreateWindow((int32)mData.Size.width, (int32)mData.Size.height, mData.Title.c_str(), nullptr, nullptr);
 
 		SetupCallbacks();
+
+		mGraphicsContext = CreateRef<VulkanGraphicsContext>(mHandle);
+		mGraphicsContext->Init();
 	}
 
 	void IVulkanDesktopWindow::SetupCallbacks()
@@ -58,6 +71,7 @@ namespace Cosmic
 
 	void IVulkanDesktopWindow::Update()
 	{
+		mGraphicsContext->Present();
 		glfwPollEvents();
 	}
 

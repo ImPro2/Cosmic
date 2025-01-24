@@ -15,6 +15,7 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+#if 0
         sInstance = CreatePersistentRef<Renderer2D>();
 
         sInstance->mData.QuadVertexBuffer = CreateVertexBuffer(nullptr, sInstance->mData.MaxVertices * sizeof(QuadVertex), EBufferUsage::Dynamic);
@@ -25,7 +26,7 @@ namespace Cosmic
             VertexBufferElement(EShaderDataType::Float),
             VertexBufferElement(EShaderDataType::Float),
             VertexBufferElement(EShaderDataType::Int)
-        });
+            });
 
         sInstance->mData.QuadVertexBuffer->Bind();
 
@@ -66,11 +67,13 @@ namespace Cosmic
         sInstance->mData.TextureSlots[0] = sInstance->mData.WhiteTexture;
 
         sInstance->mData.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-        sInstance->mData.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
-        sInstance->mData.QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+        sInstance->mData.QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
+        sInstance->mData.QuadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
         sInstance->mData.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
         return sInstance;
+#endif
+        return {};
     }
 
     void Renderer2D::Shutdown()
@@ -86,8 +89,10 @@ namespace Cosmic
 
         glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
 
+#if 0
         sInstance->mData.Standard2DShader->Bind();
         sInstance->mData.Standard2DShader->SetMat4("uViewProjection", viewProj);
+#endif
 
         StartBatch();
     }
@@ -96,8 +101,10 @@ namespace Cosmic
     {
         CS_PROFILE_FN();
 
+#if 0
         sInstance->mData.Standard2DShader->Bind();
         sInstance->mData.Standard2DShader->SetMat4("uViewProjection", camera.GetViewProjMat());
+#endif
 
         StartBatch();
     }
@@ -137,8 +144,8 @@ namespace Cosmic
         for (int32 i = 0; i < sInstance->mData.TextureSlotIndex; i++)
             sInstance->mData.TextureSlots[i]->Bind(i);
 
-        sInstance->mData.Standard2DShader->Bind();
-        RenderCommand::Render(EPrimitiveTopology::TriangleIndexed, sInstance->mData.QuadIndexCount);
+        //sInstance->mData.Standard2DShader->Bind();
+        RenderCommand::Render(EPrimitiveTopology::TriangleList, sInstance->mData.QuadIndexCount);
 
         sInstance->mData.Stats.DrawCalls++;
     }
@@ -215,10 +222,12 @@ namespace Cosmic
 
         for (uint32 i = 1; i < sInstance->mData.TextureSlotIndex; i++)
         {
+#if 0
             if (sInstance->mData.TextureSlots[i]->GetRendererID() == texture->GetRendererID())
             {
                 textureIndex = (float32)i;
             }
+#endif
         }
 
         if (textureIndex == 0.0f)

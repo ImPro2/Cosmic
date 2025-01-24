@@ -130,7 +130,7 @@ namespace Cosmic
         //xModuleSystem::Add<OpenGLTestModule>();
     }
 
-    void OpenGLGraphicsContext::SwapBuffers()
+    void OpenGLGraphicsContext::Present()
     {
         CS_PROFILE_FN();
 

@@ -1,22 +1,10 @@
 #pragma once
 #include "Base/Base.hpp"
 #include "Memory/Memory.hpp"
+#include "Renderer/GraphicsPipeline.hpp"
 
 namespace Cosmic
 {
-
-    enum class EPrimitiveTopology
-    {
-        None            = -1,
-        PointList       =  0,
-        PointIndexed    =  1,
-        LineList        =  2,
-        LineIndexed     =  3,
-        LineStrip       =  4,
-        TriangleList    =  5,
-        TriangleIndexed =  6,
-        TriangleStrip   =  7
-    };
 
     enum class ERendererAPI
     {

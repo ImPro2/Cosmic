@@ -19,11 +19,14 @@ namespace Cosmic::StringUtils
         {
             StringView token = StringView(str.c_str() + start, end - start);
             
-            if (!token.empty())
-                result.emplace_back(token.data());
-
             if (end == String::npos)
+            {
+                result.emplace_back(token.data());
                 break;
+            }
+
+            if (!token.empty())
+                result.emplace_back(token.data(), token.size());
 
             start = end + 1;
             end   = str.find_first_of(delimiters, start);
@@ -79,6 +82,75 @@ namespace Cosmic::StringUtils
         CS_PROFILE_FN();
 
         return Split(str, "\n");
+    }
+
+    void RightTrim(String& str)
+    {
+        str.erase(std::find_if(str.rbegin(), str.rend(), [](const char c) -> bool
+		{
+			return !std::isspace(c);
+		}).base(), str.end());
+    }
+
+    void LeftTrim(String& str)
+    {
+        str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](const char c) -> bool
+		{
+			return !std::isspace(c);
+		}));
+    }
+
+    void Trim(String& str)
+    {
+        RightTrim(str);
+        LeftTrim(str);
+    }
+
+    String RightTrimCopy(String str)
+    {
+        RightTrim(str);
+        return str;
+    }
+
+    String LeftTrimCopy(String str)
+    {
+        LeftTrim(str);
+        return str;
+    }
+
+    String TrimCopy(String str)
+    {
+        Trim(str);
+
+        return str;
+    }
+
+    String Concatenate(const Vector<String>& strs)
+    {
+        CS_PROFILE_FN();
+
+        String result;
+
+        for (const String& str : strs)
+        {
+            result += str;
+        }
+
+        return result;
+    }
+
+    String Concatenate(const Vector<StringView>& strs)
+    {
+        CS_PROFILE_FN();
+
+        String result;
+
+        for (const StringView sv : strs)
+        {
+            result += sv;
+        }
+
+        return result;
     }
 
     uint32 FindPosition(const String& str, const StringView search, uint32 offset)

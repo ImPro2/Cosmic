@@ -156,7 +156,7 @@ namespace Cosmic
         CS_PROFILE_FN();
 
         glfwPollEvents();
-        mGraphicsContext->SwapBuffers();
+        mGraphicsContext->Present();
     }
 
     void IWindowsDesktopWindow::Close()

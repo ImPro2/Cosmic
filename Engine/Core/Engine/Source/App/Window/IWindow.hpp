@@ -10,7 +10,8 @@ namespace Cosmic {
 
 	using WindowHandle = void*;
 
-	class IWindow {
+	class IWindow : public IRefCounted
+	{
 	public:
 		IWindow()          = default;
 		virtual ~IWindow() = default;
@@ -28,11 +29,12 @@ namespace Cosmic {
 		virtual void Close()  = 0;
 
 	public:
-		virtual WindowHandle GetHandle()   const = 0;
-		uint2                GetSize()     const { return mData.Size;     }
-		uint2                GetPosition() const { return mData.Position; }
-		const String&        GetTitle()    const { return mData.Title;    }
-		bool                 IsVSync()     const { return mData.IsVSync;  }
+		virtual WindowHandle GetHandle()          const = 0;
+		Ref<GraphicsContext> GetGraphicsContext() const { return mGraphicsContext; }
+		uint2                GetSize()            const { return mData.Size;       }
+		uint2                GetPosition()        const { return mData.Position;   }
+		const String&        GetTitle()           const { return mData.Title;      }
+		bool                 IsVSync()            const { return mData.IsVSync;    }
 
 		virtual void SetSize(float2 size)          = 0;
 		virtual void SetPosition(float2 pos)       = 0;
@@ -43,10 +45,10 @@ namespace Cosmic {
 		virtual void Init() = 0;
 
 	protected:
-		DesktopWindowInfo      mData;
-		Scope<GraphicsContext> mGraphicsContext;
+		DesktopWindowInfo    mData;
+		Ref<GraphicsContext> mGraphicsContext;
 	};
 
-	Scope<IDesktopWindow> CreateDesktopWindow(const DesktopWindowInfo &info);
+	Ref<IDesktopWindow> CreateDesktopWindow(const DesktopWindowInfo &info);
 
 }

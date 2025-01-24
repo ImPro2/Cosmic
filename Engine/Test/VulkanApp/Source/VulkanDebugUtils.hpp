@@ -24,6 +24,7 @@ VKAPI_ATTR void VKAPI_CALL VulkanDestroyDebugUtilsMessengerEXT(
 
 void VulkanError(VkResult result, const char* file, Cosmic::int32 line, const char* function);
 
+#if 0
 #define VK_CALL(fn)                                            \
 do                                                             \
 {                                                              \
@@ -31,3 +32,6 @@ do                                                             \
 	if (result != VK_SUCCESS)                                  \
 		VulkanError(result, __FILE__, __LINE__, __FUNCTION__); \
 } while (0)
+#else
+#define VK_CALL(fn)
+#endif

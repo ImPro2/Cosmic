@@ -14,7 +14,7 @@ namespace Cosmic
     class StrongRef
     {
     public:
-        static_assert(std::is_base_of_v<IRefCounted, T>, "T must be derived from IRefCounted.");
+        //static_assert(std::is_base_of_v<IRefCounted, T>, "T must be derived from IRefCounted.");
 
     public:
         // Default constructor & destructor

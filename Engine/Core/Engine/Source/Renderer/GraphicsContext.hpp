@@ -13,11 +13,12 @@ namespace Cosmic
     };
 
     // One context per window.
-    class GraphicsContext
+    class GraphicsContext : public IRefCounted
     {
     public:
         virtual void  Init()        = 0;
-        virtual void  SwapBuffers() = 0;
+        virtual void  Shutdown()    = 0;
+        virtual void  Present()     = 0;
 
         RendererInfo  GetInfo()     { return mInfo;          }
         const String& GetVendor()   { return mInfo.Vendor;   }
@@ -28,6 +29,6 @@ namespace Cosmic
         RendererInfo mInfo;
     };
 
-    Scope<GraphicsContext> CreateGraphicsContext(void* window);
+    Ref<GraphicsContext> CreateGraphicsContext(void* window);
 
 }

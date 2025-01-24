@@ -58,12 +58,9 @@ namespace Cosmic
         switch (primitiveTopology)
         {
             case EPrimitiveTopology::PointList:       GL_CALL(glDrawArrays  (GL_POINTS,         0, count));                     return;
-            case EPrimitiveTopology::PointIndexed:    GL_CALL(glDrawElements(GL_POINTS,     count, GL_UNSIGNED_INT, (void*)0)); return;
             case EPrimitiveTopology::LineList:        GL_CALL(glDrawArrays  (GL_LINES,          0, count));                     return;
-            case EPrimitiveTopology::LineIndexed:     GL_CALL(glDrawElements(GL_LINES,      count, GL_UNSIGNED_INT, (void*)0)); return;
             case EPrimitiveTopology::LineStrip:       GL_CALL(glDrawArrays  (GL_LINE_STRIP,     0, count));                     return;
             case EPrimitiveTopology::TriangleList:    GL_CALL(glDrawArrays  (GL_TRIANGLES,      0, count));                     return;
-            case EPrimitiveTopology::TriangleIndexed: GL_CALL(glDrawElements(GL_TRIANGLES,  count, GL_UNSIGNED_INT, (void*)0)); return;
             case EPrimitiveTopology::TriangleStrip:   GL_CALL(glDrawArrays  (GL_TRIANGLE_STRIP, 0, count));                     return;
         }
     }

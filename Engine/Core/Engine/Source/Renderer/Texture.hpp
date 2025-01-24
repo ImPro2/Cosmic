@@ -5,33 +5,29 @@
 namespace Cosmic
 {
 
-    enum class ETextureFormat
+    enum class ETextureFormat : int16
     {
-        R8_Float,     R8_UInt,     R8_SInt,
-        R16_Float,    R16_UInt,    R16_SInt,
-        R32_Float,    R32_UInt,    R32_SInt,
+        Unknown = -1,
 
-        RG8_Float,    RG8_UInt,    RG8_SInt,
-        RG16_Float,   RG16_UInt,   RG16_SInt,
-        RG32_Float,   RG32_UInt,   RG32_SInt,
+        R8_UNorm,    R8_SNorm,    R8_UInt,    R8_SInt,    R8_SRGB,
+        RG8_UNorm,   RG8_SNorm,   RG8_UInt,   RG8_SInt,   RG8_SRGB,
+        RGB8_UNorm,  RGB8_SNorm,  RGB8_UInt,  RGB8_SInt,  RGB8_SRGB,
+        BGR8_UNorm,  BGR8_SNorm,  BGR8_UInt,  BGR8_SInt,  BGR8_SRGB,
+        RGBA8_UNorm, RGBA8_SNorm, RGB8A_UInt, RGBA8_SInt, RGBA8_SRGB,
+        BGRA8_UNorm, BGRA8_SNorm, BGRA8_UInt, BGRA8_SInt, BGRA8_SRGB,
 
-        RGB8_Float,   RGB8_UInt,   RGB8_SInt,
-        RGB16_Float,  RGB16_UInt,  RGB16_SInt,
-        RGB32_Float,  RGB32_UInt,  RGB32_SInt,
+        R16_UNorm,    R16_SNorm,    R16_UInt,    R16_SInt,    R16_SFloat,
+        RG16_UNorm,   RG16_SNorm,   RG16_UInt,   RG16_SInt,   RG16_SFloat,
+        RGB16_UNorm,  RGB16_SNorm,  RGB16_UInt,  RGB16_SInt,  RGB16_SFloat,
+        RGBA16_UNorm, RGBA16_SNorm, RGB16A_UInt, RGBA16_SInt, RGBA16_SFloat,
 
-        RGBA8_Float,  RGBA8_UInt,  RGBA8_SInt,
-        RGBA16_Float, RGBA16_UInt, RGBA16_SInt,
-        RGBA32_Float, RGBA32_UInt, RGBA32_SInt,
+        R32_UInt,    R32_SInt,    R32_SFloat,
+        RG32_UInt,   RG32_SInt,   RG32_SFloat,
+        RGB32_UInt,  RGB32_SInt,  RGB32_SFloat,
+        RGB32A_UInt, RGBA32_SInt, RGBA32_SFloat,
 
-        Depth16, Depth24, Depth32,
-        Depth24Stencil8, Depth32Stencil8
-    };
-
-    enum class ETextureAttachmentType
-    {
-        ColorAttachment,
-        DepthAttachment,
-        DepthStencilAttachment
+        Depth16_UNorm, Depth32_SFloat,
+        Depth16_UNorm_Stencil8_UInt, Depth24_UNorm_Stencil8_UInt, Depth32_SFloat_Stencil8_UInt
     };
 
     enum class ETextureWrapMode
@@ -57,19 +53,17 @@ namespace Cosmic
         Texture2DInfo()                     = default;
         Texture2DInfo(const Texture2DInfo&) = default;
         Texture2DInfo(
-            uint32                width  = 0, // If it's loaded from a file.
-            uint32                height = 0,
+            uint2                 size   = { 0, 0 }, // If it's loaded from a file.
             ETextureWrapMode      wrap   = ETextureWrapMode::ClampToBorder,
             ETextureScalingFilter min    = ETextureScalingFilter::Linear,
             ETextureScalingFilter mag    = ETextureScalingFilter::Linear,
-            ETextureFormat        format = ETextureFormat::RGBA8_Float
+            ETextureFormat        format = ETextureFormat::RGBA32_SFloat
         )
-            : Width(width), Height(height), WrapMode(wrap), MinScalingFilter(min), MagScalingFilter(mag), Format(format)
+            : Size(size), WrapMode(wrap), MinScalingFilter(min), MagScalingFilter(mag), Format(format)
         {
         }
 
-        uint32                Width;
-        uint32                Height;
+        uint2                 Size;
         ETextureWrapMode      WrapMode;
         ETextureScalingFilter MinScalingFilter;
         ETextureScalingFilter MagScalingFilter;
@@ -91,12 +85,9 @@ namespace Cosmic
 
     public:
         const Texture2DInfo& GetInfo() { return mInfo; }
-
-        uint32 GetWidth()  const { return mInfo.Width;  }
-        uint32 GetHeight() const { return mInfo.Height; }
+        uint2 GetSize() const { return mInfo.Size;  }
         
-        virtual uint32 GetRendererID() const = 0;
-        virtual ETextureAttachmentType GetAttachmentType() const = 0;
+        virtual void* GetNativeHandle() const = 0;
 
     protected:
         String mFilePath;
